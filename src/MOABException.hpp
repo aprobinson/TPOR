@@ -1,0 +1,35 @@
+//---------------------------------------------------------------------------//
+//!
+//! \file   MOABException.hpp
+//! \author Alex Robinson
+//! \brief  Exception class for handling MOAB errors.
+//!
+//---------------------------------------------------------------------------//
+
+#ifndef MOAB_EXCEPTION_HPP
+#define MOAB_EXCEPTION_HPP
+
+// Std Lib Includes
+#include <stdexcept>
+
+namespace TPOR{
+
+//! Exception class to be thrown when a MOAB error is detected
+class MOABException : public std::logic_error
+{
+public:
+  MOABException( const std::string &msg )
+    : std::runtime_error( msg )
+  { /* ... */ }
+  
+  virtual ~MOABException() throw()
+  { /* ... */ }
+};
+
+} // end TPOR namespace
+
+#endif // end MOAB_EXCEPTION_HPP
+
+//---------------------------------------------------------------------------//
+// end MOABException.hpp
+//---------------------------------------------------------------------------//
