@@ -1,0 +1,16 @@
+data_type : char 
+byte_order =  1; 
+bytes_pix =  1; 
+vol_min =  0; 
+vol_max =  4095; 
+x_dim =  640; 
+y_dim =  480; 
+z_dim =  13; 
+dim_units : cm 
+x_pixdim =  0.018150; 
+y_pixdim =  0.018150; 
+z_pixdim =  0.500000; 
+x_start =  0.000000; 
+y_start =  0.000000; 
+z_start =  0.000000; 
+db_name : Joe Smith 
