@@ -1,9 +1,6 @@
 #! /usr/bin/env python
+from matplotlib import patches, path, pyplot, figure
 from matplotlib.widgets import Lasso, Button
-from matplotlib import patches
-from matplotlib import path
-from matplotlib import pyplot
-from matplotlib import figure
 import numpy as np
 import sys
 from SliceManager import SliceManager
@@ -30,16 +27,16 @@ class UltrasoundImageManager(object):
         self.previous_slice_organ_contours = []
 
         # Create the prostate masks array
-        self.prostate_masks = np.zeros(self.full_image.shape)
+        self.prostate_masks = np.zeros(self.full_image.shape, np.bool)
 
         # Create the urethra masks array
-        self.urethra_masks = np.zeros(self.full_image.shape)
+        self.urethra_masks = np.zeros(self.full_image.shape, np.bool)
 
         # Create the margin masks array
-        self.margin_masks = np.zeros(self.full_image.shape)
+        self.margin_masks = np.zeros(self.full_image.shape, np.bool)
 
         # Create the rectum masks array
-        self.rectum_masks = np.zeros(self.full_image.shape)
+        self.rectum_masks = np.zeros(self.full_image.shape, np.bool)
 
         # No slices have been contoured yet
         self.slice = 0
@@ -113,7 +110,7 @@ class UltrasoundImageManager(object):
             self.urethra_masks[self.slice] = \
                 self.slice_manager.get_urethra_mask()
             self.margin_masks[self.slice] = \
-                self.slice_manager.get_urethra_mask()
+                self.slice_manager.get_margin_mask()
             self.rectum_masks[self.slice] = \
                 self.slice_manager.get_rectum_mask()
 
@@ -234,10 +231,10 @@ if __name__ == '__main__':
     image_file = "binary ultrasound image file (with path)"
     parser.add_argument('image_file', help=image_file)
 
-    # Parse the users arguments
+    # Parse the user's arguments
     user_args = parser.parse_args()
     
-    # Create the UltrasoundSliceManager
+    # Create the UltrasoundImageManager
     ultrasound_image_manager = UltrasoundImageManager( user_args.image_file )
 
     # Retrieve the masks
@@ -253,27 +250,30 @@ if __name__ == '__main__':
 
     # Test that the output arrays have been filled by the manager
     slices = ultrasound_image_manager.total_slices
-    
-    if prostate_masks.shape != (slices,480,640):
-        prostate_masks_success = False
-        print "The prostate masks returned are not valid\n."
+    try:
+        if prostate_masks.shape != (slices,480,640):
+            prostate_masks_success = False
+            print "The prostate masks returned are not valid\n."
+            
+        if urethra_masks.shape != (slices,480,640):
+            urethra_masks_success = False
+            print "The urethra masks returned are not valid\n."
+                
+        if margin_masks.shape != (slices,480,640):
+            margin_masks_success = False
+            print "The margin masks returned are not valid\n."
+            
+        if rectum_masks.shape != (slices,480,640):
+            rectum_masks_success = False
+            print "The rectum masks returned are not valid\n."
 
-    if urethra_masks.shape != (slices,480,640):
-        urethra_masks_success = False
-        print "The urethra masks returned are not valid\n."
+        test_success = prostate_masks_success and urethra_masks_success and \
+            margin_masks_success and rectum_masks_success
 
-    if margin_masks.shape != (slices,480,640):
-        margin_masks_success = False
-        print "The margin masks returned are not valid\n."
-
-    if rectum_masks.shape != (slices,480,640):
-        rectum_masks_success = False
-        print "The rectum masks returned are not valid\n."
-
-    test_success = prostate_masks_success and urethra_masks_success and \
-        margin_masks_success and rectum_masks_success
-
-    if not test_success:
+    except AttributeError:
         sys.exit("Tests failed")
     else:
-        print "Tests successful.\n"
+        if not test_success:
+            sys.exit("Tests failed")
+        else:
+            print "Tests successful.\n"

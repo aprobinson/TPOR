@@ -1,8 +1,6 @@
 #! /usr/bin/env python
+from matplotlib import patches, path, pyplot
 from matplotlib.widgets import Lasso, Button
-from matplotlib import patches
-from matplotlib import path
-from matplotlib import pyplot
 import numpy as np
 
 class SliceManager(object):
