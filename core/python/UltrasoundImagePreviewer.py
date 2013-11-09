@@ -8,7 +8,10 @@ class UltrasoundImagePreviewer(object):
     """
     This class allows one to preview all ultrasound slices at once.
     """
-    def __init__(self, ultrasound_image_file):
+    def __init__(self, \
+                 ultrasound_image_file, \
+                 image_x_resolution = 640, \
+                 image_y_resolution = 480):
         """
         Initialize the UltrasoundImagePreviewer class.
 
@@ -18,8 +21,17 @@ class UltrasoundImagePreviewer(object):
         # Load the ultrasound image slices
         self.image_file_name = ultrasound_image_file
         self.full_image = np.fromfile(ultrasound_image_file, dtype = 'uint8')
-        self.total_slices = len(self.full_image)/(480*640)
-        self.full_image.shape = (self.total_slices,480,640)
+
+        # Determine the number of slices
+        self.image_x_resolution = image_x_resolution
+        self.image_y_resolution = image_y_resolution
+        image_area = self.image_x_resolution*self.image_y_resolution
+        self.total_slices = len(self.full_image)/image_area
+
+        # Shape the image data
+        self.full_image.shape = (self.total_slices,\
+                                 self.image_y_resolution,\
+                                 self.image_x_resolution)
 
         # Create the main figure window
         self.figure = pyplot.figure(figsize = (14,8))

@@ -23,8 +23,8 @@ class OrganMaskProcessor(object):
         
         An array containing the prostate masks, urethra masks, margin_masks and
         rectum masks must be passed as arguments. The dimensions of the (numpy)
-        arrays must be (num_slices,480,640). All arrays must also be the same
-        size and type (bool).
+        arrays must be (num_slices,y_resolution,x_resolution). All arrays must 
+        also be the same size and type (bool).
         """
         # Store the raw organ masks
         self.raw_prostate_masks = raw_prostate_masks
@@ -40,19 +40,6 @@ class OrganMaskProcessor(object):
        
         # Clean the raw organ masks
         self.__clean_raw_masks__()
-
-        # Initialize the coarsened organ masks
-        self.coarse_x_dim = 66;
-        self.coarse_y_dim = 61;
-        self.coarse_z_dim = self.slices
-        coarse_mask_shape = (self.coarse_z_dim, \
-                             self.coarse_y_dim, \
-                             self.coarse_x_dim)
-        
-        self.coarse_prostate_masks = np.zeros(coarse_mask_shape, np.bool)
-        self.coarse_urethra_masks = np.zeros(coarse_mask_shape, np.bool)
-        self.coarse_margin_masks = np.zeros(coarse_mask_shape, np.bool)
-        self.coarse_rectum_masks = np.zeros(coarse_mask_shape, np.bool)
         
         # Coarsen the cleaned organ masks
         self.__coarsen_masks__()
@@ -191,34 +178,81 @@ class OrganMaskProcessor(object):
                         self.raw_urethra_masks[k,j,i] and not \
                         self.raw_rectum_masks[k,j,i]
 
+    def __calculate_field_of_view__(self):
+        """
+        Find the field of view for the organ slices
+        """
+        i_max = 0
+        i_min = self.raw_prostate_masks.shape[2]
+        
+        j_max = 0
+        j_min = self.raw_prostate_masks.shape[1]
+        
+        for k in range(self.slices):
+            for i in range(self.raw_prostate_masks.shape[2]):
+                for j in range(self.raw_prostate_masks.shape[1]):
+                    
+                    if self.raw_prostate_masks[k,j,i] or \
+                            self.raw_urethra_masks[k,j,i] or \
+                            self.raw_margin_masks[k,j,i] or \
+                            self.raw_rectum_masks[k,j,i]:
+                        if j > j_max:
+                            j_max = j
+                        elif j < j_min:
+                            j_min = j
+                            
+                        if i > i_max:
+                            i_max = i
+                        elif i < i_min:
+                            i_min = i
+
+        # The FOV dimensions need to be multiples of 5
+        fov_x_dim = i_max - i_min + 1
+        fov_y_dim = j_max - j_min + 1
+        
+        fov_x_extension = 5 - fov_x_dim % 5
+        fov_y_extension = 5 - fov_y_dim % 5
+
+        self.fov_x = (i_min, i_max + fov_x_extension+1)
+        self.fov_y = (j_min, j_max + fov_y_extension+1)
+
     def __coarsen_masks__(self):
         """
         The masks will be coarsened so that every array element corresponds to
-        one potential brachytherapy seed location (instead of a pixel).
+        one potential brachytherapy seed location (instead of a pixel). Each
+        pixel is assumed to be 0.01815cm x 0.01815cm (see header files). With
+        these dimensions, a 5 pixel by 5 pixel area has dimensions of 
+        0.09075cm x 0.09075cm, which is roughly the diameter of most seeds.
         """
-        
-        # Set the starting elements of the subarrays
-        self.x_start_element = 111
-        #self.y_start_element = 127
-        self.y_start_element = 20
-        
-        # Set the length of the subarrays
-        self.x_end_element = self.x_start_element+330
-        self.y_end_element = self.y_start_element+305
+        # Calculate the field-of-view (FOV) for the organ masks 
+        self.__calculate_field_of_view__()
 
-        # Create subarrays in the desired field-of-view (FOV)
-        fov_prostate_masks = \
-            self.raw_prostate_masks[:,self.y_start_element:self.y_end_element,\
-                                    self.x_start_element:self.x_end_element]
-        fov_urethra_masks = \
-            self.raw_urethra_masks[:,self.y_start_element:self.y_end_element,\
-                                   self.x_start_element:self.x_end_element]
-        fov_margin_masks = \
-            self.raw_margin_masks[:,self.y_start_element:self.y_end_element,\
-                                  self.x_start_element:self.x_end_element]
-        fov_rectum_masks = \
-            self.raw_rectum_masks[:,self.y_start_element:self.y_end_element,\
-                                  self.x_start_element:self.x_end_element]
+        # Initialize the coarsened organ masks
+        self.coarse_x_dim = (self.fov_x[1] - self.fov_x[0])/5;
+        self.coarse_y_dim = (self.fov_y[1] - self.fov_y[0])/5;
+        self.coarse_z_dim = self.slices
+        coarse_mask_shape = (self.coarse_z_dim, \
+                             self.coarse_y_dim, \
+                             self.coarse_x_dim)
+        
+        self.coarse_prostate_masks = np.zeros(coarse_mask_shape, np.bool)
+        self.coarse_urethra_masks = np.zeros(coarse_mask_shape, np.bool)
+        self.coarse_margin_masks = np.zeros(coarse_mask_shape, np.bool)
+        self.coarse_rectum_masks = np.zeros(coarse_mask_shape, np.bool)
+
+        # Chop the raw masks to fit in the desired FOV
+        self.raw_prostate_masks = \
+            self.raw_prostate_masks[:,self.fov_y[0]:self.fov_y[1],\
+                                    self.fov_x[0]:self.fov_x[1]]
+        self.raw_urethra_masks = \
+            self.raw_urethra_masks[:,self.fov_y[0]:self.fov_y[1],\
+                                   self.fov_x[0]:self.fov_x[1]]
+        self.raw_margin_masks = \
+            self.raw_margin_masks[:,self.fov_y[0]:self.fov_y[1],\
+                                  self.fov_x[0]:self.fov_x[1]]
+        self.raw_rectum_masks = \
+            self.raw_rectum_masks[:,self.fov_y[0]:self.fov_y[1],\
+                                  self.fov_x[0]:self.fov_x[1]]
 
         # Coarsen the subarrays
         for k in range(self.coarse_z_dim):
@@ -240,13 +274,13 @@ class OrganMaskProcessor(object):
                         for pixel_y_shift in range(5):
                             pixel_y = pixel_y_start + pixel_y_shift
 
-                            if fov_prostate_masks[k,pixel_y,pixel_x]:
+                            if self.raw_prostate_masks[k,pixel_y,pixel_x]:
                                 prostate_pixels += 1
-                            elif fov_urethra_masks[k,pixel_y,pixel_x]:
+                            elif self.raw_urethra_masks[k,pixel_y,pixel_x]:
                                 urethra_pixels += 1
-                            elif fov_margin_masks[k,pixel_y,pixel_x]:
+                            elif self.raw_margin_masks[k,pixel_y,pixel_x]:
                                 margin_pixels += 1
-                            elif fov_rectum_masks[k,pixel_y,pixel_x]:
+                            elif self.raw_rectum_masks[k,pixel_y,pixel_x]:
                                 rectum_pixels += 1
                     
                     # Determine which organ to classify the coarsened region as
@@ -259,17 +293,29 @@ class OrganMaskProcessor(object):
                     elif prostate_pixels > 10:
                         self.coarse_prostate_masks[k,j,i] = True
 
-    def get_cleaned_prostate_masks(self):
+    def get_fov_prostate_masks(self):
         """
-        Return the cleaned prostate masks.
+        Return the cleaned prostate masks in the field-of-view.
         """
         return self.raw_prostate_masks
-    
-    def get_cleaned_margin_masks(self):
+
+    def get_fov_urethra_masks(self):
         """
-        Return the cleaned margin masks.
+        Return the urethra masks in the field-of-view.
+        """
+        return self.raw_urethra_masks
+    
+    def get_fov_margin_masks(self):
+        """
+        Return the cleaned margin masks in the field-of-view.
         """
         return self.raw_margin_masks
+
+    def get_fov_rectum_masks(self):
+        """
+        Return the rectum masks in the field-of-view.
+        """
+        return self.raw_rectum_masks
     
     def get_coarsened_prostate_masks(self):
         """
@@ -328,9 +374,11 @@ if __name__ == '__main__':
                                               margin_masks, \
                                               rectum_masks)
 
-    # Retrieve the cleaned masks
-    prostate_masks = organ_mask_processor.get_cleaned_prostate_masks()
-    margin_masks = organ_mask_processor.get_cleaned_margin_masks()
+    # Retrieve the fov masks
+    prostate_masks = organ_mask_processor.get_fov_prostate_masks()
+    urethra_masks = organ_mask_processor.get_fov_urethra_masks()
+    margin_masks = organ_mask_processor.get_fov_margin_masks()
+    rectum_masks = organ_mask_processor.get_fov_rectum_masks()
 
     # Retrieve the coarsened masks
     coarse_prostate_masks = \
@@ -342,14 +390,21 @@ if __name__ == '__main__':
     coarse_rectum_masks = \
         organ_mask_processor.get_coarsened_rectum_masks()
 
+    # Create a fov mesh for the fov masks
+    x = np.arange(0.0, coarse_prostate_masks.shape[2], 0.2)
+    y = np.arange(0.0, coarse_prostate_masks.shape[1], 0.2)
+    X, Y = np.meshgrid(x, y)
+    Z = urethra_masks + prostate_masks*2 + margin_masks*3 + \
+        rectum_masks*4
+
     # Plot the coarsened masks for each slice
-    figure = pyplot.figure(figsize = (10,5.5))
-    # pyplot.subplots_adjust(left = 0.01,   \
-    #                            right = 0.99,  \
-    #                            bottom = 0.01, \
-    #                            top = 0.99,    \
-    #                            wspace = 0.05, \
-    #                            hspace = 0.01)
+    figure = pyplot.figure(figsize = (10,8))
+    pyplot.subplots_adjust(left = 0.01,   \
+                           right = 0.99,  \
+                           bottom = 0.01, \
+                           top = 0.99,    \
+                           wspace = 0.05, \
+                           hspace = 0.01)
     
     image_axis_handles = []
     xmax = coarse_prostate_masks.shape[2]
@@ -371,11 +426,12 @@ if __name__ == '__main__':
 
         image_slice = coarse_urethra_masks + coarse_prostate_masks*2 + \
             coarse_margin_masks*3 + coarse_rectum_masks*4
-        # image_slice = coarse_prostate_masks
-        # image_slice = coarse_margin_masks
-        # image_slice = coarse_rectum_masks
         
-        subplot.imshow(image_slice[slice])#, pyplot.get_cmap('gray'))
+        subplot.imshow(image_slice[slice])
+        
+        # Add the raw organ countours
+        pyplot.contour(X, Y, Z[slice], colors = 'black', linewidths = 1, \
+                       linestyles = 'dashed')
                        
         image_axis_handles.append(subplot)
                        

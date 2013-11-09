@@ -10,7 +10,10 @@ class UltrasoundImageManager(object):
     This class allows one to create digital representations of organs by
     contouring a series of ultrasound slices.
     """
-    def __init__(self, ultrasound_image_file):
+    def __init__(self, \
+                 ultrasound_image_file,\
+                 image_x_resolution = 640,\
+                 image_y_resolution = 480):
         """
         Initialize the UltrasoundImageManager class.
 
@@ -20,8 +23,17 @@ class UltrasoundImageManager(object):
         # Load the ultrasound image slices
         self.image_file_name = ultrasound_image_file
         self.full_image = np.fromfile(ultrasound_image_file, dtype = 'uint8')
-        self.total_slices = len(self.full_image)/(480*640)
-        self.full_image.shape = (self.total_slices,480,640)
+        
+        # Determine the number of slices
+        self.image_x_resolution = image_x_resolution
+        self.image_y_resolution = image_y_resolution
+        image_area = self.image_x_resolution*self.image_y_resolution
+        self.total_slices = len(self.full_image)/image_area
+
+        # Shape the image data
+        self.full_image.shape = (self.total_slices,\
+                                 self.image_y_resolution,\
+                                 self.image_x_resolution)
         
         # Create the organ countours list
         self.previous_slice_organ_contours = []
@@ -135,6 +147,7 @@ class UltrasoundImageManager(object):
                                                          facecolor = 'none',
                                                          ec = 'white',
                                                          lw = 1,
+                                                         linestyle = 'dashed',
                                                          zorder = 50)
                     self.image_axis_handle.add_patch(organ_path_patch)
                     
