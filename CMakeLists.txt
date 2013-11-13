@@ -12,7 +12,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/Macros.cmake)
 
 # Enforce an out-of-source build
 ENFORCE_OUT_OF_SOURCE_BUILD()
-    
+
 # Enable Trilinos Support
 IF(TRILINOS_PREFIX)
   ENABLE_TRILINOS_SUPPORT()
@@ -51,10 +51,6 @@ ENDIF()
 # Parse the DBC configure file so it can be used in the source files
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/dbc_config.hpp.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_config.hpp)
 
-# Parse the HDF5 data file names configure file
-SET(${PROJECT_NAME}_DATA_DIRECTORY ${CMAKE_SOURCE_DIR}/data/)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/HDF5DataFileNames.hpp.in ${CMAKE_BINARY_DIR}/HDF5DataFileNames.hpp)
-
 # Add the CMAKE_BINARY_DIR to the include path to access config files
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 
@@ -63,8 +59,5 @@ ENABLE_TESTING()
 INCLUDE(Dart)
 
 # Set up the project directory hierarchy
-ADD_SUBDIRECTORY(src)
-INCLUDE_DIRECTORIES(src)
+ADD_SUBDIRECTORY(core)
 
-ADD_SUBDIRECTORY(test)
-INCLUDE_DIRECTORIES(test)

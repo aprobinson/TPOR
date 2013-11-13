@@ -137,14 +137,19 @@ hdf5_file = h5py.File(image_metadata.get_patient_name()+".h5", 'w')
 # Add a root level attribute for the patient name
 hdf5_file.attrs['patient_name'] = image_metadata.get_patient_name()
 
+# Add a root level attribute for the mesh element dimensions [cm]
+element_x_dim = image_metadata.get_pixel_size_x()*5
+element_y_dim = image_metadata.get_pixel_size_y()*5
+element_z_dim = image_metadata.get_slice_offset()
+hdf5_file.attrs['mesh_element_dimensions']=(element_x_dim, \
+                                            element_y_dim, \
+                                            element_z_dim)
+
 # Create a group for the processed organ masks
 organ_mask_group = hdf5_file.create_group("organ_masks")
 
-# Store the mesh dimensions in a group attribute
-mesh_x_dim = image_metadata.get_pixel_size_x()*5
-mesh_y_dim = image_metadata.get_pixel_size_y()*5
-mesh_z_dim = image_metadata.get_slice_offset()
-organ_mask_group.attrs['mesh_dimensions'] =(mesh_x_dim, mesh_y_dim, mesh_z_dim)
+# Add an attribute to the mask group for the mesh dimensions [num elements]
+organ_mask_group.attrs['mesh_dimensions'] = coarse_prostate_masks.shape
 
 # Create a dataset in the organ mask group for each organ mask
 prostate_dset = organ_mask_group.create_dataset('prostate_mask', \

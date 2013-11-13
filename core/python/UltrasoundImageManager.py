@@ -3,7 +3,7 @@ from matplotlib import patches, path, pyplot, figure
 from matplotlib.widgets import Lasso, Button
 import numpy as np
 import sys
-from SliceManager import SliceManager
+from UltrasoundSliceManager import UltrasoundSliceManager
 
 class UltrasoundImageManager(object):
     """
@@ -79,9 +79,9 @@ class UltrasoundImageManager(object):
 
         # Create the slice manager for this slice
         slice_image = self.full_image[self.slice]
-        self.slice_manager = SliceManager(self.image_axis_handle, \
-                                          self.mask_axis_handle,  \
-                                          slice_image[::-1])
+        self.slice_manager = UltrasoundSliceManager(self.image_axis_handle, \
+                                                    self.mask_axis_handle,  \
+                                                    slice_image[::-1])
 
         # Create the Undo button
         self.undo_button_axes = pyplot.axes([0.15, 0.025, 0.1, 0.075])
@@ -107,8 +107,8 @@ class UltrasoundImageManager(object):
         When the desired event occurs, the next ultrasound image slice will
         be initialized.
 
-        This function only executes when the SliceManager instance has all of
-        the desired contour and mask data.
+        This function only executes when the UltrasoundSliceManager instance 
+        has all of the desired contour and mask data.
         """
         if self.slice_manager.organ_index == 4:
             
@@ -159,9 +159,9 @@ class UltrasoundImageManager(object):
                 del self.slice_manager
                 slice_image = self.full_image[self.slice]
                 self.slice_manager = \
-                    SliceManager(self.image_axis_handle, \
-                                 self.mask_axis_handle,  \
-                                 slice_image[::-1])
+                    UltrasoundSliceManager(self.image_axis_handle, \
+                                           self.mask_axis_handle,  \
+                                           slice_image[::-1])
                 
                 # Rebind the Undo button
                 self.undo_button_id = \

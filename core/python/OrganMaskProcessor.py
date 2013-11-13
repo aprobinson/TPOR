@@ -161,8 +161,8 @@ class OrganMaskProcessor(object):
         """
         # Clean the margin and prostate masks
         for k in range(self.slices):
-            for i in range(self.raw_prostate_masks.shape[2]):
-                for j in range(self.raw_prostate_masks.shape[1]):
+            for j in range(self.raw_prostate_masks.shape[1]):
+                for i in range(self.raw_prostate_masks.shape[2]):
                     
                     # Clean margin mask = margin mask - prostate mask - 
                     # rectum mask
@@ -189,8 +189,8 @@ class OrganMaskProcessor(object):
         j_min = self.raw_prostate_masks.shape[1]
         
         for k in range(self.slices):
-            for i in range(self.raw_prostate_masks.shape[2]):
-                for j in range(self.raw_prostate_masks.shape[1]):
+            for j in range(self.raw_prostate_masks.shape[1]):
+                for i in range(self.raw_prostate_masks.shape[2]):
                     
                     if self.raw_prostate_masks[k,j,i] or \
                             self.raw_urethra_masks[k,j,i] or \
@@ -256,9 +256,9 @@ class OrganMaskProcessor(object):
 
         # Coarsen the subarrays
         for k in range(self.coarse_z_dim):
-            for i in range(self.coarse_x_dim):
-                for j in range(self.coarse_y_dim):
-                    
+            for j in range(self.coarse_y_dim):
+                for i in range(self.coarse_x_dim):
+                
                     # Tally the num of organ pixels in the selected 5x5 region
                     prostate_pixels = 0
                     urethra_pixels = 0

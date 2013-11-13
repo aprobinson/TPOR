@@ -3,7 +3,7 @@ from matplotlib import patches, path, pyplot
 from matplotlib.widgets import Lasso, Button
 import numpy as np
 
-class SliceManager(object):
+class UltrasoundSliceManager(object):
     """
     This class allows one to select the prostate, urethra, margin and rectum
     contours on an ultrasound image. 
@@ -19,13 +19,13 @@ class SliceManager(object):
     """
     def __init__(self, image_axis_handle, mask_axis_handle, slice_image_data ):
         """
-        Initialize the SliceManager class.
+        Initialize the UltrasoundSliceManager class.
 
         Two matplotlib.axes objects and an array containing the slice image 
         data must be passed as arguments. The first matplotlib.axes object must
         corresponding to the image figure and the second matplotlib.axes object
         mask figure and the mask figure. The array of slice image data must 
-        have dimensions of 480x640.
+        have dimensions of 480x640 (480 columns x 640 rows).
         """
         # Store the two axis handles
         self.image_axis_handle = image_axis_handle
@@ -109,11 +109,11 @@ class SliceManager(object):
         """
         Clear the desired mask.
 
-        The mask must be an array with dimensions (480x640).
+        The mask must be an array with dimensions 480x640 (columns x rows).
         """
-        for i in range(self.image.shape[0]):
-            for j in range(self.image.shape[1]):
-                mask[i][j] = False
+        for j in range(self.image.shape[0]):
+            for i in range(self.image.shape[1]):
+                mask[j][i] = False
 
     def get_contours(self):
         """
@@ -243,13 +243,13 @@ class SliceManager(object):
         del self.lasso
 
         
-# Test the SliceManager class with a single slice
+# Test the UltrasoundSliceManager class with a single slice
 if __name__ == '__main__':
     import sys
     import argparse as ap
 
     # Set up the argument parser
-    description = "Testing script for the SliceManager class. "
+    description = "Testing script for the UltrasoundSliceManager class. "
     "Close the figure window when contouring is completed to finish the tests."
     
     parser = ap.ArgumentParser(description=description)
@@ -295,9 +295,9 @@ if __name__ == '__main__':
                                                autoscale_on = False)
 
     # Create the slice manager
-    slice_manager = SliceManager(image_axis_handle, \
-                                 mask_axis_handle,  \
-                                 slice_image[::-1])
+    slice_manager = UltrasoundSliceManager(image_axis_handle, \
+                                           mask_axis_handle,  \
+                                           slice_image[::-1])
 
     # Create an Undo button
     undo_button_axes = pyplot.axes([0.2, 0.05, 0.1, 0.075])
