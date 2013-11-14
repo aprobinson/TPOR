@@ -9,10 +9,6 @@
 #ifndef ARRAY_TRAITS_DECL_HPP
 #define ARRAY_TRAITS_DECL_HPP
 
-// Trilinos Includes
-#include <Teuchos_ArrayView.hpp>
-#include <Teuchos_OrdinalTraits.hpp>
-
 // TPOR Includes
 #include "UndefinedTraits.hpp"
 #include "ContractException.hpp"
@@ -21,7 +17,7 @@
  * \ingroup traits
  *
  * The TPOR::HDF5FileHandler has many templated member functions 
- * with a template template parameter (Array). Because the Teuchos array 
+ * with a template template parameter (Array). Because the many array 
  * classes have slightly different interfaces, a traits class is needed to 
  * homogenize the interfaces (bridge pattern). The TPOR::ArrayTraits struct 
  * is defines the interface. Because of the slightly different interfaces for 
@@ -37,7 +33,7 @@ namespace Traits{
 
 /*! \brief Default array traits struct.
  * 
- * This struct should allow use of any Teuchos::Array when dealing with the
+ * This struct should allow use of any array type when dealing with the
  * HDF5 interface and DataProcessor interface. The std::vector is also 
  * supported. The functions in the templated base unspecialized struct are 
  * designed not to compile (giving a nice compile-time error message) and 
@@ -54,9 +50,8 @@ namespace Traits{
  * behavioral functions directly through the traits class. Several policy
  * functions have been written that hide the traits class.
  * \tparam T An array of types.
- * \note The default defined specializations are provided for Teuchos::Array,
- * Teuchos::ArrayRCP, Teuchos::ArrayView and Teuchos::TwoDArray, and 
- * std::vector
+ * \note The default defined specializations are provided for std::vector and
+ * const std::vector
  * \ingroup traits
  */
 template<typename T>
@@ -82,20 +77,6 @@ struct ArrayTraits
   //! The head pointer of a const array
   static inline const_pointer headPtr( const T &array)
   { (void)UndefinedTraits<T>::notDefined(); return 0; }
-
-  //! A view of the array
-  static inline Teuchos::ArrayView<value_type> view( 
-	  T &array, 
-	  const size_type offset = Teuchos::OrdinalTraits<size_type>::zero(),
-	  const size_type size = Teuchos::OrdinalTraits<size_type>::invalid() )
-  { (void)UndefinedTraits<T>::notDefined(); return 0; }
-  
-  //! A view of the const array
-  static inline Teuchos::ArrayView<const value_type> view(
-	  const T &array,
-	  const size_type offset = Teuchos::OrdinalTraits<size_type>::zero(),
-	  const size_type size = Teuchos::OrdinalTraits<size_type>::invalid() )
-  { (void)UndefinedTraits<T>::notDefined(); return 0; }
   
   //! The size of the array
   static inline size_type size(const T &array)
@@ -103,16 +84,6 @@ struct ArrayTraits
   
   //! Resize the array
   static inline void resize( T &array, size_type n )
-  { (void)UndefinedTraits<T>::notDefined(); }
-  
-  //! Copy the ArrayView object
-  static inline void copyView( T &array,
-			       const Teuchos::ArrayView<T> &view )
-  { (void)UndefinedTraits<T>::notDefined(); }
-
-  //! Copy the ArrayView of const object
-  static inline void copyView( T &array,
-			       const Teuchos::ArrayView<const T> &view )
   { (void)UndefinedTraits<T>::notDefined(); }
 };
 
@@ -167,71 +138,6 @@ template<typename Array>
 inline void
 resizeArray( Array &array, typename Traits::ArrayTraits<Array>::size_type n )
 { return Traits::ArrayTraits<Array>::resize( array, n ); }
-
-/*! This function allows access to the view ArrayTriats function.
- *
- * This function is simply a more concise way to access the view static
- * member function associated with the ArrayTraits class. It simply forwards
- * calls to get a view of the array to the associated
- * TPOR::Traits::ArrayTraits class. It is important to note that the array
- * type will be deduced by the function.
- * \ingroup array_traits
- */
-template<typename Array>
-inline Teuchos::ArrayView<typename Traits::ArrayTraits<Array>::value_type>
-getArrayView( Array &array,
-	      const typename Traits::ArrayTraits<Array>::size_type offset = Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::zero(),
-	      typename Traits::ArrayTraits<Array>::size_type size = Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::invalid() )
-{ 
-  // make sure the offset and size supplied are acceptable
-  remember( typename Traits::ArrayTraits<Array>::size_type array_size =
-	    getArraySize( array ) );
-  testPrecondition( offset < array_size );
-  testPrecondition( size == Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::invalid() || ( size > Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::zero() && size <= array_size-offset ) );
-  
-  return Traits::ArrayTraits<Array>::view( array, offset, size ); 
-}
-
-/*! This function allows access to the view ArrayTraits function.
- * \ingroup array_traits
- */
-template<typename Array>
-inline 
-Teuchos::ArrayView<const typename Traits::ArrayTraits<Array>::value_type>
-getArrayView( const Array &array,
-	      const typename Traits::ArrayTraits<Array>::size_type offset = Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::zero(),
-	      const typename Traits::ArrayTraits<Array>::size_type size = Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::invalid() )
-{ 
-  // make sure the offset and size supplied are acceptable
-  remember( typename Traits::ArrayTraits<Array>::size_type array_size =
-	    getArraySize( array ) );
-  testPrecondition( offset < array_size );
-  testPrecondition( size == Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::invalid() || ( size > Teuchos::OrdinalTraits<typename Traits::ArrayTraits<Array>::size_type>::zero() && size <= array_size-offset ) );
-  
-  return Traits::ArrayTraits<Array>::view( array, offset, size ); 
-}
-
-/*! This function allows access to the copyView ArrayTraits function
- *
- * This function is simply a more concise way to access the copyView
- * static member function associated with the ArrayTraits class. It simply
- * forwards calls to copy the ArrayView object to the associated 
- * TPOR::Traits::ArrayTraits class. It is important to note that the array
- * type will be deduced by the function.
- * \ingroup array_traits
- */
-template<typename Array>
-inline void copyArrayView( Array &array,
-			   const Teuchos::ArrayView<typename Traits::ArrayTraits<Array>::value_type> &array_view )
-{ Traits::ArrayTraits<Array>::copyView( array, array_view ); } 
-
-/*! This function allows access to the copyView ArrayTraits function
- * \ingroup array_traits
- */
-template<typename Array>
-inline void copyArrayView( Array &array,
-			   const Teuchos::ArrayView<const typename Traits::ArrayTraits<Array>::value_type> &array_view )
-{ Traits::ArrayTraits<Array>::copyView( array, array_view ); }
 
 } // end TPOR namespace
 

@@ -13,13 +13,6 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/Macros.cmake)
 # Enforce an out-of-source build
 ENFORCE_OUT_OF_SOURCE_BUILD()
 
-# Enable Trilinos Support
-IF(TRILINOS_PREFIX)
-  ENABLE_TRILINOS_SUPPORT()
-ELSE()
-  MESSAGE(FATAL_ERROR "The TRILINOS_PREFIX must be set!")
-ENDIF()
-
 # Enable MOAB Support
 IF(MOAB_PREFIX)
   ENABLE_MOAB_SUPPORT()

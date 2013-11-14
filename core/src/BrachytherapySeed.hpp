@@ -10,7 +10,7 @@
 #define BRACHYTHERAPY_SEED_HPP
 
 // TPOR Includes
-#include "SeedType.hpp"
+#include "BrachytherapySeedType.hpp"
 
 namespace TPOR{
 
@@ -29,14 +29,14 @@ public:
   { /* ... */ }
 
   //! Return the seed type
-  virtual SeedType getSeedType() const = 0;
+  virtual BrachytherapySeedType getSeedType() const = 0;
 
-  //! Return the dose rate at a given point
+  //! Return the dose rate at a given point (cGy/hr)
   virtual double getDoseRate( const double x, 
 			      const double y, 
 			      const double z ) const = 0;
 
-  //! Return the total dose at time = infinity at a given point
+  //! Return the total dose at time = infinity at a given point (cGy)
   virtual double getTotalDose( const double x, 
 			       const double y, 
 			       const double z ) const = 0;
@@ -44,26 +44,41 @@ public:
 protected:
 
   //! Calculate the radius
-  double calculateRadius( const double x,
-			  const double y );
+  static double calculateRadius( const double x,
+				 const double y,
+				 const double z );
 
   //! Calculate the polar angle (radians)
-  double calculatePolarAngleRadians( const double r,
+  static double calculatePolarAngle( const double r,
 				     const double z );
 
-  //! Calculate the polar angle (degrees)
-  double calculatePolarAngleDegrees( const double r,
-				     const double z );
+  //! Convert an angle in radians to an angle in degrees
+  static double convertAngleToDegrees( const double theta );
 					    
   //! Calculate the angle (rad) subtended by the tips of the seed w.r.t. point
-  double calculateAngleSubtendedBySeed( const double r,
-					const double z,
-					const double Leff );
+  static double calculateAngleSubtendedBySeed( const double r,
+					       const double theta,
+					       const double Leff );
 
   //! Evaluate the geometry function at a given point
-  double evaluateGeometryFunction( const double r,
-				   const double z,
-				   const double Leff );
+  static double evaluateGeometryFunction( const double r,
+					  const double z,
+					  const double Leff );
+
+  //! Evaluate the radial dose function at a given radius
+  static double evaluateRadialDoseFunction( const double r,
+					    const double *radial_dose_func,
+					    const int number_of_radii,
+					    const double *cunningham_coeffs );
+
+  //! Evaluate the 2D anisotropy function at a given point
+  static double evaluateAnisotropyFunction( 
+					   const double r, 
+					   const double theta,
+					   const double *anisotropy_func,
+					   const double *anisotropy_func_radii,
+					   const int number_of_angles,
+					   const int number_of_radii );
 };
 
 } // end TPOR namespace

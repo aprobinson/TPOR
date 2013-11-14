@@ -13,7 +13,7 @@ namespace TPOR{
 
 //! Binary search algorithm
 template<typename T>
-const T* binarySearch( const T* start, const T* end, const T value );
+int binarySearch( const T* start, const T* end, const T value );
 
 } // end TPOR namespace
 

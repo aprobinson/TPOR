@@ -9,6 +9,9 @@
 #ifndef BINARY_SEARCH_DEF_HPP
 #define BINARY_SEARCH_DEF_HPP
 
+// TPOR Includes
+#include "ContractException.hpp"
+
 namespace TPOR{
 
 // Binary search algorithm
@@ -17,7 +20,7 @@ namespace TPOR{
  * result in correct results.
  */
 template<typename T>
-const T* binarySearch( const T* start, const T* end, const T value )
+int binarySearch( const T* start, const T* end, const T value )
 {
   // The array must be valid (size > 0)
   testPrecondition( start != end );
@@ -25,7 +28,10 @@ const T* binarySearch( const T* start, const T* end, const T value )
   testPrecondition( value >= *start );
   testPrecondition( value <= *end );
 
-  ptrdiff_t distance = end-start+1;
+  // Make a copy of the start pointer
+  const T* start_copy = start;
+
+  int distance = end-start+1;
 
   while( distance > 1 )
   {
@@ -37,7 +43,7 @@ const T* binarySearch( const T* start, const T* end, const T value )
     distance = end-start;
   }
 
-  return start;
+  return start-start_copy;
 }
 
 } // end TPOR namespace

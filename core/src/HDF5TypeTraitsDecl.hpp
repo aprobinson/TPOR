@@ -60,11 +60,7 @@ struct HDF5TypeTraits
   //! Returns the HDF5 data type object corresponding to the type
   static inline H5::DataType dataType() 
   { (void)Traits::UndefinedTraits<T>::notDefined(); return 0; }
-  
-  //! Returns the name of this type
-  static inline std::string name() 
-  { (void)Traits::UndefinedTraits<T>::notDefined(); return 0; }
-  
+
   //! Returns the zero value for this type
   static inline T zero()
   { (void)Traits::UndefinedTraits<T>::notDefined(); return 0; }

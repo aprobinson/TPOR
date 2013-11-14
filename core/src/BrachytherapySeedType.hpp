@@ -1,19 +1,19 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   SeedType.hpp
+//! \file   BrachytherapySeedType.hpp
 //! \author Alex Robinson
-//! \brief  Seed type enumeration
+//! \brief  Brachytherapy seed type enumeration
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef SEED_TYPE_HPP
-#define SEED_TYPE_HPP
+#ifndef BRACHYTHERAPY_SEED_TYPE_HPP
+#define BRACHYTHERAPY_SEED_TYPE_HPP
 
 namespace TPOR
 {
 
-//! Seed type enumeration
-enum SeedType{
+//! Brachytherapy seed type enumeration
+enum BrachytherapySeedType{
   AMERSHAM_6702_SEED,
   AMERSHAM_6711_SEED,
   BEST_2301_SEED,
@@ -26,8 +26,8 @@ enum SeedType{
 
 } // end TPOR namespace
 
-#endif // end SEED_TYPE_HPP
+#endif // end BRACHYTHERAPY_SEED_TYPE_HPP
 
 //---------------------------------------------------------------------------//
-// end SeedType.hpp
+// end BrachytherapySeedType.hpp
 //---------------------------------------------------------------------------//

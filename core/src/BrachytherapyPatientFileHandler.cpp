@@ -29,13 +29,9 @@ BrachytherapyPatientFileHandler::~BrachytherapyPatientFileHandler()
 void BrachytherapyPatientFileHandler::getPatientName( 
 						    std::string &patient_name )
 {
-  std::vector<char> patient_name_string;
-
-  d_hdf5_file.readArrayFromGroupAttribute( patient_name_string,
+  d_hdf5_file.readArrayFromGroupAttribute( patient_name,
 					   "/",
 					   "patient_name" );
-
-  patient_name.assign( &patient_name_string[0], patient_name_string.size() );
 }
 
 // Return the mesh element dimensions
@@ -60,8 +56,11 @@ void BrachytherapyPatientFileHandler::getOrganMeshDimensions(
 void BrachytherapyPatientFileHandler::getProstateMask( 
 					     std::vector<bool> &prostate_mask )
 {
-  d_hdf5_file.readArrayFromDataSet( prostate_mask,
+  std::vector<unsigned char> tmp_prostate_mask;
+  d_hdf5_file.readArrayFromDataSet( tmp_prostate_mask,
 				    "/organ_masks/prostate_mask" );
+
+  fillBooleanArray( prostate_mask, tmp_prostate_mask );
 }
 
 // Return the prostate mask volume
@@ -77,8 +76,11 @@ void BrachytherapyPatientFileHandler::getProstateMaskVolume(
 void BrachytherapyPatientFileHandler::getUrethraMask( 
 					      std::vector<bool> &urethra_mask )
 {
-  d_hdf5_file.readArrayFromDataSet( urethra_mask,
+  std::vector<unsigned char> tmp_urethra_mask;
+  d_hdf5_file.readArrayFromDataSet( tmp_urethra_mask,
 				    "/organ_masks/urethra_mask" );
+
+  fillBooleanArray( urethra_mask, tmp_urethra_mask );
 }
 
 // Return the urethra mask volume
@@ -94,8 +96,11 @@ void BrachytherapyPatientFileHandler::getUrethraMaskVolume(
 void BrachytherapyPatientFileHandler::getMarginMask( 
 					       std::vector<bool> &margin_mask )
 {
-  d_hdf5_file.readArrayFromDataSet( margin_mask,
+  std::vector<unsigned char> tmp_margin_mask;
+  d_hdf5_file.readArrayFromDataSet( tmp_margin_mask,
 				    "/organ_masks/margin_mask" );
+
+  fillBooleanArray( margin_mask, tmp_margin_mask;
 }
 
 // Return the margin mask volume
@@ -111,8 +116,11 @@ void BrachytherapyPatientFileHandler::getMarginMaskVolume(
 void BrachytherapyPatientFileHandler::getRectumMask( 
 					       std::vector<bool> &rectum_mask )
 {
+  std::vector<unsigned char> tmp_rectum_mask;
   d_hdf5_file.readArrayFromDataSet( rectum_mask,
 				    "/organ_masks/rectum_mask" );
+  
+  fillBooleanArray( rectum_mask, tmp_rectum_mask );
 }
 
 // Return the rectum mask volume
@@ -272,6 +280,22 @@ void BrachytherapyPatientFileHandler::getPathToAdjointData(
   case THERAGENICS_200_SEED:
     seed_data_path = "/adjoint_data/theragenics_200";
     break;
+  }
+}
+
+// Fill a boolean array using an array of unsigned chars
+void BrachytherapyPatientFileHandler::fillBooleanArray( 
+			        std::vector<bool> &bool_array,
+			        const std::vector<unsigned char> &uchar_array )
+{
+  bool_array.resize( uchar_array.size() );
+  
+  for( unsigned i = 0; i < uchar_array.size(); ++i )
+  {
+    if( uchar_array[i] == 0 )
+      bool_array[i] = false;
+    else 
+      bool_array[i] = true;
   }
 }
 

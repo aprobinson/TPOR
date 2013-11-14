@@ -10,7 +10,7 @@
 #define BRACHYTHERAPY_PATIENT_FILE_HANDLER_HPP
 
 // Std Lib Includes
-#include <utilities>
+#include <utility>
 
 // TPOR Includes
 #include "HDF5FileHandler.hpp"
@@ -99,6 +99,10 @@ private:
   //! Return the location of the adjoint data for the desired seed
   void getPathToAdjointData( std::string &seed_data_path,
 			     const SeedType desired_seed_type );
+
+  //! Fill a boolean array using an array of unsigned chars
+  void fillBooleanArray( std::vector<bool> &bool_array,
+			 const std::vector<unsigned char> &uchar_array );
   
   // HDF5FileHandler
   HDF5FileHandler d_hdf5_file;

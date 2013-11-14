@@ -15,7 +15,7 @@
 namespace TPOR{
 
 //! Exception class to be thrown when a MOAB error is detected
-class MOABException : public std::logic_error
+class MOABException : public std::runtime_error
 {
 public:
   MOABException( const std::string &msg )

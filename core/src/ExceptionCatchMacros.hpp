@@ -14,10 +14,6 @@
 #include <iostream>
 #include <sstream>
 
-// Trilinos Includes
-#include "Teuchos_FancyOStream.hpp"
-#include "Teuchos_TestForException.hpp"
-
 // TPOR Includes
 #include "MOABException.hpp"
 
@@ -30,7 +26,7 @@
 
 /*! Catch statement macro for catching std::exception exceptions
  *
- * This macro is based off of the Teuchos_StandardCatchMacro. This macro
+ * This macro is based off of the Teuchos_StandardCatch macro. This macro
  * should be used anywhere that a std::exception is thrown in order to
  * properly document the exception and exit the program.
  * \ingroup exception_macros
@@ -42,8 +38,7 @@
     oss << " *** Caught std::exception Exception *** \n\n"; \
     oss << "File: " << __FILE__ << "\n";		    \
     oss << "Line: " << __LINE__ << "\n";		    \
-    Teuchos::OSTab scsi_tab(oss);			    \
-    scsi_tab.o() << exception.what() << "\n";		    \
+    oss << exception.what() << "\n";			    \
     std::cerr << std::flush;				    \
     std::cerr << oss.str();				    \
     exit(EXIT_FAILURE);					    \
@@ -65,9 +60,8 @@
     oss << " *** Caught HDF5 H5::Exception *** \n\n";	\
     oss << "File: " << __FILE__ << "\n";		\
     oss << "Line: " << __LINE__ << "\n";		\
-    Teuchos::OSTab scsi_tab(oss);			\
-    scsi_tab.o() << exception.getFuncName() << "\n";	\
-    scsi_tab.o() << exception.getDetailMsg() << "\n";	\
+    oss << exception.getFuncName() << "\n";		\
+    oss << exception.getDetailMsg() << "\n";		\
     std::cerr << std::flush;				\
     std::cerr << oss.str();				\
     exit(EXIT_FAILURE);					\
@@ -87,8 +81,7 @@
     oss << " *** Caught TPOR::MOABException Exception *** \n\n"; \
     oss << "File: " << __FILE__ << "\n";			 \
     oss << "Line: " << __LINE__ << "\n";			 \
-    Teuchos::OSTab scsi_tab(oss);				 \
-    scsi_tab.o() << exception.what() << "\n";			 \
+    oss << exception.what() << "\n";				 \
     std::cerr << std::flush;					 \
     std::cerr << oss.str();					 \
     exit(EXIT_FAILURE);						 \

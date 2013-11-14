@@ -9,6 +9,9 @@
 #ifndef AMERSHAM_6702_SEED_HPP
 #define AMERSHAM_6702_SEED_HPP
 
+// Boost Includes
+#include <boost/array.hpp>
+
 // TPOR Includes
 #include "BrachytherapySeed.hpp"
 
@@ -28,37 +31,29 @@ public:
   { /* ... */ }
   
   //! Return the seed type
-  SeedType getSeedType() const;
+  BrachytherapySeedType getSeedType() const;
 
-  //! Return the dose rate at a given point
+  //! Return the dose rate at a given point (cGy/hr)
   double getDoseRate( const double x, 
 		      const double y, 
 		      const double z ) const;
 
-  //! Return the total dose at time = infinity at a given point
+  //! Return the total dose at time = infinity at a given point (cGy)
   double getTotalDose( const double x, 
 		       const double y, 
 		       const double z ) const;
 
-protected:
-  
-  //! Evaluate the radial dose function
-  static double evaluateRadialDoseFunction( const double r );
-
-  //! Evaluate the 2D anisotropy function
-  static double evaluateAnisotropyFunction( const double r, 
-					    const double theta );
-
 private:
 
-  static const SeedType seed_type = AMERSHAM_6702_SEED;
+  static const BrachytherapySeedType seed_type = AMERSHAM_6702_SEED;
   static const double decay_constant;
   static const double effective_length;
+  static const double ref_geometry_func_value;
   static const double dose_rate_constant;
-  static const double radial_dose_function[2][16];
-  static const double cunningham_radial_dose_fit_coeffs[5];
-  static const double two_dim_anisotropy_function_radii[6];
-  static const double two_dim_anisotropy_function[7][11];
+  static const boost::array<double,16*2> radial_dose_function;
+  static const boost::array<double,5> cunningham_fit_coeffs;
+  static const boost::array<double,6> anisotropy_function_radii;
+  static const boost::array<double,12*7> anisotropy_function;
   
   double d_air_kerma_strength;
 };

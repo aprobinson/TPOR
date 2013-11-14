@@ -10,18 +10,16 @@
 #define CONTRACT_EXCEPTION_HPP
 
 // Std Lib Includes
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 // Boost Includes
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
-// Trilinos Includes
-#include <Teuchos_TestForException.hpp>
-
 // TPOR Includes
 #include "TPOR_config.hpp"
+#include "ExceptionTestMacros.hpp"
 
 /*! \defgroup contract_exceptions_macros Design-By-Contract Exceptions and Macros
  *
@@ -33,13 +31,12 @@
  * Design-By-Contract, please refer to the \ref DBC page.
  */
 
-namespace TPOR
-{
+namespace TPOR{
 
 //---------------------------------------------------------------------------//
 // Design-By-Contract Exceptions
 //---------------------------------------------------------------------------//
-
+  
 /*! Exception class to be thrown when function contract is not met.
  *
  * The ContractExpection class is a key part of \ref DBC.
@@ -53,7 +50,7 @@ public:
   { /* ... */ }
   
   virtual ~ContractException() throw()
-  { /* ... */ }
+    { /* ... */ }
 };
 
 } // end TPOR namespace
@@ -98,25 +95,25 @@ public:
  * \ingroup contract_exceptions_macros 
  */
 #define testPrecondition(c)						\
-  TEUCHOS_TEST_FOR_EXCEPTION( !(c),					\
-			      TPOR::ContractException,			\
-			      "Precondition exception" << std::endl ) 
+  TEST_FOR_EXCEPTION( !(c),						\
+		      TPOR::ContractException,				\
+		      "Precondition exception" << std::endl ) 
 
 /*! Test a function postcondition
  * \ingroup contract_exceptions_macros
  */
 #define testPostcondition(c)						\
-  TEUCHOS_TEST_FOR_EXCEPTION( !(c),					\
-			      TPOR::ContractException,			\
-			      "Postcondition exception" << std::endl ) 
+  TEST_FOR_EXCEPTION( !(c),						\
+		      TPOR::ContractException,				\
+		      "Postcondition exception" << std::endl ) 
 
 /*! Test a function invariant
  * \ingroup contract_exceptions_macros
  */
 #define testInvariant(c)						\
-  TEUCHOS_TEST_FOR_EXCEPTION( !(c),					\
-                              TPOR::ContractException,			\
-			      "Invariant exception" << std::endl )
+  TEST_FOR_EXCEPTION( !(c),						\
+		      TPOR::ContractException,				\
+		      "Invariant exception" << std::endl )
 
 /*! Remember a variable that is needed for testing DBC conditions
  * \ingroup contract_exceptions_macros
@@ -141,5 +138,5 @@ public:
 #endif // end CONTRACT_EXCEPTION_HPP
 
 //---------------------------------------------------------------------------//
-// end Exception.hpp
+// end ContractException.hpp
 //---------------------------------------------------------------------------//

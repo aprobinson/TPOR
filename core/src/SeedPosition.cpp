@@ -6,8 +6,8 @@
 //!
 //---------------------------------------------------------------------------//
 
-// Trilinos Includes
-#include <Teuchos_ScalarTraits.hpp>
+// Std Lib Includes
+#include <limits>
 
 // TPOR Includes
 #include "SeedPosition.hpp"
@@ -32,7 +32,7 @@ SeedPosition::SeedPosition( unsigned x_index,
 { 
   // Make sure that the weight is valid
   testPrecondition( weight > 0.0 );
-  testPrecondition( !Teuchos::ScalarTraits<double>::isNanInf( weight ) );
+  testPrecondition( weight != std::numeric_limits<double>::infinity() );
 }
 
 // General seed constructor
@@ -45,7 +45,7 @@ SeedPosition::SeedPosition( unsigned x_index,
 {
   // Make sure that the weight is valid
   testPrecondition( weight > 0.0 );
-  testPrecondition( !Teuchos::ScalarTraits<double>::isNanInf( weight ) );
+  testPrecondition( weight != std::numeric_limits<double>::infinity() );
   // Make sure that the angle index is valid
   testPrecondition( angle_index >= 0 );
 }

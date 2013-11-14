@@ -12,8 +12,8 @@
 // Std Lib Includes
 #include <string>
 
-// Trilinos Includes
-#include <Teuchos_RCP.hpp>
+// Boost Includes
+#include <boost/scoped_ptr.hpp>
 
 // HDF5 Includes
 #include <H5Cpp.h>
@@ -117,7 +117,7 @@ protected:
 private:
   
   // HDF5 file identifier
-  Teuchos::RCP<H5::H5File> d_hdf5_file;
+  boost::scoped_ptr<H5::H5File> d_hdf5_file;
 
 };
 
