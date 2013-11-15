@@ -19,6 +19,12 @@
 
 namespace TPOR{
 
+// Set the I-125 decay constant (1/h) - half-life = 59.4 days
+const double BrachytherapySeed::i125_decay_constant = log(2)/(59.4*24);
+
+// Set the Pd-103 decay constant (1/h) - half-life = 16.991 days
+const double BrachytherapySeed::pd103_decay_constant = log(2)/(16.991*24);
+
 // Calculate the radius
 double BrachytherapySeed::calculateRadius( const double x,
 					   const double y,

@@ -60,6 +60,47 @@ nasi_med_3633_data = np.array([1.331, 1.322, 1.286, 1.243, 1.125, 1.000, \
                                0.770, 0.583, 0.438, 0.325, 0.241, 0.177, \
                                0.098, 0.053, 0.028])
 
+# Tabulated radial dose function for Amersham EchoSeed 6733
+amersham_6733_data = np.array([1.050, 1.076, 1.085, 1.069, 1.045, 1.000, \
+                               0.912, 0.821, 0.656, 0.495, 0.379, 0.285, \
+                               0.214, 0.155, 0.119, 0.0840])
+
+# Tabulated radial dose function for Draximage BrachySeed LS-1
+draximage_ls1_data = np.array([0.182, 0.323, 0.741, 0.964, 1.004, 1.000, \
+                               0.937, 0.853, 0.680, 0.527, 0.400, 0.300, \
+                               0.223, 0.166, 0.122, 0.0900])
+
+# Tabulated radial dose function for Implant Sciences 3500
+implant_sciences_3500_data = np.array([0.997, 1.011, 1.021, 1.030, 1.026, \
+                                       1.000, 0.932, 0.854, 0.681, 0.532, \
+                                       0.407, 0.308, 0.230, 0.171, 0.127, \
+                                       0.0936])
+
+# Tabulated radial dose function for IBt 1251L
+ibt_1251l_data = np.array([0.757, 0.841, 0.963, 1.021, 1.024, 1.000, 0.937, \
+                           0.859, 0.700, 0.554, 0.425, 0.323, 0.240, 0.180, \
+                           0.138, 0.101])
+
+# Tabulated radial dose function for IsoAid advantage IAI-125A
+isoaid_iai_125a_data = np.array([1.040, 1.053, 1.066, 1.080, 1.035, 1.000, \
+                                 0.902, 0.800, 0.611, 0.468, 0.368, 0.294, \
+                                 0.227, 0.165, 0.141, 0.090])
+
+# Tabulated radial dose function for MBI SL-125 SH-125
+mbi_sl125_sh125_data = np.array([1.101, 1.101, 1.101, 1.084, 1.041, 1.000, \
+                                 0.898, 0.795, 0.610, 0.456, 0.338, 0.250, \
+                                 0.183, 0.134, 0.098, 0.072])
+
+# Tabulated radial dose function for Source Tech STM1251
+source_tech_stm1251_data = np.array([0.941, 0.972, 1.013, 1.033, 1.022, 1.000,\
+                                     0.937, 0.856, 0.691, 0.540, 0.415, 0.314,\
+                                     0.236, 0.176, 0.131, 0.0969])
+
+# Tabulated radial dose function for Best Medical 2335
+best_2335_data = np.array([0.826, 1.066, 1.236, 1.307, 1.128, 1.000, 0.742, \
+                           0.533, 0.296, 0.158, 0.0920, 0.0529, 0.0309, \
+                           0.0180, 0.0105, 0.0062])
+
 # Run the script directly
 if __name__ == '__main__':
     import argparse as ap
@@ -73,9 +114,12 @@ if __name__ == '__main__':
     
     parser = ap.ArgumentParser(description=description)
 
-    seed_name = "Seed name: \n\tAmersham_6702\n\tAmersham_6711\n\tBest_2301"\
-        "\n\tNASI_MED3632\n\tNASI_MED3633\n\tBebig_I25_S06\n\tImagyn_IS12501"\
-        "\n\tTheragenics_200\n\t"
+    seed_name = "Seed name: \n\tAmersham_6702\n\tAmersham_6711"\
+        "\n\tAmersham_6733\n\tBest_2301\n\tBest_2335\n\tNASI_MED3631"\
+        "\n\tNASI_MED3633\n\tBebig_I25_S06\n\tImagyn_IS12501"\
+        "\n\tTheragenics_200\n\tDraximage_LS1\n\tImplant_Sciences_3500"\
+        "\n\tIBt_1251L\n\tIsoAid_IAI125A\n\tMBI_SL125_SH125"\
+        "\n\tSource_Tech_STM1251\n\t"
     parser.add_argument('seed_name', help=seed_name)
 
     # Parse the user's arguments
@@ -90,10 +134,16 @@ if __name__ == '__main__':
     elif user_args.seed_name == "Amersham_6711":
         independent_data = i125_radii
         dependent_data = amersham_6711_data
+    elif user_args.seed_name == "Amersham_6733":
+        independent_data = i125_radii
+        dependent_data = amersham_6733_data
     elif user_args.seed_name == "Best_2301":
         independent_data = i125_radii
         dependent_data = best_2301_data
-    elif user_args.seed_name == "NASI_MED3632":
+    elif user_args.seed_name == "Best_2335":
+        independent_data = i125_radii
+        dependent_data = best_2335_data
+    elif user_args.seed_name == "NASI_MED3631":
         independent_data = nasi_i125_radii 
         dependent_data = nasi_med_3631_data
     elif user_args.seed_name == "NASI_MED3633":
@@ -108,6 +158,24 @@ if __name__ == '__main__':
     elif user_args.seed_name == "Theragenics_200":
         independent_data = pd103_radii
         dependent_data = theragenics_200_data
+    elif user_args.seed_name == "Draximage_LS1":
+        independent_data = i125_radii[3:]
+        dependent_data = draximage_ls1_data[3:]
+    elif user_args.seed_name == "Implant_Sciences_3500":
+        independent_data = i125_radii
+        dependent_data = implant_sciences_3500_data 
+    elif user_args.seed_name == "IBt_1251L":
+        independent_data = i125_radii[3:]
+        dependent_data = ibt_1251l_data[3:]
+    elif user_args.seed_name == "IsoAid_IAI125A":
+        independent_data = i125_radii
+        dependent_data = isoaid_iai_125a_data
+    elif user_args.seed_name == "MBI_SL125_SH125":
+        independent_data = i125_radii
+        dependent_data = mbi_sl125_sh125_data
+    elif user_args.seed_name == "Source_Tech_STM1251":
+        independent_data = i125_radii
+        dependent_data = source_tech_stm1251_data
     else:
         sys.exit("Invalid seed name.")
         

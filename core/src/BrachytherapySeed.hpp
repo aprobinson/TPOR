@@ -42,6 +42,12 @@ public:
 			       const double z ) const = 0;
 
 protected:
+  
+  // I-125 decay constant (1/h)
+  static const double i125_decay_constant;
+  
+  // Pd-103 decay constant (1/h)
+  static const double pd103_decay_constant;
 
   //! Calculate the radius
   static double calculateRadius( const double x,

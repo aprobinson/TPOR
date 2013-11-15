@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   Amersham6702Seed.hpp
+//! \file   Theragenics200Seed.hpp
 //! \author Alex Robinson
-//! \brief  Amersham 6702 brachytherapy seed class declaration
+//! \brief  Theragenics 200 brachytherapy seed class declaration
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef AMERSHAM_6702_SEED_HPP
-#define AMERSHAM_6702_SEED_HPP
+#ifndef THERAGENICS_200_SEED_HPP
+#define THERAGENICS_200_SEED_HPP
 
 // Boost Includes
 #include <boost/array.hpp>
@@ -17,56 +17,56 @@
 
 namespace TPOR{
 
-//! Amersham 6702 brachytherapy seed
-class Amersham6702Seed : public BrachytherapySeed
+//! Best2301 brachytherapy seed
+class Theragenics200Seed : public BrachytherapySeed
 {
 
 public:
 
   //! Constructor
-  Amersham6702Seed( const double air_kerma_strength );
+  Theragenics200Seed( const double air_kerma_strength );
 
   //! Destructor
-  virtual ~Amersham6702Seed()
+  virtual ~Theragenics200Seed()
   { /* ... */ }
-  
+
   //! Return the seed type
   BrachytherapySeedType getSeedType() const;
 
   //! Return the dose rate at a given point (cGy/hr)
-  double getDoseRate( const double x, 
-		      const double y, 
+  double getDoseRate( const double x,
+		      const double y,
 		      const double z ) const;
 
   //! Return the total dose at time = infinity at a given point (cGy)
-  double getTotalDose( const double x, 
-		       const double y, 
+  double getTotalDose( const double x,
+		       const double y,
 		       const double z ) const;
 
 private:
 
   // The seed type
-  static const BrachytherapySeedType seed_type = AMERSHAM_6702_SEED;
-  
+  static const BrachytherapySeedType seed_type = THERAGENICS_200_SEED;
+
   // The effective seed length (Leff)
   static const double effective_length;
-
+  
   // The reference value of the geometry function - G(1.0,pi/2)
   static const double ref_geometry_func_value;
-
+  
   // The dose rate constant
   static const double dose_rate_constant;
 
   // The radial dose function
-  static const int rdf_points = 16;
+  static const int rdf_points = 18;
   static const boost::array<double,rdf_points*2> radial_dose_function;
 
   // The cunningham fit coefficients
   static const boost::array<double,5> cunningham_fit_coeffs;
 
   // The 2D anisotropy function
-  static const int af_radii = 6;
-  static const int af_angles = 12;
+  static const int af_radii = 9;
+  static const int af_angles = 20;
   static const boost::array<double,af_radii> anisotropy_function_radii;
   static const boost::array<double,af_angles*(af_radii+1)> anisotropy_function;
   
@@ -75,8 +75,8 @@ private:
 
 } // end TPOR namespace
 
-#endif // end AMERSHAM_6702_SEED_HPP
+#endif // end THERAGENICS_200_SEED_HPP
 
 //---------------------------------------------------------------------------//
-// end Amersham6702Seed.hpp
+// end Theragenics200Seed.hpp
 //---------------------------------------------------------------------------//

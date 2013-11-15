@@ -72,28 +72,33 @@ class UltrasoundSliceManager(object):
         """
         # No organs have been contoured
         if self.organ_index == 0:
-            self.image_axis_handle.set_title( "Select Prostate Contour" )
+            self.image_axis_handle.set_title( "Select Prostate Contour",
+                                              color="red")
             self.mask_axis_handle.set_title( "" )
             self.clear_mask(self.organ_masks[0])
         
         # The prostate has been contoured
         elif self.organ_index == 1:
-            self.image_axis_handle.set_title( "Select Urethra Contour" )
+            self.image_axis_handle.set_title( "Select Urethra Contour",
+                                              color="red")
             self.mask_axis_handle.set_title( "Prostate Mask" )
             
         # The prostate and urethra have been contoured
         elif self.organ_index == 2:
-            self.image_axis_handle.set_title( "Select Margin Contour" )
+            self.image_axis_handle.set_title( "Select Margin Contour",
+                                              color="red")
             self.mask_axis_handle.set_title( "Urethra Mask" )
             
         # The prostate, urethra and margin have been contoured
         elif self.organ_index == 3:
-            self.image_axis_handle.set_title( "Select Rectum Contour" )
+            self.image_axis_handle.set_title( "Select Rectum Contour",
+                                              color="red")
             self.mask_axis_handle.set_title( "Margin Mask" )
 
         # All organs have been contoured
         else:
-            self.image_axis_handle.set_title( "Contouring Complete!" )
+            self.image_axis_handle.set_title( "Contouring Complete!",
+                                              color="green")
             self.mask_axis_handle.set_title( "Rectum Mask" )
 
         # Show the slice image and the most recent organ mask
