@@ -171,14 +171,14 @@ double BrachytherapySeed::evaluateRadialDoseFunction(
   if( r < radial_dose_func[0] )
     dose_function_value = radial_dose_func[number_of_radii];
   
-  // Use linear-linear interpolation inside the table
+  // Use log-linear interpolation inside the table
   else if( r <= radial_dose_func[number_of_radii-1] )
   {
     int index = binarySearch( radial_dose_func,
 			      radial_dose_func+number_of_radii-1,
 			      r );
     
-    dose_function_value = linlinInterp( 
+    dose_function_value = loglinInterp( 
 				   radial_dose_func[index],
 				   radial_dose_func[index+1],
 				   r,

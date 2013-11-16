@@ -101,6 +101,28 @@ best_2335_data = np.array([0.826, 1.066, 1.236, 1.307, 1.128, 1.000, 0.742, \
                            0.533, 0.296, 0.158, 0.0920, 0.0529, 0.0309, \
                            0.0180, 0.0105, 0.0062])
 
+# Tabulated radial dose function for Amersham 9011 seed
+amersham_9011_radii = np.array([0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 2.5, 3.0, \
+                                3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, \
+                                8.0, 8.5, 9.0, 9.5, 10.0, 12.0])
+amersham_9011_data = np.array([1.079, 1.084, 1.072, 1.047, 1.000, 0.908, \
+                               0.811, 0.717, 0.629, 0.549, 0.477, 0.413, \
+                               0.357, 0.308, 0.265, 0.228, 0.196, 0.168, \
+                               0.144, 0.124, 0.106, 0.091, 0.078, 0.042]) 
+
+# Tabulated radial dose function for Nucletron 130.002 seed
+nucletron_130002_radii = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, \
+                                   0.9, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, \
+                                   7, 8, 9, 10]) 
+nucletron_130002_data = np.array([1.042, 1.082, 1.087, 1.085, 1.078, 1.066, \
+                                  1.052, 1.035, 1.019, 1.000, 0.907, 0.808, \
+                                  0.713, 0.627, 0.548, 0.477, 0.414, 0.357, \
+                                  0.265, 0.196, 0.144, 0.106, 0.078]) 
+
+# Tabulated radial dose function for IsoAid IAPd-103A seed
+isoaid_iapd103a_radii = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0])
+isoaid_iapd103a_data = np.array([0.915, 1.234, 1.296, 1.290, 1.260, 1.213, 1.160, 1.134, 1.106, 1.053, 1.000, 0.768, 0.576, 0.429, 0.318, 0.233, 0.173, 0.127, 0.092, 0.069, 0.050, 0.037, 0.028, 0.020, 0.015, 0.011, 0.008, 0.006, 0.005])
+
 # Run the script directly
 if __name__ == '__main__':
     import argparse as ap
@@ -115,11 +137,11 @@ if __name__ == '__main__':
     parser = ap.ArgumentParser(description=description)
 
     seed_name = "Seed name: \n\tAmersham_6702\n\tAmersham_6711"\
-        "\n\tAmersham_6733\n\tBest_2301\n\tBest_2335\n\tNASI_MED3631"\
-        "\n\tNASI_MED3633\n\tBebig_I25_S06\n\tImagyn_IS12501"\
+        "\n\tAmersham_6733\n\t\n\tAmersham_9011\n\tBest_2301\n\tBest_2335"\
+        "\n\tNASI_MED3631\n\tNASI_MED3633\n\tBebig_I25_S06\n\tImagyn_IS12501"\
         "\n\tTheragenics_200\n\tDraximage_LS1\n\tImplant_Sciences_3500"\
-        "\n\tIBt_1251L\n\tIsoAid_IAI125A\n\tMBI_SL125_SH125"\
-        "\n\tSource_Tech_STM1251\n\t"
+        "\n\tIBt_1251L\n\tIsoAid_IAI125A\n\tIsoAid_IAPd103A"\
+        "\n\tMBI_SL125_SH125\n\tSource_Tech_STM1251\n\t"
     parser.add_argument('seed_name', help=seed_name)
 
     # Parse the user's arguments
@@ -137,6 +159,9 @@ if __name__ == '__main__':
     elif user_args.seed_name == "Amersham_6733":
         independent_data = i125_radii
         dependent_data = amersham_6733_data
+    elif user_args.seed_name == "Amersham_9011":
+        independent_data = amersham_9011_radii
+        dependent_data = amersham_9011_data
     elif user_args.seed_name == "Best_2301":
         independent_data = i125_radii
         dependent_data = best_2301_data
@@ -170,12 +195,18 @@ if __name__ == '__main__':
     elif user_args.seed_name == "IsoAid_IAI125A":
         independent_data = i125_radii
         dependent_data = isoaid_iai_125a_data
+    elif user_args.seed_name == "IsoAid_IAPd103A":
+        independent_data = isoaid_iapd103a_radii[2:]
+        dependent_data = isoaid_iapd103a_data[2:]
     elif user_args.seed_name == "MBI_SL125_SH125":
         independent_data = i125_radii
         dependent_data = mbi_sl125_sh125_data
     elif user_args.seed_name == "Source_Tech_STM1251":
         independent_data = i125_radii
         dependent_data = source_tech_stm1251_data
+    elif user_args.seed_name == "Nucletron_130002":
+        independent_data = nucletron_130002_radii[1:]
+        dependent_data = nucletron_130002_data[1:]
     else:
         sys.exit("Invalid seed name.")
         

@@ -1,14 +1,13 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   SourceTechSTM1251Seed.hpp
+//! \file   IsoAidIAPd103ASeed.hpp
 //! \author Alex Robinson
-//! \brief  Source Tech (Bard Urological Division) STM1251 brachytherapy seed 
-//!         class declaration
+//! \brief  IsoAid IAPd-103A brachytherapy seed class declaration
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef SOURCE_TECH_STM1251_SEED_HPP
-#define SOURCE_TECH_STM1251_SEED_HPP
+#ifndef ISOAID_IAPD_103A_SEED_HPP
+#define ISOAID_IAPD_103A_SEED_HPP
 
 // Boost Includes
 #include <boost/array.hpp>
@@ -19,16 +18,16 @@
 namespace TPOR{
 
 //! Best2301 brachytherapy seed
-class SourceTechSTM1251Seed : public BrachytherapySeed
+class IsoAidIAPd103ASeed : public BrachytherapySeed
 {
 
 public:
 
   //! Constructor
-  SourceTechSTM1251Seed( const double air_kerma_strength );
+  IsoAidIAPd103ASeed( const double air_kerma_strength );
 
   //! Destructor
-  virtual ~SourceTechSTM1251Seed()
+  virtual ~IsoAidIAPd103ASeed()
   { /* ... */ }
 
   //! Return the seed type
@@ -47,7 +46,7 @@ public:
 private:
 
   // The seed type
-  static const BrachytherapySeedType seed_type = SOURCE_TECH_STM1251_SEED;
+  static const BrachytherapySeedType seed_type = ISOAID_IAPD_103A_SEED;
 
   // The effective seed length (Leff)
   static const double effective_length;
@@ -59,15 +58,15 @@ private:
   static const double dose_rate_constant;
 
   // The radial dose function
-  static const int rdf_points = 16;
+  static const int rdf_points = 29;
   static const boost::array<double,rdf_points*2> radial_dose_function;
 
   // The cunningham fit coefficients
   static const boost::array<double,5> cunningham_fit_coeffs;
 
   // The 2D anisotropy function
-  static const int af_radii = 7;
-  static const int af_angles = 13;
+  static const int af_radii = 8;
+  static const int af_angles = 19;
   static const boost::array<double,af_radii> anisotropy_function_radii;
   static const boost::array<double,af_angles*(af_radii+1)> anisotropy_function;
   
@@ -76,8 +75,8 @@ private:
 
 } // end TPOR namespace
 
-#endif // end SOURCE_TECH_STM1251_SEED_HPP
+#endif // end ISOAID_IAPD_103A_SEED_HPP
 
 //---------------------------------------------------------------------------//
-// end SourceTechSTM1251Seed.hpp
+// end IsoAidIAPd103ASeed.hpp
 //---------------------------------------------------------------------------//

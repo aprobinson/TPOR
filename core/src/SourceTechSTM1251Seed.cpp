@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   MBISL125SH125Seed.hpp
+//! \file   SourceTechSTM1251Seed.hpp
 //! \author Alex Robinson
 //! \brief  Source Tech STM1251 brachytherapy seed class definition
 //!

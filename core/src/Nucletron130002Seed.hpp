@@ -1,14 +1,13 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   SourceTechSTM1251Seed.hpp
+//! \file   Nucletron130002Seed.hpp
 //! \author Alex Robinson
-//! \brief  Source Tech (Bard Urological Division) STM1251 brachytherapy seed 
-//!         class declaration
+//! \brief  Nucletron SelectSeed 130.002 brachytherapy seed class declaration
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef SOURCE_TECH_STM1251_SEED_HPP
-#define SOURCE_TECH_STM1251_SEED_HPP
+#ifndef NUCLETRON_130002_SEED_HPP
+#define NUCLETRON_130002_SEED_HPP
 
 // Boost Includes
 #include <boost/array.hpp>
@@ -19,16 +18,16 @@
 namespace TPOR{
 
 //! Best2301 brachytherapy seed
-class SourceTechSTM1251Seed : public BrachytherapySeed
+class Nucletron130002Seed : public BrachytherapySeed
 {
 
 public:
 
   //! Constructor
-  SourceTechSTM1251Seed( const double air_kerma_strength );
+  Nucletron130002Seed( const double air_kerma_strength );
 
   //! Destructor
-  virtual ~SourceTechSTM1251Seed()
+  virtual ~Nucletron130002Seed()
   { /* ... */ }
 
   //! Return the seed type
@@ -47,7 +46,7 @@ public:
 private:
 
   // The seed type
-  static const BrachytherapySeedType seed_type = SOURCE_TECH_STM1251_SEED;
+  static const BrachytherapySeedType seed_type = NUCLETRON_130002_SEED;
 
   // The effective seed length (Leff)
   static const double effective_length;
@@ -59,15 +58,15 @@ private:
   static const double dose_rate_constant;
 
   // The radial dose function
-  static const int rdf_points = 16;
+  static const int rdf_points = 23;
   static const boost::array<double,rdf_points*2> radial_dose_function;
 
   // The cunningham fit coefficients
   static const boost::array<double,5> cunningham_fit_coeffs;
 
   // The 2D anisotropy function
-  static const int af_radii = 7;
-  static const int af_angles = 13;
+  static const int af_radii = 10;
+  static const int af_angles = 21;
   static const boost::array<double,af_radii> anisotropy_function_radii;
   static const boost::array<double,af_angles*(af_radii+1)> anisotropy_function;
   
@@ -76,8 +75,8 @@ private:
 
 } // end TPOR namespace
 
-#endif // end SOURCE_TECH_STM1251_SEED_HPP
+#endif // end NUCLETRON_130002_SEED_HPP
 
 //---------------------------------------------------------------------------//
-// end SourceTechSTM1251Seed.hpp
+// end Nucletron130002Seed.hpp
 //---------------------------------------------------------------------------//

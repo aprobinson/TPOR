@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( evaluateRadialDoseFunction )
 						radial_dose_function.size()/2,
 						cunningham_fit_coeffs.data() );
 
-  BOOST_CHECK_CLOSE( radial_dose_function_value, 0.11595, 1e-9 );
+  BOOST_CHECK_CLOSE( radial_dose_function_value, 0.11453645707808498, 1e-9 );
 
   r = 20;
 

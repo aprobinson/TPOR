@@ -48,6 +48,13 @@ ADD_EXECUTABLE(tstAmersham6733Seed
   ${SRC}/Amersham6733Seed.cpp)
 ADD_TEST(Amersham6733Seed_test tstAmersham6733Seed)
 
+ADD_EXECUTABLE(tstAmersham9011Seed
+  tstAmersham9011Seed.cpp
+  ${SRC}/Interpolation.cpp
+  ${SRC}/BrachytherapySeed.cpp
+  ${SRC}/Amersham9011Seed.cpp)
+ADD_TEST(Amersham9011Seed_test tstAmersham9011Seed)
+
 ADD_EXECUTABLE(tstBest2301Seed
   tstBest2301Seed.cpp
   ${SRC}/Interpolation.cpp
@@ -125,6 +132,13 @@ ADD_EXECUTABLE(tstIsoAidIAI125ASeed
   ${SRC}/IsoAidIAI125ASeed.cpp)
 ADD_TEST(IsoAidIAI125ASeed_test tstIsoAidIAI125ASeed)
 
+ADD_EXECUTABLE(tstIsoAidIAPd103ASeed
+  tstIsoAidIAPd103ASeed.cpp
+  ${SRC}/Interpolation.cpp
+  ${SRC}/BrachytherapySeed.cpp
+  ${SRC}/IsoAidIAPd103ASeed.cpp)
+ADD_TEST(IsoAidIAPd103ASeed_test tstIsoAidIAPd103ASeed)
+
 ADD_EXECUTABLE(tstMBISL125SH125Seed
   tstMBISL125SH125Seed.cpp
   ${SRC}/Interpolation.cpp
@@ -138,3 +152,11 @@ ADD_EXECUTABLE(tstSourceTechSTM1251Seed
   ${SRC}/BrachytherapySeed.cpp
   ${SRC}/SourceTechSTM1251Seed.cpp)
 ADD_TEST(SourceTechSTM1251Seed_test tstSourceTechSTM1251Seed)
+
+ADD_EXECUTABLE(tstNucletron130002Seed
+  tstNucletron130002Seed.cpp
+  ${SRC}/Interpolation.cpp
+  ${SRC}/BrachytherapySeed.cpp
+  ${SRC}/Nucletron130002Seed.cpp)
+ADD_TEST(Nucletron130002Seed_test tstNucletron130002Seed)
+

@@ -3,7 +3,7 @@
 //! \file   MBISL125SH125Seed.hpp
 //! \author Alex Robinson
 //! \brief  Mills Biopharmaceuticals SL-125/SH-125 brachytherapy seed class 
-//!         declaration
+//!         definition
 //!
 //---------------------------------------------------------------------------//
 
