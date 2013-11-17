@@ -16,23 +16,27 @@
 #include <list>
 #include <utility>
 
+// Boost Includes
+#include <boost/shared_ptr.hpp>
+
 // TPOR includes
 #include "BrachytherapyTreatmentPlanner.hpp"
 #include "SeedPosition.hpp"
-#include "SeedType.hpp" 
+#include "BrachytherapySeedFactory.hpp" 
 
 namespace TPOR
 {
 
 //! The iterative isodose exclusion treatment planning class
-class IIEMTreatmentPlaneer : public BrachytherapyTreatmentPlanner
+class IIEMTreatmentPlanner : public BrachytherapyTreatmentPlanner
 {
 
 public:
 
   //! Constructor
   IIEMTreatmentPlanner( const std::string &patient_hdf5_file_name,
-			const SeedType desired_seed_type,
+			const BrachytherapySeedType desired_seed_type,
+			const double desired_seed_strength,
 			const double prescribed_dose );
 
   //! Destructor
@@ -41,9 +45,6 @@ public:
 
   //! Calculate optimum treatment plan
   void calculateOptimumTreatmentPlan();
-
-  //! Calculate the dose-volume-histogram data
-  void calculateDoseVolumeHistogramData();
 
   //! Print the treatment plan
   void printTreatmentPlan( std::ostream &os ) const;
@@ -59,10 +60,11 @@ public:
 
 private:
 
-  //! Comparison method for std::pair<unsigned,SeedPosition>
-  bool compareSeedPositions( 
-		     const std::pair<unsigned,SeedPosition> &first_position,
-		     const std::pair<unsigned,SeedPosition> &second_position );
+  //! Create the seed position list
+  void createSeedPositionList( const std::vector<double> &prostate_adjoint,
+			       const std::vector<double> &urethra_adjoint,
+			       const std::vector<double> &margin_adjoint,
+			       const std::vector<double> &rectum_adjoint );
 
   //! Conduct the isodose constant iteration 
   void conductIsodoseConstantIteration( 
@@ -78,23 +80,34 @@ private:
                              const std::set<unsigned> &chosen_needle_ids,
                              const std::list<std::pair<unsigned,SeedPosition> >
 			     &remaining_seed_positions );
-					     
+
+  //! Calculate the minimum seed isodose constant
+  double calculateMinSeedIsodoseConstant() const;
+
+  //! Map the seed dose distribution to the problem mesh
+  void mapSeedDoseDistribution( const double seed_x_index,
+				const double seed_y_index,
+				const double seed_z_index );
+
+  //! Calculate the prostate dose coverage (% of vol with prescribed dose)
+  double calculateProstateDoseCoverage() const;
+  
+
+  //! Calculate the dose-volume-histogram data
+  void calculateDoseVolumeHistogramData();				     
 
   // Prescribed dose
   double d_prescribed_dose;
   
   // Mesh dimensions
-  unsigned d_mesh_x_dimension;
-  unsigned d_mesh_y_dimension;
-  unsigned d_mesh_z_dimension;
+  unsigned d_mesh_x_dim;
+  unsigned d_mesh_y_dim;
+  unsigned d_mesh_z_dim;
 
-  // Seed mesh dimensions
-  unsigned d_seed_mesh_x_dimension;
-  unsigned d_seed_mesh_y_dimension;
-  unsigned d_seed_mesh_z_dimension;
-
-  // Seed Type
-  SeedType d_seed_type;
+  // Mesh element dimensions
+  double d_mesh_element_x_dim;
+  double d_mesh_element_y_dim;
+  double d_mesh_element_z_dim;
 
   // Prostate volume (number of mesh elements)
   unsigned d_prostate_vol;
@@ -103,7 +116,7 @@ private:
   unsigned d_min_number_of_needles;
 
   // Minimum seed isodose constant
-  double d_max_isodose_constant;
+  double d_min_isodose_constant;
 
   // Prostate mask
   std::vector<bool> d_prostate_mask;
@@ -118,10 +131,10 @@ private:
   std::vector<bool> d_rectum_mask;
 
   // Needle template
-  std::vector<std::pair<unsigned,unsigned> > d_needle_template;
+  std::vector<bool> d_needle_template;
 
-  // Seed dose distribution
-  std::vector<double> d_seed_dose_distribution;
+  // Brachytherapy Seed
+  BrachytherapySeedFactory::BrachytherapySeedPtr d_seed;
 
   // Seed positions
   std::list<std::pair<unsigned,SeedPosition> > d_seed_positions;

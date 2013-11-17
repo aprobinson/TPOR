@@ -51,6 +51,9 @@ public:
   //! Close an HDF5 file
   void closeHDF5File();
 
+  //! Test if a group exists
+  bool groupExists( const std::string &group_name );
+
   //! Write data in array to HDF5 file data set
   template<typename Array>
   void writeArrayToDataSet( const Array &data,

@@ -9,8 +9,11 @@
 #ifndef SEED_POSITION_HPP
 #define SEED_POSITION_HPP
 
+// Std Lib Includes
+#include <utility>
+
 // TPOR Includes
-#include "SeedType.hpp"
+#include "BrachytherapySeedType.hpp"
 
 namespace TPOR
 {
@@ -26,7 +29,7 @@ public:
 		unsigned y_index,
 		unsigned z_index,
 		double weight,
-		SeedType seed_type );
+		BrachytherapySeedType seed_type );
 
   //! General seed constructor
   SeedPosition( unsigned x_index, 
@@ -34,26 +37,26 @@ public:
 		unsigned z_index,
 		int angle_index,
 		double weight,
-		SeedType seed_type );
+		BrachytherapySeedType seed_type );
 
   //! Destructor
   virtual ~SeedPosition()
   { /* ... */ }
 
   //! Return the x index
-  unsigned getXIndex();
+  unsigned getXIndex() const;
 
   //! Return the y index
-  unsigned getYIndex();
+  unsigned getYIndex() const;
   
   //! Return the z index
-  unsigned getZIndex();
+  unsigned getZIndex() const;
 
   //! Return the weight of the seed position
-  double getWeight();
+  double getWeight() const;
 
   //! Return the seed type
-  SeedType getSeedType();
+  BrachytherapySeedType getSeedType() const;
 
   //! Comparison methods
   friend bool operator < ( const SeedPosition &position_a,
@@ -76,7 +79,7 @@ private:
   double d_weight;
 
   // Seed type
-  SeedType d_seed_type;
+  BrachytherapySeedType d_seed_type;
 };
 
 //! Less-than operator for SeedPositions
@@ -86,6 +89,14 @@ bool operator < ( const SeedPosition &position_a,
 //! Greater-than operator for SeedPositions
 bool operator > ( const SeedPosition &position_a,
 		  const SeedPosition &position_b );
+
+//! Less-than operator for SeedPosition Pairs
+bool operator < ( const std::pair<unsigned,SeedPosition> &position_a,
+		  const std::pair<unsigned,SeedPosition> &position_b );
+  
+//! Greater-than operator for SeedPosition Pairs
+bool operator > ( const std::pair<unsigned,SeedPosition> &position_a,
+		  const std::pair<unsigned,SeedPosition> &position_b );
 
 } // end TPOR namespace
 

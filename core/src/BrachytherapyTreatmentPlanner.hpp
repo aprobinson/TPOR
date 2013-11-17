@@ -22,7 +22,8 @@ class BrachytherapyTreatmentPlanner
 public:
   
   //! Default constructor
-  BrachytherapyTreatmentPlanner();
+  BrachytherapyTreatmentPlanner()
+  { /* ... */ }
 
   //! Destructor
   virtual ~BrachytherapyTreatmentPlanner()
@@ -30,9 +31,6 @@ public:
 
   //! Calculate optimum treatment plan
   virtual void calculateOptimumTreatmentPlan() = 0;
-
-  //! Calculate the dose-volume-histogram data
-  virtual void calculateDoseVolumeHistogramData() = 0;
 
   //! Print the treatment plan
   virtual void printTreatmentPlan( std::ostream &os ) const = 0;

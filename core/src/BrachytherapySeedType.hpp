@@ -9,8 +9,10 @@
 #ifndef BRACHYTHERAPY_SEED_TYPE_HPP
 #define BRACHYTHERAPY_SEED_TYPE_HPP
 
-namespace TPOR
-{
+// Std Lib Includes
+#include <string>
+
+namespace TPOR{
 
 //! Brachytherapy seed type enumeration
 enum BrachytherapySeedType{
@@ -34,6 +36,9 @@ enum BrachytherapySeedType{
   SOURCE_TECH_STM1251_SEED,
   NUCLETRON_130002_SEED
 };
+
+//! Return a string corresponding to the Brachytherapy seed type
+std::string brachytherapySeedTypeToString( const BrachytherapySeedType seed );
 
 } // end TPOR namespace
 

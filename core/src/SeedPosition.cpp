@@ -21,7 +21,7 @@ SeedPosition::SeedPosition( unsigned x_index,
 			    unsigned y_index,
 			    unsigned z_index,
 			    double weight,
-			    SeedType seed_type )
+			    BrachytherapySeedType seed_type )
   : d_x_index( x_index ),
     d_y_index( y_index ),
     d_z_index( z_index ),
@@ -41,7 +41,7 @@ SeedPosition::SeedPosition( unsigned x_index,
 			    unsigned z_index,
 			    int angle_index,
 			    double weight,
-			    SeedType seed_type )
+			    BrachytherapySeedType seed_type )
 {
   // Make sure that the weight is valid
   testPrecondition( weight > 0.0 );
@@ -51,31 +51,31 @@ SeedPosition::SeedPosition( unsigned x_index,
 }
 
 // Return the x index
-unsigned SeedPosition::getXIndex()
+unsigned SeedPosition::getXIndex() const
 {
-  return d_indices[0];
+  return d_x_index;
 }
 
 // Return the y index
-unsigned SeedPosition::getYIndex()
+unsigned SeedPosition::getYIndex() const
 {
-  return d_indices[1];
+  return d_y_index;
 }
 
 // Return the z index
-unsigned SeedPosition::getZIndex()
+unsigned SeedPosition::getZIndex() const
 {
-  return d_indices[2];
+  return d_z_index;
 }
 
 // Return the weight of the seed position
-double SeedPosition::getWeight()
+double SeedPosition::getWeight() const
 {
   return d_weight;
 }
 
 // Return the seed type
-SeedType SeedPosition::getSeedType()
+BrachytherapySeedType SeedPosition::getSeedType() const
 {
   return d_seed_type;
 }
@@ -84,14 +84,28 @@ SeedType SeedPosition::getSeedType()
 bool operator < ( const SeedPosition &position_a,
 		  const SeedPosition &position_b )
 {
-  return position_a.weight < position_b.weight;
+  return position_a.d_weight < position_b.d_weight;
 }
 
 // Greater-than operator for SeedPositions
 bool operator > ( const SeedPosition &position_a,
 		  const SeedPosition &position_b )
 {
-  return position_a.weight > position_b.weight;
+  return position_a.d_weight > position_b.d_weight;
+}
+
+// Less-than operator for SeedPosition Pairs
+bool operator < ( const std::pair<unsigned,SeedPosition> &position_a,
+		  const std::pair<unsigned,SeedPosition> &position_b )
+{
+  return position_a.second < position_b.second;
+}
+  
+// Greater-than operator for SeedPosition Pairs
+bool operator > ( const std::pair<unsigned,SeedPosition> &position_a,
+		  const std::pair<unsigned,SeedPosition> &position_b )
+{
+  return position_a.second > position_b.second;
 }
 
 } // end TPOR namespace

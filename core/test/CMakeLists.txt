@@ -160,3 +160,63 @@ ADD_EXECUTABLE(tstNucletron130002Seed
   ${SRC}/Nucletron130002Seed.cpp)
 ADD_TEST(Nucletron130002Seed_test tstNucletron130002Seed)
 
+ADD_EXECUTABLE(tstBrachytherapySeedFactory
+  tstBrachytherapySeedFactory.cpp
+  ${SRC}/BrachytherapySeedFactory.cpp
+  ${SRC}/Interpolation.cpp
+  ${SRC}/BrachytherapySeed.cpp
+  ${SRC}/Amersham6702Seed.cpp
+  ${SRC}/Amersham6711Seed.cpp
+  ${SRC}/Amersham6733Seed.cpp
+  ${SRC}/Amersham9011Seed.cpp
+  ${SRC}/Best2301Seed.cpp
+  ${SRC}/Best2335Seed.cpp
+  ${SRC}/NASIMED3631Seed.cpp
+  ${SRC}/NASIMED3633Seed.cpp
+  ${SRC}/BebigI25S06Seed.cpp
+  ${SRC}/ImagynIS12501Seed.cpp
+  ${SRC}/Theragenics200Seed.cpp
+  ${SRC}/DraximageLS1Seed.cpp
+  ${SRC}/ImplantSciences3500Seed.cpp
+  ${SRC}/ImplantSciences3500Seed.cpp
+  ${SRC}/IBt1251LSeed.cpp
+  ${SRC}/IsoAidIAI125ASeed.cpp
+  ${SRC}/IsoAidIAPd103ASeed.cpp
+  ${SRC}/MBISL125SH125Seed.cpp
+  ${SRC}/SourceTechSTM1251Seed.cpp
+  ${SRC}/Nucletron130002Seed.cpp)
+ADD_TEST(BrachtherapySeedFactory_test tstBrachytherapySeedFactory)
+
+ADD_EXECUTABLE(tstIIEMTreatmentPlanner
+  tstIIEMTreatmentPlanner.cpp
+  ${SRC}/IIEMTreatmentPlanner.cpp
+  ${SRC}/SeedPosition.cpp
+  ${SRC}/BrachytherapySeedType.cpp
+  ${SRC}/BrachytherapySeedFactory.cpp
+  ${SRC}/BrachytherapyPatientFileHandler.cpp
+  ${SRC}/Interpolation.cpp
+  ${SRC}/BrachytherapySeed.cpp
+  ${SRC}/Amersham6702Seed.cpp
+  ${SRC}/Amersham6711Seed.cpp
+  ${SRC}/Amersham6733Seed.cpp
+  ${SRC}/Amersham9011Seed.cpp
+  ${SRC}/Best2301Seed.cpp
+  ${SRC}/Best2335Seed.cpp
+  ${SRC}/NASIMED3631Seed.cpp
+  ${SRC}/NASIMED3633Seed.cpp
+  ${SRC}/BebigI25S06Seed.cpp
+  ${SRC}/ImagynIS12501Seed.cpp
+  ${SRC}/Theragenics200Seed.cpp
+  ${SRC}/DraximageLS1Seed.cpp
+  ${SRC}/ImplantSciences3500Seed.cpp
+  ${SRC}/ImplantSciences3500Seed.cpp
+  ${SRC}/IBt1251LSeed.cpp
+  ${SRC}/IsoAidIAI125ASeed.cpp
+  ${SRC}/IsoAidIAPd103ASeed.cpp
+  ${SRC}/MBISL125SH125Seed.cpp
+  ${SRC}/SourceTechSTM1251Seed.cpp
+  ${SRC}/Nucletron130002Seed.cpp
+  ${SRC}/AdjointDataGenerator.cpp
+  ${SRC}/HDF5FileHandler.cpp)
+TARGET_LINK_LIBRARIES(tstIIEMTreatmentPlanner ${HDF5})
+ADD_TEST(IIEMTreatmentPlanner_test tstIIEMTreatmentPlanner)

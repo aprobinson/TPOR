@@ -14,13 +14,16 @@
 
 // TPOR Includes
 #include "HDF5FileHandler.hpp"
-#include "SeedType.hpp"
+#include "BrachytherapySeedType.hpp"
 
 namespace TPOR{
 
 //! Brachytherapy patient hdf5 file handler
 class BrachytherapyPatientFileHandler
 {
+  
+public:
+  
   //! Constructor
   BrachytherapyPatientFileHandler( const std::string &patient_file_name );
   
@@ -61,48 +64,73 @@ class BrachytherapyPatientFileHandler
   void getRectumMaskVolume( unsigned &rectum_mask_volume );
 
   //! Return the needle template
-  void getNeedleTemplate( 
-		 std::vector<std::pair<unsigned,unsigned> > &needle_template );
+  void getNeedleTemplate( std::vector<bool> &needle_template );
 
-  //! Return the seed mesh dimensions
-  void getSeedMeshDimensions( std::vector<unsigned> &mesh_dimensions );
-  
-  //! Return the seed data for the desired seed
-  void getSeedData( std::vector<double> &seed_data,
-		    const SeedType desired_seed_type );
-
-  //! Return the adjoint mesh dimensions
-  void getAdjointMeshDimensions( std::vector<unsigned> &mesh_dimensions );
+  //! Test if adjoint data has been generated for a specific seed
+  bool adjointDataExists( const BrachytherapySeedType seed_type,
+			  const double orientation_angle = 0.0 );
 
   //! Return the prostate adjoint data for the desired seed
   void getProstateAdjointData( std::vector<double> &prostate_adjoint_data,
-			       const SeedType desired_seed_type );
+			       const BrachytherapySeedType desired_seed_type,
+			       const double desired_seed_strength,
+			       const double orientation_angle = 0.0 );
+
+  //! Set the prostate adjoint data for the desired seed
+  void setProstateAdjointData(const std::vector<double> &prostate_adjoint_data,
+			      const BrachytherapySeedType seed_type,
+			      const double seed_strength,
+			      const double orientation_angle = 0.0 );
 
   //! Return the urethra adjoint data for the desired seed
   void getUrethraAdjointData( std::vector<double> &urethra_adjoint_data,
-			      const SeedType desired_seed_type );
+			      const BrachytherapySeedType desired_seed_type,
+			      const double desired_seed_strength,
+			      const double orientation_angle = 0.0 );
+
+  //! Set the urethra adjoint data for the desired seed
+  void setUrethraAdjointData( const std::vector<double> &urethra_adjoint_data,
+			      const BrachytherapySeedType seed_type,
+			      const double seed_strength,
+			      const double orientation_angle = 0.0 );
 
   //! Return the margin adjoint data for the desired seed
   void getMarginAdjointData( std::vector<double> &margin_adjoint_data,
-			     const SeedType desired_seed_type );
+			     const BrachytherapySeedType desired_seed_type,
+			     const double desired_seed_strength,
+			     const double orientation_angle = 0.0 );
+
+  //! Set the margin adjoint data for the desired seed
+  void setMarginAdjointData( const std::vector<double> &margin_adjoint_data,
+			     const BrachytherapySeedType seed_type,
+			     const double seed_strength,
+			     const double orientation_angle = 0.0 );
 
   //! Return the rectum adjoint data for the desired seed
   void getRectumAdjointData( std::vector<double> &rectum_adjoint_data,
-			     const SeedType desired_seed_type );
+			     const BrachytherapySeedType desired_seed_type,
+			     const double desired_seed_strength,
+			     const double orientation_angle = 0.0 );
+
+  //! Set the rectum adjoint data for the desired seed
+  void setRectumAdjointData( const std::vector<double> &rectum_adjoint_data,
+			     const BrachytherapySeedType seed_type,
+			     const double seed_strength,
+			     const double orientation_angle = 0.0 );
 
 private:
 
-  //! Return the location of the seed data for the desired seed
-  void getPathToSeedData( std::string &seed_data_path,
-			  const SeedType desired_seed_type );
-
   //! Return the location of the adjoint data for the desired seed
   void getPathToAdjointData( std::string &seed_data_path,
-			     const SeedType desired_seed_type );
+			     const BrachytherapySeedType desired_seed_type );
 
   //! Fill a boolean array using an array of unsigned chars
   void fillBooleanArray( std::vector<bool> &bool_array,
 			 const std::vector<unsigned char> &uchar_array );
+
+  //! Scale adjoint data by a factor
+  void scaleAdjointData( std::vector<double> &adjoint_data,
+			 const double scale_factor );
   
   // HDF5FileHandler
   HDF5FileHandler d_hdf5_file;

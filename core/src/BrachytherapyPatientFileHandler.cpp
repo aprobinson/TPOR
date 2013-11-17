@@ -22,7 +22,7 @@ BrachytherapyPatientFileHandler::BrachytherapyPatientFileHandler(
 // Destructor
 BrachytherapyPatientFileHandler::~BrachytherapyPatientFileHandler()
 {
-  d_hdf5_file.closeHDF5File()
+  d_hdf5_file.closeHDF5File();
 }
 
 // Return the patient name
@@ -48,7 +48,7 @@ void BrachytherapyPatientFileHandler::getOrganMeshDimensions(
 				       std::vector<unsigned> &mesh_dimensions )
 {
   d_hdf5_file.readArrayFromGroupAttribute( mesh_dimensions,
-					   "/organ_masks",
+					   "/",
 					   "mesh_dimensions" );
 }
 
@@ -69,7 +69,7 @@ void BrachytherapyPatientFileHandler::getProstateMaskVolume(
 {
   d_hdf5_file.readValueFromDataSetAttribute( prostate_mask_volume,
 					     "/organ_masks/prostate_mask",
-					     "volume" );
+					     "relative_volume" );
 }
 
 // Return the urethra mask
@@ -89,7 +89,7 @@ void BrachytherapyPatientFileHandler::getUrethraMaskVolume(
 {
   d_hdf5_file.readValueFromDataSetAttribute( urethra_mask_volume,
 					     "/organ_masks/urethra_mask",
-					     "volume" );
+					     "relative_volume" );
 }
 
 // Return the margin mask
@@ -100,7 +100,7 @@ void BrachytherapyPatientFileHandler::getMarginMask(
   d_hdf5_file.readArrayFromDataSet( tmp_margin_mask,
 				    "/organ_masks/margin_mask" );
 
-  fillBooleanArray( margin_mask, tmp_margin_mask;
+  fillBooleanArray( margin_mask, tmp_margin_mask );
 }
 
 // Return the margin mask volume
@@ -109,7 +109,7 @@ void BrachytherapyPatientFileHandler::getMarginMaskVolume(
 {
   d_hdf5_file.readValueFromDataSetAttribute( margin_mask_volume,
 					     "/organ_masks/margin_mask",
-					     "volume" );
+					     "relative_volume" );
 }
 
 // Return the rectum mask
@@ -117,7 +117,7 @@ void BrachytherapyPatientFileHandler::getRectumMask(
 					       std::vector<bool> &rectum_mask )
 {
   std::vector<unsigned char> tmp_rectum_mask;
-  d_hdf5_file.readArrayFromDataSet( rectum_mask,
+  d_hdf5_file.readArrayFromDataSet( tmp_rectum_mask,
 				    "/organ_masks/rectum_mask" );
   
   fillBooleanArray( rectum_mask, tmp_rectum_mask );
@@ -129,158 +129,182 @@ void BrachytherapyPatientFileHandler::getRectumMaskVolume(
 {
   d_hdf5_file.readValueFromDataSetAttribute( rectum_mask_volume,
 					     "/organ_masks/rectum_mask",
-					     "volume" );
+					     "relative_volume" );
 }
 
 // Return the needle template
 void BrachytherapyPatientFileHandler::getNeedleTemplate( 
-		  std::vector<std::pair<unsigned,unsigned> > &needle_template )
+					   std::vector<bool> &needle_template )
 {
-  d_hdf5_file.readArrayFromDataSet( needle_template,
+  std::vector<unsigned char> tmp_needle_template;
+  d_hdf5_file.readArrayFromDataSet( tmp_needle_template,
 				    "/needle_template" );
+
+  fillBooleanArray( needle_template, tmp_needle_template );
 }
 
-// Return the seed mesh dimensions
-void BrachytherapyPatientFileHandler::getSeedMeshDimensions( 
-				       std::vector<unsigned> &mesh_dimensions )
+// Test if adjoint data has been generated for a specific seed
+bool BrachytherapyPatientFileHandler::adjointDataExists( 
+					 const BrachytherapySeedType seed_type,
+					 const double orientation_angle )
 {
-  d_hdf5_file.readArrayFromGroupAttribute( mesh_dimensions,
-					   "/seed_data",
-					   "mesh_dimensions" );
-}
+  std::string group_location;
+  getPathToAdjointData( group_location, seed_type );
   
-// Return the seed data for the desired seed
-void BrachytherapyPatientFileHandler::getSeedData( 
-					     std::vector<double> &seed_data,
-					     const SeedType desired_seed_type )
-{
-  std::string dataset_location;
-  getPathToSeedData( dataset_location, desired_seed_type );
- 
-  d_hdf5_file.readArrayFromDataSet( seed_data, dataset_location );
-}
-
-// Return the adjoint mesh dimensions
-void BrachytherapyPatientFileHandler::getAdjointMeshDimensions( 
-				       std::vector<unsigned> &mesh_dimensions )
-{
-  d_hdf5_file.readArrayFromGroupAttribute( mesh_dimensions,
-					   "/adjoint_data",
-					   "mesh_dimensions" );
+  return d_hdf5_file.groupExists( group_location );
 }
 
 // Return the prostate adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getProstateAdjointData( 
-				    std::vector<double> &prostate_adjoint_data,
-				    const SeedType desired_seed_type )
+				 std::vector<double> &prostate_adjoint_data,
+				 const BrachytherapySeedType desired_seed_type,
+				 const double desired_seed_strength,
+				 const double orientation_angle )
 {
   std::string dataset_location;
   getPathToAdjointData( dataset_location, desired_seed_type );
   dataset_location += "/prostate_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( prostate_adjoint_data, dataset_location );
+
+  // Scale the adjoint data by the desired seed strength
+  scaleAdjointData( prostate_adjoint_data, desired_seed_strength );
+}
+
+// Set the prostate adjoint data for the desired seed
+void BrachytherapyPatientFileHandler::setProstateAdjointData(
+			      const std::vector<double> &prostate_adjoint_data,
+			      const BrachytherapySeedType seed_type,
+			      const double seed_strength,
+			      const double orientation_angle )
+{
+  std::string dataset_location;
+  getPathToAdjointData( dataset_location, seed_type );
+  dataset_location += "/prostate_adjoint_data";
+
+  
+  // Normalize the adjoint data
+  std::vector<double> normalized_adjoint_data = prostate_adjoint_data;
+  scaleAdjointData( normalized_adjoint_data, 1.0/seed_strength );
+
+  d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
 }
 
 // Return the urethra adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getUrethraAdjointData( 
-				     std::vector<double> &urethra_adjoint_data,
-				     const SeedType desired_seed_type )
+				 std::vector<double> &urethra_adjoint_data,
+				 const BrachytherapySeedType desired_seed_type,
+				 const double desired_seed_strength,
+				 const double orientation_angle )
 {
   std::string dataset_location;
   getPathToAdjointData( dataset_location, desired_seed_type );
   dataset_location += "/urethra_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( urethra_adjoint_data, dataset_location );
+
+  // Scale the adjoint data by the desired seed strength
+  scaleAdjointData( urethra_adjoint_data, desired_seed_strength );
+}
+
+// Set the urethra adjoint data for the desired seed
+void BrachytherapyPatientFileHandler::setUrethraAdjointData( 
+			       const std::vector<double> &urethra_adjoint_data,
+			       const BrachytherapySeedType seed_type,
+			       const double seed_strength,
+			       const double orientation_angle )
+{
+  std::string dataset_location;
+  getPathToAdjointData( dataset_location, seed_type );
+  dataset_location += "/urethra_adjoint_data";
+
+  
+  // Normalize the adjoint data
+  std::vector<double> normalized_adjoint_data = urethra_adjoint_data;
+  scaleAdjointData( normalized_adjoint_data, 1.0/seed_strength );
+
+  d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
 }
 
 // Return the margin adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getMarginAdjointData( 
-				      std::vector<double> &margin_adjoint_data,
-				      const SeedType desired_seed_type )
+				 std::vector<double> &margin_adjoint_data,
+				 const BrachytherapySeedType desired_seed_type,
+				 const double desired_seed_strength,
+				 const double orientation_angle )
 {
   std::string dataset_location;
   getPathToAdjointData( dataset_location, desired_seed_type );
   dataset_location += "/margin_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( margin_adjoint_data, dataset_location );
+
+  // Scale the adjoint data by the desired seed strength
+  scaleAdjointData( margin_adjoint_data, desired_seed_strength );
+}
+
+// Set the margin adjoint data for the desired seed
+void BrachytherapyPatientFileHandler::setMarginAdjointData( 
+			        const std::vector<double> &margin_adjoint_data,
+				const BrachytherapySeedType seed_type,
+				const double seed_strength,
+				const double orientation_angle )
+{
+  std::string dataset_location;
+  getPathToAdjointData( dataset_location, seed_type );
+  dataset_location += "/margin_adjoint_data";
+
+  
+  // Normalize the adjoint data
+  std::vector<double> normalized_adjoint_data = margin_adjoint_data;
+  scaleAdjointData( normalized_adjoint_data, 1.0/seed_strength );
+
+  d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
 }
 
 // Return the rectum adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getRectumAdjointData( 
-				      std::vector<double> &rectum_adjoint_data,
-				      const SeedType desired_seed_type )
+				 std::vector<double> &rectum_adjoint_data,
+				 const BrachytherapySeedType desired_seed_type,
+				 const double desired_seed_strength,
+				 const double orientation_angle )
 {
   std::string dataset_location;
   getPathToAdjointData( dataset_location, desired_seed_type );
   dataset_location += "/rectum_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( rectum_adjoint_data, dataset_location );
+
+  // Scale the adjoint data by the desired seed strength
+  scaleAdjointData( rectum_adjoint_data, desired_seed_strength );
 }
 
-// Return the location of the seed data for the desired seed
-void BrachytherapyPatientFileHandler::getPathToSeedData( 
-					     std::string &seed_data_path,
-					     const SeedType desired_seed_type )
+//! Set the rectum adjoint data for the desired seed
+void BrachytherapyPatientFileHandler::setRectumAdjointData( 
+			        const std::vector<double> &rectum_adjoint_data,
+				const BrachytherapySeedType seed_type,
+				const double seed_strength,
+				const double orientation_angle )
 {
-  switch( desired_seed_type )
-  {
-  case AMERSHAM_6702_SEED:
-    seed_data_path = "/seed_data/amersham_6702";
-    break;
-  case AMERSHAM_6711_SEED:
-    seed_data_path = "/seed_data/amersham_6711";
-    break;
-  case BEST_2301_SEED:
-    seed_data_path = "/seed_data/best_2301";
-    break;
-  case NASI_MED_3631_SEED:
-    seed_data_path = "/seed_data/nasi_med_3631";
-    break;
-  case NASI_MED_3633_SEED:
-    seed_data_path = "/seed_data/nasi_med_3633";
-  case BEBIG_I25_S06_SEED:
-    seed_data_path = "/seed_data/bebig_i25_s06";
-    break;
-  case IMAGYN_IS_12501_SEED:
-    seed_data_path = "/seed_data/imagyn_is_12051";
-    break;
-  case THERAGENICS_200_SEED:
-    seed_data_path = "/seed_data/theragenics_200";
-    break;
-  }
+  std::string dataset_location;
+  getPathToAdjointData( dataset_location, seed_type );
+  dataset_location += "/rectum_adjoint_data";
+
+  
+  // Normalize the adjoint data
+  std::vector<double> normalized_adjoint_data = rectum_adjoint_data;
+  scaleAdjointData( normalized_adjoint_data, 1.0/seed_strength );
+
+  d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
 }
 
 // Return the location of the adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getPathToAdjointData( 
-					     std::string &seed_data_path,
-					     const SeedType desired_seed_type )
+				std::string &seed_data_path,
+				const BrachytherapySeedType desired_seed_type )
 {
-  switch( desired_seed_type )
-  {
-  case AMERSHAM_6702_SEED:
-    seed_data_path = "/adjoint_data/amersham_6702";
-    break;
-  case AMERSHAM_6711_SEED:
-    seed_data_path = "/adjoint_data/amersham_6711";
-    break;
-  case BEST_2301_SEED:
-    seed_data_path = "/adjoint_data/best_2301";
-    break;
-  case NASI_MED_3631_SEED:
-    seed_data_path = "/adjoint_data/nasi_med_3631";
-    break;
-  case NASI_MED_3633_SEED:
-    seed_data_path = "/adjoint_data/nasi_med_3633";
-  case BEBIG_I25_S06_SEED:
-    seed_data_path = "/adjoint_data/bebig_i25_s06";
-    break;
-  case IMAGYN_IS_12501_SEED:
-    seed_data_path = "/adjoint_data/imagyn_is_12051";
-    break;
-  case THERAGENICS_200_SEED:
-    seed_data_path = "/adjoint_data/theragenics_200";
-    break;
-  }
+  seed_data_path = "/adjoint_data/" +
+    brachytherapySeedTypeToString( desired_seed_type );
 }
 
 // Fill a boolean array using an array of unsigned chars
@@ -296,6 +320,22 @@ void BrachytherapyPatientFileHandler::fillBooleanArray(
       bool_array[i] = false;
     else 
       bool_array[i] = true;
+  }
+}
+
+// Scale adjoint data by a factor
+void BrachytherapyPatientFileHandler::scaleAdjointData( 
+					     std::vector<double> &adjoint_data,
+					     const double scale_factor )
+{
+  std::vector<double>::iterator start = adjoint_data.begin(),
+    end = adjoint_data.end();
+
+  while( start != end )
+  {
+    *start *= scale_factor;
+      
+    ++start;
   }
 }
 

@@ -82,6 +82,27 @@ void HDF5FileHandler::closeHDF5File()
   d_hdf5_file.reset();
 }
 
+// Test if a group exists
+bool HDF5FileHandler::groupExists( const std::string &group_name )
+{
+  bool group_exists = true;
+  // The H5::File openGroup member function can throw a H5::FileIException 
+  // exception
+  try
+  {
+    H5::Group group( d_hdf5_file->openGroup( group_name ) );
+  }
+  // The H5::Group has not been created
+  catch( const H5::FileIException &exception )
+  {
+    group_exists = false;
+  }
+  // Any other exceptions will cause the program to exit
+  HDF5_EXCEPTION_CATCH_AND_EXIT();
+  
+  return group_exists;
+}
+
 /*! \details This function can be used to create a group heirarchy or to
  * create a directory at the desired location of the HDF5 file.
  * \param[in] path_name The name of the path containing parent groups that
@@ -102,19 +123,15 @@ void HDF5FileHandler::createParentGroups( const std::string &path_name )
   // Check if each group has been created and create the group if it hasn't
   for( unsigned int i = 0; i < group_names.size(); ++i )
   {
-    // The H5::File openGroup member function can throw a H5::FileIException 
-    // exception
-    try
+    if( !groupExists( group_names[i] ) )
     {
-      H5::Group group( d_hdf5_file->openGroup( group_names[i] ) );
+      try
+      {
+	H5::Group new_group( d_hdf5_file->createGroup( group_names[i] ) );
+      }
+
+      HDF5_EXCEPTION_CATCH_AND_EXIT();
     }
-    // The H5::Group has not been created so create it now
-    catch( const H5::FileIException &exception )
-    {
-      H5::Group new_group( d_hdf5_file->createGroup( group_names[i] ) );
-    }
-    // Any other exceptions will cause the program to exit
-    HDF5_EXCEPTION_CATCH_AND_EXIT();
   }
 }
     

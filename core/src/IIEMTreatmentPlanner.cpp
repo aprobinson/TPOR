@@ -16,6 +16,8 @@
 // TPOR includes
 #include "ContractException.hpp"
 #include "BrachytherapyPatientFileHandler.hpp"
+#include "BrachytherapySeedFactory.hpp"
+#include "AdjointDataGenerator.hpp"
 #include "IIEMTreatmentPlanner.hpp"
 
 namespace TPOR
@@ -23,125 +25,166 @@ namespace TPOR
 
 // Constructor
 IIEMTreatmentPlanner::IIEMTreatmentPlanner( 
-				     const std::string &patient_hdf5_file_name,
-				     const SeedType desired_seed_type,
-				     const double prescribed_dose )
+				 const std::string &patient_hdf5_file_name,
+				 const BrachytherapySeedType desired_seed_type,
+				 const double desired_seed_strength,
+				 const double prescribed_dose )
   : d_prescribed_dose( prescribed_dose ),
-    d_mesh_x_dimension( 0 ),
-    d_mesh_y_dimension( 0 ),
-    d_mesh_z_dimension( 0 ),
-    d_seed_mesh_x_dimension( 0 ),
-    d_seed_mesh_y_dimension( 0 ),
-    d_seed_mesh_z_dimension( 0 ),
-    d_seed_type( desired_seed_type ),
-    d_prostate_volume( 0 ),
+    d_mesh_x_dim( 0 ),
+    d_mesh_y_dim( 0 ),
+    d_mesh_z_dim( 0 ),
+    d_mesh_element_x_dim( 0.0 ),
+    d_mesh_element_y_dim( 0.0 ),
+    d_mesh_element_z_dim( 0.0 ),
+    d_prostate_vol( 0 ),
     d_min_number_of_needles( 0 ),
-    d_ciso1_max( 0.0 )
+    d_min_isodose_constant( 0.0 )
 {
   // Create the file handler for the desired patient file
-  BrachytherapyPatientFileHandler patient_hdf5_file( patient_hdf5_file_name );
+  BrachytherapyPatientFileHandler patient_file( patient_hdf5_file_name );
 
   // Load in the mesh dimensions
   std::vector<unsigned> mesh_dimensions;
-  patient_hdf5_file.getOrganMeshDimensions( mesh_dimensions );
+  patient_file.getOrganMeshDimensions( mesh_dimensions );
   
-  d_mesh_x_dimension = mesh_dimensions[0];
-  d_mesh_y_dimension = mesh_dimensions[1];
-  d_mesh_z_dimension = mesh_dimensions[2];
+  d_mesh_x_dim = mesh_dimensions[0];
+  d_mesh_y_dim = mesh_dimensions[1];
+  d_mesh_z_dim = mesh_dimensions[2];
 
   mesh_dimensions.clear();
 
-  // Load the seed mesh dimensions
-  std::vector<unsigned> seed_mesh_dimensions;
-  patient_hdf5_file.getSeedMeshDimensions( seed_mesh_dimensions );
+  // Load the mesh element dimensions
+  std::vector<double> mesh_element_dimensions;
+  patient_file.getMeshElementDimensions( mesh_element_dimensions );
+  d_mesh_element_x_dim = mesh_element_dimensions[0];
+  d_mesh_element_y_dim = mesh_element_dimensions[1];
+  d_mesh_element_z_dim = mesh_element_dimensions[2];
 
-  d_seed_mesh_x_dimension = seed_mesh_dimensions[0];
-  d_seed_mesh_y_dimension = seed_mesh_dimensions[1];
-  d_seed_mesh_z_dimension = seed_mesh_dimesnions[2];
-
-  seed_mesh_dimension.clear();
+  mesh_element_dimensions.clear();
 
   // Load the prostate mask volume
-  patient_hdf5_file.getProstateMaskVolume( d_prostate_vol );
+  patient_file.getProstateMaskVolume( d_prostate_vol );
   
   // Load in the prostate mask
-  patient_hdf5_file.getProstateMask( d_prostate_mask );
+  patient_file.getProstateMask( d_prostate_mask );
 
   // Load in the urethra mask
-  patient_hdf5_file.getUrethraMask( d_urethra_mask );
+  patient_file.getUrethraMask( d_urethra_mask );
 
   // Load in the margin mask
-  patient_hdf5_file.getMarginMask( d_margin_mask );
+  patient_file.getMarginMask( d_margin_mask );
 
   // Load in the rectum mask
-  patient_hdf5_file.getRectumMask( d_rectum_mask );
+  patient_file.getRectumMask( d_rectum_mask );
 
   // Load in the needle template
-  patient_hdf5_file.getNeedleTemplate( d_needle_template );
+  patient_file.getNeedleTemplate( d_needle_template );
  
-  // Load in the seed dose distribution
-  patient_hdf5_file.getSeedData( d_seed_dose_distribution, desired_seed_type );
+  // Create the desired brachytherapy seed
+  d_seed = BrachytherapySeedFactory::createSeed( desired_seed_type,
+						 desired_seed_strength );  
 
-  // Load in the prostate adjoint data
   std::vector<double> prostate_adjoint_data;
-  patient_hdf5_file.getProstateAdjointData( prostate_adjoint_data,
-					    desired_seed_type );
-
-  // Load in the urethra adjoint data
   std::vector<double> urethra_adjoint_data;
-  patient_hdf5_file.getUrethraAdjointData( urethra_adjoint_data,
-					   desired_seed_type );
-
-  // Load in the margin adjoint data
   std::vector<double> margin_adjoint_data;
-  patient_hdf5_file.getMarginAdjointData( margin_adjoint_data,
-					  desired_seed_type );
-  
-  // Load in the rectum adjoint data
   std::vector<double> rectum_adjoint_data;
-  patient_hdf5_file.getRectumAdjointData( rectum_adjoint,
-					  desired_seed_type );
 
-  // Filter potential seed positions to those along the template positions and
-  // set the position weight to the adjoint ratio at the position
-  double weight = 0;
-  unsigned x_index, y_index, index;
-  
-  for( unsigned slice = 0; slice < d_z_dimension; ++slice )
+  // Load the adjoint data for the desired seed if it has been cached  
+  if( patient_file.adjointDataExists( desired_seed_type ) )
   {
-    for( unsigned needle = 0; needle < d_needle_template.size(); ++needle )
-    {
-      x_index = d_needle_template[needle].first;
-      y_index = d_needle_template[needle].second;
-      index = y_index + x_index*d_y_dimension + 
-	slice*d_y_dimension*d_x_dimension;
-      
-      weight = (urethra_adjoint[index] + margin_adjoint[index] + 
-		rectum_adjoint[index])/prostate_adjoint[index];
-      
-      seed_position.push_back( std::make_pair( needle, 
-					       SeedPosition( x_index, 
-							     y_index, 
-							     slice, 
-							     weight, 
-							     d_seed_type ) ) );
-    }
+    // Load in the prostate adjoint data
+    patient_file.getProstateAdjointData( prostate_adjoint_data,
+					 desired_seed_type,
+					 desired_seed_strength );
+
+    // Load in the urethra adjoint data
+    patient_file.getUrethraAdjointData( urethra_adjoint_data,
+					desired_seed_type,
+					desired_seed_strength );
+
+    // Load in the margin adjoint data
+    patient_file.getMarginAdjointData( margin_adjoint_data,
+				       desired_seed_type,
+				       desired_seed_strength );
+  
+    // Load in the rectum adjoint data
+    patient_file.getRectumAdjointData( rectum_adjoint_data,
+				       desired_seed_type,
+				       desired_seed_strength );
   }
 
+  // Genenerate the adjoint data if it is not in the cache
+  else
+  {
+    AdjointDataGenerator adjoint_gen( d_seed,
+				      d_mesh_element_x_dim,
+				      d_mesh_element_y_dim,
+				      d_mesh_element_z_dim );
+    
+    adjoint_gen.calculateAdjointDose( prostate_adjoint_data,
+				      d_prostate_mask,
+				      d_mesh_x_dim,
+				      d_mesh_y_dim,
+				      d_mesh_z_dim );
+
+    adjoint_gen.calculateAdjointDose( urethra_adjoint_data,
+				      d_urethra_mask,
+				      d_mesh_x_dim,
+				      d_mesh_y_dim,
+				      d_mesh_z_dim );
+
+    adjoint_gen.calculateAdjointDose( margin_adjoint_data,
+				      d_margin_mask,
+				      d_mesh_x_dim,
+				      d_mesh_y_dim,
+				      d_mesh_z_dim );
+
+    adjoint_gen.calculateAdjointDose( rectum_adjoint_data,
+				      d_rectum_mask,
+				      d_mesh_x_dim,
+				      d_mesh_y_dim,
+				      d_mesh_z_dim );
+
+    // Cache this adjoint data
+    patient_file.setProstateAdjointData( prostate_adjoint_data,
+					 desired_seed_type,
+					 desired_seed_strength );
+
+    patient_file.setUrethraAdjointData( urethra_adjoint_data,
+					desired_seed_type,
+					desired_seed_strength );
+
+    patient_file.setMarginAdjointData( margin_adjoint_data,
+				       desired_seed_type,
+				       desired_seed_strength );
+
+    patient_file.setRectumAdjointData( rectum_adjoint_data,
+				       desired_seed_type,
+				       desired_seed_strength );
+  }
+
+  // Create the seed position list
+  createSeedPositionList( prostate_adjoint_data,
+			  urethra_adjoint_data,
+			  margin_adjoint_data,
+			  rectum_adjoint_data );
+
   // Sort the seed positions
-  d_seed_positions.sort( compareSeedPositions );
+  d_seed_positions.sort();
 
   // Determine the minimum number of needles that will be needed 
   // (Sua's linear fit)
+  double true_prostate_vol = d_prostate_vol*d_mesh_element_x_dim*
+    d_mesh_element_y_dim*d_mesh_element_z_dim;
   unsigned d_min_number_of_needles = 
-    static_cast<unsigned>( floor( 0.24*(d_prostate_vol*0.1*0.1*0.5) + 11.33 ));
+    (unsigned)floor( 0.24*true_prostate_vol + 11.33 );
 
   // Determine the minimum seed isodose constant for the seed selection process
-  double d_max_isodose_constant = calculateMinSeedIsodoseConstant();
+  d_min_isodose_constant = calculateMinSeedIsodoseConstant();
 
   // Initialize the dose distribution
-  d_dose_distrubition.resize( d_prostate_mask.size() );
-  }
+  d_dose_distribution.resize( d_prostate_mask.size() );
+}
 
 // Calculate optimum treatment plan
 void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
@@ -193,7 +236,13 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
   {
     std::cout << "Warning: The treatment planning algorithm was not "
 	      << "successful." << std::endl;
-  }    
+  }  
+  
+  // If successful, generate the dose-volume-histogram data
+  else
+  {
+    calculateDoseVolumeHistogramData();
+  }
 }
 
 // Conduct the isodose constant iteration
@@ -203,7 +252,7 @@ void IIEMTreatmentPlanner::conductIsodoseConstantIteration(
        std::list<std::pair<unsigned,SeedPosition> > &remaining_seed_positions )
 {
   for( double isodose_constant = 0.001; 
-       isodose_constant < d_max_isodose_constant;
+       isodose_constant < d_min_isodose_constant;
        isodose_constant += 0.001 )
   {
     // Set the current dose for each mesh element to zero
@@ -243,14 +292,14 @@ void IIEMTreatmentPlanner::conductIsodoseConstantIteration(
 	   ++seed_position )
       {
 	unsigned index = seed_position->second.getXIndex() +
-	  seed_position->second.getYIndex()*d_mesh_x_dimension +
-	  seed_position->second.getZIndex()*d_mesh_x_dimension*
-	  d_mesh_y_dimension;
+	  seed_position->second.getYIndex()*d_mesh_x_dim +
+	  seed_position->second.getZIndex()*d_mesh_x_dim*
+	  d_mesh_y_dim;
 	
 	double dose_cutoff = 
 	  d_prescribed_dose*isodose_constant*chosen_needle_ids.size();
 	
-	if( d_dose_distrubition[index] < dose_cutoff )
+	if( d_dose_distribution[index] < dose_cutoff )
 	{
 	  d_treatment_plan.push_back( *seed_position );
 	  
@@ -285,7 +334,7 @@ void IIEMTreatmentPlanner::conductIsodoseConstantIteration(
 }
 
 // Conduct the needle isodose constant iteration
-double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration( 
+void IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration( 
 			     const double start_constant,
 			     const double end_constant,
 			     const double step,
@@ -309,7 +358,7 @@ double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration(
     remaining_seed_positions;
 
   // Store the optimum needle isodose constant
-  optimum_needle_isodose_constant = 0.0;
+  double optimum_needle_isodose_constant = 0.0;
   
   for( double needle_isodose_constant = start_constant;
        needle_isodose_constant <= end_constant;
@@ -333,13 +382,12 @@ double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration(
 	   ++seed_position )
       {
 	unsigned index = seed_position->second.getXIndex() +
-	  seed_position->second.getYIndex()*d_mesh_x_dimension +
-	  seed_position->second.getZIndex()*d_mesh_x_dimension*
-	  d_mesh_y_dimension;
+	  seed_position->second.getYIndex()*d_mesh_x_dim +
+	  seed_position->second.getZIndex()*d_mesh_x_dim*d_mesh_y_dim;
 	
 	double dose_cutoff = d_prescribed_dose*needle_isodose_constant;
 	
-	if( d_dose_distrubition[index] < dose_cutoff &&
+	if( d_dose_distribution[index] < dose_cutoff &&
 	    chosen_needle_ids.find( seed_position->first ) != 
 	    chosen_needle_ids.end() )
 	{
@@ -369,18 +417,202 @@ double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration(
       break;
   }
 
-  // Run a refined iteration
+  // Run a refined iteration if the previous iteration was successful
   if( step > 0.001 )
   {
-    d_treatment_plan = treatment_plan_copy;
-    
-    start_needle_isodose_constant = optimum_needle_isodose_constant-0.019;
-    conductNeedleIsodoseConstantIteration( start_needle_isodose_constant,
-					   optimum_needle_isodose_constant,
-					   0.001,
-					   chosen_needle_ids,
-					   remaining_seed_positions );
+    if( calculateProstateDoseCoverage() >= 0.98 )
+    {
+      d_treatment_plan = treatment_plan_copy;
+      
+      double start_needle_isodose_constant = 
+	optimum_needle_isodose_constant-0.019;
+      conductNeedleIsodoseConstantIteration( start_needle_isodose_constant,
+					     optimum_needle_isodose_constant,
+					     0.001,
+					     chosen_needle_ids,
+					     remaining_seed_positions );
+    }
   }					   
+}
+
+// Create the seed position list
+void IIEMTreatmentPlanner::createSeedPositionList( 
+				   const std::vector<double> &prostate_adjoint,
+				   const std::vector<double> &urethra_adjoint,
+				   const std::vector<double> &margin_adjoint,
+				   const std::vector<double> &rectum_adjoint )
+{
+  // Filter potential seed positions to those along the template positions and
+  // set the position weight to the adjoint ratio at the position
+  double weight = 0;
+  unsigned needle = 0;
+  
+  for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+  {
+    for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+    {
+      unsigned needle_index = i + j*d_mesh_x_dim;
+	  
+      if( d_needle_template[needle_index] )
+      {
+	for( unsigned slice = 0; slice < d_mesh_z_dim; ++slice )
+	{
+	  unsigned mask_index = needle_index + slice*d_mesh_x_dim*d_mesh_y_dim;
+	  
+	  if( d_prostate_mask[mask_index] )
+	  {
+	    weight = (urethra_adjoint[mask_index] + margin_adjoint[mask_index]+
+		      rectum_adjoint[mask_index])/prostate_adjoint[mask_index];
+      
+	    SeedPosition seed_position(i, 
+				       j, 
+				       slice, 
+				       weight, 
+				       d_seed->getSeedType() );
+	    d_seed_positions.push_back(std::make_pair(needle, seed_position));
+	  }
+	}
+      
+	++needle;
+      }
+    }
+  }
+}
+
+// Calculate the minimum seed isodose constant
+double IIEMTreatmentPlanner::calculateMinSeedIsodoseConstant() const
+{
+  double min_isodose_constant = std::numeric_limits<double>::infinity();
+  double isodose_constant = 0.0;
+
+  std::list<std::pair<unsigned,SeedPosition> >::const_iterator 
+    position, end_position;
+  
+  position = d_seed_positions.begin();
+  end_position = d_seed_positions.end();
+  
+  while( position != end_position )
+  {
+    double seed_x = position->second.getXIndex()*d_mesh_element_x_dim + 
+      d_mesh_element_x_dim/2;
+    double seed_y = position->second.getYIndex()*d_mesh_element_y_dim + 
+      d_mesh_element_y_dim/2;
+    double seed_z = position->second.getZIndex()*d_mesh_element_z_dim + 
+      d_mesh_element_z_dim/2;
+    
+    for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+    {
+      double mesh_z = k*d_mesh_element_z_dim + d_mesh_element_z_dim/2;
+      
+      for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+      {
+	double mesh_y = j*d_mesh_element_y_dim + d_mesh_element_y_dim/2;
+	
+	for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+	{
+	  double mesh_x = i*d_mesh_element_z_dim + d_mesh_element_z_dim/2;
+	  
+	  if( d_prostate_mask[i+j*d_mesh_x_dim+k*d_mesh_x_dim*d_mesh_y_dim] )
+	  {
+	    double dose = d_seed->getTotalDose( mesh_x - seed_x,
+						mesh_y - seed_y,
+						mesh_z - seed_z );
+	    if( dose > d_prescribed_dose )
+	      dose = d_prescribed_dose;
+	    
+	    isodose_constant += dose;
+	  }
+	}
+      }
+    }
+    
+    isodose_constant /= (d_prostate_vol*d_prescribed_dose);
+    
+    if( isodose_constant < min_isodose_constant )
+      min_isodose_constant = isodose_constant;
+  }
+
+  return min_isodose_constant;
+}
+
+// Map the seed dose distribution to the problem mesh
+void IIEMTreatmentPlanner::mapSeedDoseDistribution( const double seed_x_index,
+						    const double seed_y_index,
+						    const double seed_z_index )
+{
+  // Make sure that the indices are valid
+  testPrecondition( seed_x_index < d_mesh_x_dim );
+  testPrecondition( seed_y_index < d_mesh_y_dim );
+  testPrecondition( seed_z_index < d_mesh_z_dim );
+
+  double seed_x = seed_x_index*d_mesh_element_x_dim + d_mesh_element_x_dim/2;
+  double seed_y = seed_y_index*d_mesh_element_y_dim + d_mesh_element_y_dim/2;
+  double seed_z = seed_z_index*d_mesh_element_z_dim + d_mesh_element_z_dim/2;
+
+  for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+  {
+    double mesh_z = k*d_mesh_element_z_dim + d_mesh_element_z_dim/2;
+    
+    for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+    {
+      double mesh_y = j*d_mesh_element_y_dim + d_mesh_element_y_dim/2;
+
+      for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+      {
+	double mesh_x = i*d_mesh_element_x_dim + d_mesh_element_x_dim/2;
+
+	d_dose_distribution[i+j*d_mesh_x_dim+k*d_mesh_x_dim*d_mesh_y_dim] +=
+	  d_seed->getTotalDose( mesh_x - seed_x,
+				mesh_y - seed_y,
+				mesh_z - seed_z );
+      }
+    }
+  }
+}
+
+// Calculate the prostate dose coverage (% of vol with prescribed dose)
+double IIEMTreatmentPlanner::calculateProstateDoseCoverage() const
+{
+  unsigned number_elements_covered = 0;
+  
+  for( unsigned i = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_prostate_mask[i] && d_dose_distribution[i] > d_prescribed_dose )
+      ++number_elements_covered;
+  }
+
+  return (double)number_elements_covered/d_prostate_vol;
+}
+
+//! Calculate the prostate dose coverage (% of vol with prescribed dose)
+void IIEMTreatmentPlanner::calculateDoseVolumeHistogramData()
+{
+  
+}
+
+// Print the treatment plan
+void IIEMTreatmentPlanner::printTreatmentPlan( std::ostream &os ) const
+{
+
+}
+
+// Print the treatment plan to std::cout
+void IIEMTreatmentPlanner::printTreatmentPlan() const
+{
+  printTreatmentPlan( std::cout );
+}
+
+// Print the dose-volume-histogram data
+void IIEMTreatmentPlanner::printDoseVolumeHistogramData( 
+						       std::ostream &os ) const
+{
+
+}
+
+// Print the dose-volume-histogram data to std::cout
+void IIEMTreatmentPlanner::printDoseVolumeHistogramData() const
+{
+  printDoseVolumeHistogramData( std::cout );
 }
 
 } // end TPOR namespace
