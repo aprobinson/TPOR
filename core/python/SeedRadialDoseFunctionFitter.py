@@ -123,6 +123,17 @@ nucletron_130002_data = np.array([1.042, 1.082, 1.087, 1.085, 1.078, 1.066, \
 isoaid_iapd103a_radii = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0])
 isoaid_iapd103a_data = np.array([0.915, 1.234, 1.296, 1.290, 1.260, 1.213, 1.160, 1.134, 1.106, 1.053, 1.000, 0.768, 0.576, 0.429, 0.318, 0.233, 0.173, 0.127, 0.092, 0.069, 0.050, 0.037, 0.028, 0.020, 0.015, 0.011, 0.008, 0.006, 0.005])
 
+# Tabulated radial dose function for Theragenics AgX100 Seed
+theragenics_agx100_radii = np.array([0.1, 0.15, 0.2, 0.25, 0.3, 0.5, 0.75, 1, \
+                                     1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, \
+                                     9, 10])
+theragenics_agx100_data = np.array([1.066, 1.086, 1.096, 1.098, 1.097, 1.076, \
+                                    1.042, 1.000, 0.908, 0.813, 0.720, 0.633, \
+                                    0.553, 0.482, 0.418, 0.361, 0.269, 0.199, \
+                                    0.147, 0.108, 0.079]) 
+
+
+
 # Run the script directly
 if __name__ == '__main__':
     import argparse as ap
@@ -139,9 +150,9 @@ if __name__ == '__main__':
     seed_name = "Seed name: \n\tAmersham_6702\n\tAmersham_6711"\
         "\n\tAmersham_6733\n\t\n\tAmersham_9011\n\tBest_2301\n\tBest_2335"\
         "\n\tNASI_MED3631\n\tNASI_MED3633\n\tBebig_I25_S06\n\tImagyn_IS12501"\
-        "\n\tTheragenics_200\n\tDraximage_LS1\n\tImplant_Sciences_3500"\
-        "\n\tIBt_1251L\n\tIsoAid_IAI125A\n\tIsoAid_IAPd103A"\
-        "\n\tMBI_SL125_SH125\n\tSource_Tech_STM1251\n\t"
+        "\n\tTheragenics_200\n\tTheragenics_AgX100\n\tDraximage_LS1"\
+        "\n\tImplant_Sciences_3500\n\tIBt_1251L\n\tIsoAid_IAI125A"\
+        "\n\tIsoAid_IAPd103A\n\tMBI_SL125_SH125\n\tSource_Tech_STM1251\n\t"
     parser.add_argument('seed_name', help=seed_name)
 
     # Parse the user's arguments
@@ -183,6 +194,9 @@ if __name__ == '__main__':
     elif user_args.seed_name == "Theragenics_200":
         independent_data = pd103_radii
         dependent_data = theragenics_200_data
+    elif user_args.seed_name == "Theragenics_AgX100":
+        independent_data = theragenics_agx100_radii
+        dependent_data = theragenics_agx100_data
     elif user_args.seed_name == "Draximage_LS1":
         independent_data = i125_radii[3:]
         dependent_data = draximage_ls1_data[3:]

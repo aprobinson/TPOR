@@ -137,7 +137,11 @@ getArraySize( const Array &array )
 template<typename Array>
 inline void
 resizeArray( Array &array, typename Traits::ArrayTraits<Array>::size_type n )
-{ return Traits::ArrayTraits<Array>::resize( array, n ); }
+{ 
+  testPrecondition( n > 0 );
+  
+  return Traits::ArrayTraits<Array>::resize( array, n ); 
+}
 
 } // end TPOR namespace
 

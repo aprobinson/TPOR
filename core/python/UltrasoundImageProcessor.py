@@ -155,7 +155,9 @@ del organ_mask_processor
 hdf5_file = h5py.File(image_metadata.get_patient_name()+".h5", 'w')
 
 # Add a root level attribute for the patient name
-hdf5_file.attrs['patient_name'] = image_metadata.get_patient_name()
+patient_name = image_metadata.get_patient_name()
+patient_name_array = np.frombuffer(patient_name, dtype=np.int8)
+hdf5_file.attrs['patient_name'] = patient_name_array
 
 # Add a root level attribute for the mesh element dimensions [cm]
 element_x_dim = 0.1
@@ -169,7 +171,9 @@ hdf5_file.attrs['mesh_element_dimensions']=(element_x_dim, \
 mesh_x_dim = coarse_prostate_masks.shape[2]
 mesh_y_dim = coarse_prostate_masks.shape[1]
 mesh_z_dim = coarse_prostate_masks.shape[0]
-hdf5_file.attrs['mesh_dimensions'] = (mesh_x_dim, mesh_y_dim, mesh_z_dim)
+hdf5_file.attrs.create('mesh_dimensions', \
+                       (mesh_x_dim, mesh_y_dim, mesh_z_dim), \
+                       dtype = np.uint32)
 
 # Create a group for the processed organ masks
 organ_mask_group = hdf5_file.create_group("organ_masks")
@@ -199,25 +203,33 @@ rectum_dset[...] = coarse_rectum_masks
 prostate_mesh_elements = coarse_prostate_masks.sum()
 prostate_volume = prostate_mesh_elements*0.1*0.1*\
     image_metadata.get_slice_offset()
-prostate_dset.attrs['relative_volume'] = prostate_mesh_elements
+prostate_dset.attrs.create('relative_volume', \
+                           prostate_mesh_elements, \
+                           dtype=np.uint32)
 prostate_dset.attrs['volume'] = prostate_volume
 
 urethra_mesh_elements = coarse_urethra_masks.sum()
 urethra_volume = urethra_mesh_elements*0.1*0.1*\
     image_metadata.get_slice_offset()
-urethra_dset.attrs['relative_volume'] = urethra_mesh_elements
+urethra_dset.attrs.create('relative_volume', \
+                          urethra_mesh_elements, \
+                          dtype=np.uint32)
 urethra_dset.attrs['volume'] = urethra_volume
 
 margin_mesh_elements = coarse_margin_masks.sum()
 margin_volume = margin_mesh_elements*0.1*0.1*\
     image_metadata.get_slice_offset()
-margin_dset.attrs['relative_volume'] = margin_mesh_elements
+margin_dset.attrs.create('relative_volume', \
+                         margin_mesh_elements, \
+                         dtype=np.uint32)
 margin_dset.attrs['volume'] = margin_volume
 
 rectum_mesh_elements = coarse_rectum_masks.sum()
 rectum_volume = rectum_mesh_elements*0.1*0.1*\
     image_metadata.get_slice_offset()
-rectum_dset.attrs['relative_volume'] = rectum_mesh_elements
+rectum_dset.attrs.create('relative_volume', \
+                         rectum_mesh_elements, \
+                         dtype=np.uint32)
 rectum_dset.attrs['volume'] = rectum_volume
 
 # Create a dataset for the needle template

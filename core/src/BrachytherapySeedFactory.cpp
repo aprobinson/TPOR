@@ -22,6 +22,7 @@
 #include "BebigI25S06Seed.hpp"
 #include "ImagynIS12501Seed.hpp"
 #include "Theragenics200Seed.hpp"
+#include "TheragenicsAgX100Seed.hpp"
 #include "DraximageLS1Seed.hpp"
 #include "ImplantSciences3500Seed.hpp"
 #include "IBt1251LSeed.hpp"
@@ -81,6 +82,9 @@ BrachytherapySeedFactory::createSeed( const BrachytherapySeedType seed_name,
     break;
   case THERAGENICS_200_SEED:
     seed_ptr.reset( new Theragenics200Seed( air_kerma_strength) );
+    break;
+  case THERAGENICS_AGX100_SEED:
+    seed_ptr.reset( new TheragenicsAgX100Seed( air_kerma_strength ) );
     break;
   case DRAXIMAGE_LS1_SEED:
     seed_ptr.reset( new DraximageLS1Seed( air_kerma_strength ) );

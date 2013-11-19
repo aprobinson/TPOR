@@ -42,26 +42,38 @@ public:
   //! Return the prostate mask
   void getProstateMask( std::vector<bool> &prostate_mask );
 
-  //! Return the prostate mask volume
-  void getProstateMaskVolume( unsigned &prostate_mask_volume );
+  //! Return the prostate mask relative volume (num elements)
+  void getProstateMaskRelativeVolume( unsigned &prostate_mask_relative_vol );
+
+  //! Return the prostate mask volume (cm^3)
+  void getProstateMaskVolume( double &prostate_mask_volume );
 
   //! Return the urethra mask
   void getUrethraMask( std::vector<bool> &urethra_mask );
 
-  //! Return the urethra mask volume
-  void getUrethraMaskVolume( unsigned &urethra_mask_volume );
+  //! Return the urethra mask relative volume (num elements)
+  void getUrethraMaskRelativeVolume( unsigned &urethra_mask_relative_vol );
+
+  //! Return the urethra mask volume (cm^3)
+  void getUrethraMaskVolume( double &urethra_mask_volume );
 
   //! Return the margin mask
   void getMarginMask( std::vector<bool> &margin_mask );
 
-  //! Return the margin mask volume
-  void getMarginMaskVolume( unsigned &margin_mask_volume );
+  //! Return the margin mask relative volume (num elements)
+  void getMarginMaskRelativeVolume( unsigned &margin_mask_relative_vol );
+
+  //! Return the margin mask volume (cm^3)
+  void getMarginMaskVolume( double &margin_mask_volume );
 
   //! Return the rectum mask
   void getRectumMask( std::vector<bool> &rectum_mask );
 
-  //! Return the rectum mask volume
-  void getRectumMaskVolume( unsigned &rectum_mask_volume );
+  //! Return the rectum mask relative volume (num elements)
+  void getRectumMaskRelativeVolume( unsigned &rectum_mask_volume );
+
+  //! Return the rectum mask volume (cm^3)
+  void getRectumMaskVolume( double &rectum_volume );
 
   //! Return the needle template
   void getNeedleTemplate( std::vector<bool> &needle_template );
@@ -124,9 +136,9 @@ private:
   void getPathToAdjointData( std::string &seed_data_path,
 			     const BrachytherapySeedType desired_seed_type );
 
-  //! Fill a boolean array using an array of unsigned chars
+  //! Fill a boolean array using an array of signed chars
   void fillBooleanArray( std::vector<bool> &bool_array,
-			 const std::vector<unsigned char> &uchar_array );
+			 const std::vector<signed char> &schar_array );
 
   //! Scale adjoint data by a factor
   void scaleAdjointData( std::vector<double> &adjoint_data,

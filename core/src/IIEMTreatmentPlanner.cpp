@@ -63,7 +63,7 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
   mesh_element_dimensions.clear();
 
   // Load the prostate mask volume
-  patient_file.getProstateMaskVolume( d_prostate_vol );
+  patient_file.getProstateMaskRelativeVolume( d_prostate_vol );
   
   // Load in the prostate mask
   patient_file.getProstateMask( d_prostate_mask );

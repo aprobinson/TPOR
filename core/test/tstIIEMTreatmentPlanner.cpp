@@ -13,7 +13,7 @@
 #define BOOST_TEST_MODULE IIEM Treatment Planner
 #include <boost/test/included/unit_test.hpp>
 
-// SPRNG Includes
+// TPOR Includes
 #include "HDF5FileHandler.hpp"
 #include "IIEMTreatmentPlanner.hpp"
 
@@ -79,7 +79,7 @@ struct MockPatientFileGenerator{
 					      "/organ_masks/margin_mask",
 					      "relative_volume" );
     file_handle.writeValueToDataSetAttribute( 5,
-					      "/organ_masks/margin_mask",
+					      "/organ_masks/rectum_mask",
 					      "relative_volume" );
     file_handle.closeHDF5File();
   }

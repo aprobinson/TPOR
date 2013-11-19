@@ -29,6 +29,8 @@
 #define TEST_ATTRIBUTE_NAME "attribute"
 #define ROOT_GROUP "/"
 #define CHILD_GROUP "/child/"
+#define GRANDCHILD_GROUP_A "/child/grandchild_a/"
+#define GRANDCHILD_GROUP_B "/child/grandchild_b/"
 
 //---------------------------------------------------------------------------//
 // Testing Typedefs.
@@ -39,7 +41,7 @@ typedef boost::mpl::list<std::vector<unsigned char>,
 			 std::string> 
 array_types;
 
-typedef boost::mpl::list<char, unsigned char, int, unsigned, double> 
+typedef boost::mpl::list<char, signed char, int, unsigned, double> 
 native_types;
 			 
 
@@ -142,6 +144,8 @@ BOOST_AUTO_TEST_CASE( createParentGroups )
   hdf5_file_handler.createParentGroups( TEST_DATASET_NAME );
   
   hdf5_file_handler.createParentGroups( CHILD_GROUP );
+  hdf5_file_handler.createParentGroups( GRANDCHILD_GROUP_A );
+  hdf5_file_handler.createParentGroups( GRANDCHILD_GROUP_B );
 
   hdf5_file_handler.closeHDF5File();
 }
