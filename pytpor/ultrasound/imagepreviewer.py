@@ -4,7 +4,7 @@ import numpy as np
 import math
 import sys
 
-class UltrasoundImagePreviewer(object):
+class ImagePreviewer(object):
     """
     This class allows one to preview all ultrasound slices at once.
     """
@@ -13,7 +13,7 @@ class UltrasoundImagePreviewer(object):
                  image_x_resolution = 640, \
                  image_y_resolution = 480):
         """
-        Initialize the UltrasoundImagePreviewer class.
+        Initialize the ImagePreviewer class.
 
         A string containing the ultrasound image file (with path) must be 
         passed as an argument.
@@ -68,12 +68,12 @@ class UltrasoundImagePreviewer(object):
         # Show the figure
         pyplot.show()
 
-# Test the UltrasoundImagePreviewer
+# Test the ImagePreviewer
 if __name__ == '__main__':
     import argparse as ap
 
     # Set up the argument parser
-    description = "Testing script for the UltrasoundImagePreviewer class"
+    description = "Testing script for the ImagePreviewer class"
 
     parser = ap.ArgumentParser(description=description)
 
@@ -83,9 +83,8 @@ if __name__ == '__main__':
     # Parse the user's arguments
     user_args = parser.parse_args()
 
-    # Create the UltrasoundImagePreviewer
-    ultrasound_image_previewer = \
-        UltrasoundImagePreviewer( user_args.image_file )
+    # Create the ImagePreviewer
+    ultrasound_image_previewer = ImagePreviewer( user_args.image_file )
 
     print "Tests successful.\n"
 

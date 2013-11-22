@@ -38,9 +38,6 @@ enum BrachytherapySeedType{
   NUCLETRON_130002_SEED,
 };
 
-//! Return a string corresponding to the Brachytherapy seed type
-std::string brachytherapySeedTypeToString( const BrachytherapySeedType seed );
-
 } // end TPOR namespace
 
 #endif // end BRACHYTHERAPY_SEED_TYPE_HPP

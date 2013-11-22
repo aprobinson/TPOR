@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   AdjointDataGenerator.hpp
+//! \file   BrachytherapyAdjointDataGenerator.hpp
 //! \author Alex Robinson
-//! \brief  Adjoint data generator class declaration.
+//! \brief  Brachytherapy adjoint data generator class declaration.
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef ADJOINT_DATA_GENERATOR_HPP
-#define ADJOINT_DATA_GENERATOR_HPP
+#ifndef BRACHYTHERAPY_ADJOINT_DATA_GENERATOR_HPP
+#define BRACHYTHERAPY_ADJOINT_DATA_GENERATOR_HPP
 
 // Std Lib Includes
 #include <vector>
@@ -18,20 +18,20 @@
 namespace TPOR{
 
 //! Adjoint data generator class 
-class AdjointDataGenerator
+class BrachytherapyAdjointDataGenerator
 {
 
 public:
 
   //! Constructor
-  AdjointDataGenerator( 
+  BrachytherapyAdjointDataGenerator( 
 		    const BrachytherapySeedFactory::BrachytherapySeedPtr &seed,
 		    const double mesh_element_x_dim,
 		    const double mesh_element_y_dim,
 		    const double mesh_element_z_dim );
 
   //! Destructor
-  ~AdjointDataGenerator()
+  ~BrachytherapyAdjointDataGenerator()
   { /* ... */ }
 
   //! Calculate the adjoint dose
@@ -61,8 +61,8 @@ private:
 
 } // end TPOR namespace
 
-#endif // end ADJOINT_DATA_GENERATOR_HPP
+#endif // end BrachytherapyADJOINT_DATA_GENERATOR_HPP
 
 //---------------------------------------------------------------------------//
-// end AdjointDataGenerator.hpp
+// end BrachytherapyAdjointDataGenerator.hpp
 //---------------------------------------------------------------------------//

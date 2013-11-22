@@ -3,9 +3,9 @@ from matplotlib import patches, path, pyplot, figure
 from matplotlib.widgets import Lasso, Button
 import numpy as np
 import sys
-from UltrasoundSliceManager import UltrasoundSliceManager
+from pytpor.ultrasound.imageslicemanager import ImageSliceManager
 
-class UltrasoundImageManager(object):
+class ImageManager(object):
     """
     This class allows one to create digital representations of organs by
     contouring a series of ultrasound slices.
@@ -15,7 +15,7 @@ class UltrasoundImageManager(object):
                  image_x_resolution = 640,\
                  image_y_resolution = 480):
         """
-        Initialize the UltrasoundImageManager class.
+        Initialize the ImageManager class.
 
         A string containing the ultrasound image file (with path) must be
         passed as an argument.
@@ -79,9 +79,9 @@ class UltrasoundImageManager(object):
 
         # Create the slice manager for this slice
         slice_image = self.full_image[self.slice]
-        self.slice_manager = UltrasoundSliceManager(self.image_axis_handle, \
-                                                    self.mask_axis_handle,  \
-                                                    slice_image[::-1])
+        self.slice_manager = ImageSliceManager(self.image_axis_handle, \
+                                               self.mask_axis_handle,  \
+                                               slice_image[::-1])
 
         # Create the Undo button
         self.undo_button_axes = pyplot.axes([0.15, 0.025, 0.1, 0.075])
@@ -107,7 +107,7 @@ class UltrasoundImageManager(object):
         When the desired event occurs, the next ultrasound image slice will
         be initialized.
 
-        This function only executes when the UltrasoundSliceManager instance 
+        This function only executes when the ImageSliceManager instance 
         has all of the desired contour and mask data.
         """
         if self.slice_manager.organ_index == 4:
@@ -158,14 +158,13 @@ class UltrasoundImageManager(object):
                 # Create the slice manager for this slice
                 del self.slice_manager
                 slice_image = self.full_image[self.slice]
-                self.slice_manager = \
-                    UltrasoundSliceManager(self.image_axis_handle, \
-                                           self.mask_axis_handle,  \
-                                           slice_image[::-1])
+                self.slice_manager = ImageSliceManager(self.image_axis_handle,\
+                                                       self.mask_axis_handle, \
+                                                       slice_image[::-1])
                 
                 # Rebind the Undo button
                 self.undo_button_id = \
-                    self.undo_button.on_clicked(self.slice_manager.undo_contour)
+                   self.undo_button.on_clicked(self.slice_manager.undo_contour)
                 
                 pyplot.show()
                 
@@ -177,7 +176,7 @@ class UltrasoundImageManager(object):
 
     def force_exit(self, event):
         """
-        When the desired event occurs, the UltrasoundImageManager class 
+        When the desired event occurs, the ImageManager class 
         instance will close the open window and exit.
         """
         sys.exit()
@@ -232,12 +231,12 @@ class UltrasoundImageManager(object):
         if self.slice == self.total_slices:
             return self.rectum_masks
 
-# Test the UltrasoundImageManager
+# Test the ImageManager
 if __name__ == '__main__':
     import argparse as ap
 
     # Set up the argument parser
-    description = "Testing script for the UltrasoundImageManger class. "
+    description = "Testing script for the ImageManger class. "
     
     parser = ap.ArgumentParser(description=description)
 
@@ -247,8 +246,8 @@ if __name__ == '__main__':
     # Parse the user's arguments
     user_args = parser.parse_args()
     
-    # Create the UltrasoundImageManager
-    ultrasound_image_manager = UltrasoundImageManager( user_args.image_file )
+    # Create the ImageManager
+    ultrasound_image_manager = ImageManager( user_args.image_file )
 
     # Retrieve the masks
     prostate_masks = ultrasound_image_manager.get_prostate_masks()

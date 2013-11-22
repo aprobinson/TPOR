@@ -123,9 +123,9 @@ double BrachytherapySeed::evaluateGeometryFunction( const double r,
 						    const double Leff )
 {
   // Make sure that the radius is valid
+  testPrecondition( r == r ); // Nan test
   testPrecondition( r > 0.0 );
   testPrecondition( r < std::numeric_limits<double>::infinity() );
-  testPrecondition( r == r ); // Nan test
   // Make sure theta is in radians
   testPrecondition( theta >= 0.0 );
   testPrecondition( theta <= acos(0.0) );

@@ -9,7 +9,7 @@ class ArrayError(Exception):
     """
     pass
 
-class OrganMaskProcessor(object):
+class MaskProcessor(object):
     """
     This class allows one to process organ masks that are created from
     medical image files.
@@ -23,7 +23,7 @@ class OrganMaskProcessor(object):
                  mesh_element_y_dim, \
                  mesh_element_z_dim ):
         """
-        Initialize the OrganMaskProcessor class.
+        Initialize the MaskProcessor class.
         
         An array containing the prostate masks, urethra masks, margin_masks and
         rectum masks must be passed as arguments. The dimensions of the (numpy)
@@ -459,15 +459,15 @@ class OrganMaskProcessor(object):
         """
         return self.needle_template
 
-# Test the OrganMaskProcessor
+# Test the MaskProcessor
 if __name__ == '__main__':
     import argparse as ap
     import math
     from matplotlib import pyplot, figure
-    from UltrasoundImageManager import UltrasoundImageManager
+    from pytpor.ultrasound.imagemanager import ImageManager
 
     # Set up the argument parser
-    description = "Testing script for the OrganMaskProcessor class."
+    description = "Testing script for the MaskProcessor class."
 
     parser = ap.ArgumentParser(description=description)
 
@@ -477,8 +477,8 @@ if __name__ == '__main__':
     # Parse the user's arguments
     user_args = parser.parse_args()
 
-    # Create the UltrasoundImageManager
-    ultrasound_image_manager = UltrasoundImageManager( user_args.image_file )
+    # Create the ImageManager
+    ultrasound_image_manager = ImageManager( user_args.image_file )
 
     # Retrieve the masks
     prostate_masks = ultrasound_image_manager.get_prostate_masks()
@@ -486,14 +486,14 @@ if __name__ == '__main__':
     margin_masks = ultrasound_image_manager.get_margin_masks()
     rectum_masks = ultrasound_image_manager.get_rectum_masks()
     
-    # Create the OrganMaskProcessor
-    organ_mask_processor = OrganMaskProcessor(prostate_masks, \
-                                              urethra_masks, \
-                                              margin_masks, \
-                                              rectum_masks,
-                                              0.018150,
-                                              0.018150,
-                                              0.500000)
+    # Create the MaskProcessor
+    organ_mask_processor = MaskProcessor(prostate_masks, \
+                                         urethra_masks, \
+                                         margin_masks, \
+                                         rectum_masks,
+                                         0.018150,
+                                         0.018150,
+                                         0.500000)
 
     # Retrieve the fov masks
     prostate_masks = organ_mask_processor.get_fov_prostate_masks()

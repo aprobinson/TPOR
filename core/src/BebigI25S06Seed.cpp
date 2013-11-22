@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string BebigI25S06Seed::seed_name = "BebigI25S06Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double BebigI25S06Seed::effective_length = 0.35;
 
@@ -87,12 +90,29 @@ BrachytherapySeedType BebigI25S06Seed::getSeedType() const
   return BebigI25S06Seed::seed_type;
 }
 
+// Return the seed name
+std::string BebigI25S06Seed::getSeedName() const
+{
+  return BebigI25S06Seed::seed_name;
+}
+
+// Return the seed strength
+double BebigI25S06Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double BebigI25S06Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

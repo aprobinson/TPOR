@@ -33,6 +33,12 @@ public:
   //! Return the seed type
   BrachytherapySeedType getSeedType() const;
 
+  //! Return the seed name
+  std::string getSeedName() const;
+
+  //! Return the seed strength
+  double getSeedStrength() const;
+
   //! Return the dose rate at a given point (cGy/hr)
   double getDoseRate( const double x,
 		      const double y,
@@ -47,6 +53,9 @@ private:
 
   // The seed type
   static const BrachytherapySeedType seed_type = THERAGENICS_200_SEED;
+
+  // The seed name
+  static const std::string seed_name;
 
   // The effective seed length (Leff)
   static const double effective_length;

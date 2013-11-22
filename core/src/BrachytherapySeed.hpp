@@ -9,6 +9,9 @@
 #ifndef BRACHYTHERAPY_SEED_HPP
 #define BRACHYTHERAPY_SEED_HPP
 
+// Std Lib Includes
+#include <string>
+
 // TPOR Includes
 #include "BrachytherapySeedType.hpp"
 
@@ -30,6 +33,12 @@ public:
 
   //! Return the seed type
   virtual BrachytherapySeedType getSeedType() const = 0;
+
+  //! Return the seed name
+  virtual std::string getSeedName() const = 0;
+
+  //! Return the seed strength (air-kerma strength)
+  virtual double getSeedStrength() const = 0;
 
   //! Return the dose rate at a given point (cGy/hr)
   virtual double getDoseRate( const double x, 
@@ -70,7 +79,7 @@ protected:
   static double evaluateGeometryFunction( const double r,
 					  const double z,
 					  const double Leff );
-
+					  
   //! Evaluate the radial dose function at a given radius
   static double evaluateRadialDoseFunction( const double r,
 					    const double *radial_dose_func,

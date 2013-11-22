@@ -12,7 +12,7 @@
 
 // Boost Includes
 #define BOOST_TEST_MODULE BrachytherapyPatientFileHandler
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 // TPOR Includes
 #include "BrachytherapyPatientFileHandler.hpp"
@@ -109,9 +109,7 @@ struct MockPatientFileGenerator{
 					      "/organ_masks/rectum_mask",
 					      "volume" );
     
-    std::string adjoint_data_path = "/adjoint_data/";
-    adjoint_data_path +=
-      brachytherapySeedTypeToString( TPOR::AMERSHAM_6711_SEED );
+    std::string adjoint_data_path = "/adjoint_data/Amersham6711Seed";
     
     file_handle.writeArrayToDataSet( prostate_adjoint, adjoint_data_path +
 				    "/prostate_adjoint_data" );
@@ -347,8 +345,8 @@ BOOST_AUTO_TEST_CASE( adjointDataExists )
 {
   TPOR::BrachytherapyPatientFileHandler patient_file( "John_Doe.h5" );
   
-  BOOST_CHECK( patient_file.adjointDataExists( TPOR::AMERSHAM_6711_SEED ) );
-  BOOST_CHECK( !patient_file.adjointDataExists( TPOR::AMERSHAM_6702_SEED ) );
+  BOOST_CHECK( patient_file.adjointDataExists( "Amersham6711Seed" ) );
+  BOOST_CHECK( !patient_file.adjointDataExists( "Amersham6702Seed" ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -359,7 +357,7 @@ BOOST_AUTO_TEST_CASE( getProstateAdjointData )
   std::vector<double> prostate_adjoint_data;
 
   patient_file.getProstateAdjointData( prostate_adjoint_data,
-				       TPOR::AMERSHAM_6711_SEED,
+				       "Amersham6711Seed",
 				       1.5 );
 
   BOOST_CHECK_EQUAL( prostate_adjoint_data[0], 1.5 );
@@ -378,12 +376,12 @@ BOOST_AUTO_TEST_CASE( setProstateAdjointData )
 	     0.5 );
 
   patient_file.setProstateAdjointData( prostate_adjoint_data,
-  				       TPOR::AMERSHAM_6702_SEED,
+  				       "Amersham6702Seed",
   				       0.5 );
   
   std::vector<double> stored_prostate_adjoint_data;
   patient_file.getProstateAdjointData( stored_prostate_adjoint_data,
-				       TPOR::AMERSHAM_6702_SEED,
+				       "Amersham6702Seed",
 				       1.5 );
 
   BOOST_CHECK_EQUAL( prostate_adjoint_data[0]*3, 
@@ -402,7 +400,7 @@ BOOST_AUTO_TEST_CASE( getUrethraAdjointData )
   std::vector<double> urethra_adjoint_data;
 
   patient_file.getUrethraAdjointData( urethra_adjoint_data,
-				      TPOR::AMERSHAM_6711_SEED,
+				      "Amersham6711Seed",
 				      1.5 );
 
   BOOST_CHECK_EQUAL( urethra_adjoint_data[0], 1.5 );
@@ -421,12 +419,12 @@ TPOR::BrachytherapyPatientFileHandler patient_file( "John_Doe.h5" );
 	     0.5 );
 
   patient_file.setUrethraAdjointData( urethra_adjoint_data,
-				      TPOR::AMERSHAM_6702_SEED,
+				      "Amersham6702Seed",
 				      0.5 );
   
   std::vector<double> stored_urethra_adjoint_data;
   patient_file.getUrethraAdjointData( stored_urethra_adjoint_data,
-				      TPOR::AMERSHAM_6702_SEED,
+				      "Amersham6702Seed",
 				      1.5 );
 
   BOOST_CHECK_EQUAL( urethra_adjoint_data[0]*3, 
@@ -445,7 +443,7 @@ BOOST_AUTO_TEST_CASE( getMarginAdjointData )
   std::vector<double> margin_adjoint_data;
 
   patient_file.getMarginAdjointData( margin_adjoint_data,
-				     TPOR::AMERSHAM_6711_SEED,
+				     "Amersham6711Seed",
 				     1.5 );
 
   BOOST_CHECK_EQUAL( margin_adjoint_data[0], 1.5 );
@@ -464,12 +462,12 @@ BOOST_AUTO_TEST_CASE( setMarginAdjointData )
 	     0.5 );
 
   patient_file.setMarginAdjointData( margin_adjoint_data,
-				     TPOR::AMERSHAM_6702_SEED,
+				     "Amersham6702Seed",
 				     0.5 );
   
   std::vector<double> stored_margin_adjoint_data;
   patient_file.getUrethraAdjointData( stored_margin_adjoint_data,
-				      TPOR::AMERSHAM_6702_SEED,
+				      "Amersham6702Seed",
 				      1.5 );
 
   BOOST_CHECK_EQUAL( margin_adjoint_data[0]*3, 
@@ -488,7 +486,7 @@ BOOST_AUTO_TEST_CASE( getRectumAdjointData )
   std::vector<double> rectum_adjoint_data;
 
   patient_file.getRectumAdjointData( rectum_adjoint_data,
-				     TPOR::AMERSHAM_6711_SEED,
+				     "Amersham6711Seed",
 				     1.5 );
 
   BOOST_CHECK_EQUAL( rectum_adjoint_data[0], 1.5 );
@@ -507,12 +505,12 @@ BOOST_AUTO_TEST_CASE( setRectumAdjointData )
 	     0.5 );
 
   patient_file.setRectumAdjointData( rectum_adjoint_data,
-				     TPOR::AMERSHAM_6702_SEED,
+				     "Amersham6702Seed",
 				     0.5 );
   
   std::vector<double> stored_rectum_adjoint_data;
   patient_file.getUrethraAdjointData( stored_rectum_adjoint_data,
-				      TPOR::AMERSHAM_6702_SEED,
+				      "Amersham6702Seed",
 				      1.5 );
 
   BOOST_CHECK_EQUAL( rectum_adjoint_data[0]*3, 

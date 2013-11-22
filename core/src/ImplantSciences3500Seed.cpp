@@ -16,6 +16,10 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string ImplantSciences3500Seed::seed_name = 
+  "ImplantSciences3500Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double ImplantSciences3500Seed::effective_length = 0.376;
 
@@ -85,12 +89,29 @@ BrachytherapySeedType ImplantSciences3500Seed::getSeedType() const
   return ImplantSciences3500Seed::seed_type;
 }
 
+// Return the seed name
+std::string ImplantSciences3500Seed::getSeedName() const
+{
+  return ImplantSciences3500Seed::seed_name;
+}
+
+// Return the seed strength
+double ImplantSciences3500Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double ImplantSciences3500Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

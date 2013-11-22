@@ -1,12 +1,11 @@
 #! /usr/bin/env python
-
-class UltrasoundImageMetadataManager(object):
+class ImageMetadata(object):
     """
     This class stores all image metadata.
     """
     def __init__(self, ultrasound_image_header_file):
         """
-        Initialize the UltrasoundImageMetadataManager class.
+        Initialize the ImageMetadata class.
 
         A string containing the ultrasound image header file (with path) must
         be passed as an argument.
@@ -180,12 +179,12 @@ class UltrasoundImageMetadataManager(object):
         """
         return self.patient_name
 
-# Test the UltrasoundImageMetadataManager
+# Test the ImageMetadata
 if __name__ == '__main__':
     import argparse as ap
 
     # Set up the argument parser
-    description = "Testing script for the UltrasoundImageMetadataManager class"
+    description = "Testing script for the ImageMetadata class"
 
     parser = ap.ArgumentParser(description=description)
 
@@ -195,8 +194,8 @@ if __name__ == '__main__':
     # Parse the user's arguments
     user_args = parser.parse_args()
 
-    # Create the UltrasoundImageMetadataManager
-    image_metadata =UltrasoundImageMetadataManager(user_args.image_header_file)
+    # Create the ImageMetadata
+    image_metadata = ImageMetadata(user_args.image_header_file)
     
     # Print all of the metadata
     print image_metadata.get_image_file_data_type()

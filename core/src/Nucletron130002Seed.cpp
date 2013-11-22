@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string Nucletron130002Seed::seed_name = "Nucletron130002Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double Nucletron130002Seed::effective_length = 0.3;
 
@@ -103,12 +106,29 @@ BrachytherapySeedType Nucletron130002Seed::getSeedType() const
   return Nucletron130002Seed::seed_type;
 }
 
+// Return the seed name
+std::string Nucletron130002Seed::getSeedName() const
+{
+  return Nucletron130002Seed::seed_name;
+}
+
+// Return the seed strength
+double Nucletron130002Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double Nucletron130002Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

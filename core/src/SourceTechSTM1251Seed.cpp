@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string SourceTechSTM1251Seed::seed_name = "SourceTechSTM1251Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double SourceTechSTM1251Seed::effective_length = 0.381;
 
@@ -85,12 +88,29 @@ BrachytherapySeedType SourceTechSTM1251Seed::getSeedType() const
   return SourceTechSTM1251Seed::seed_type;
 }
 
+// Return the seed name
+std::string SourceTechSTM1251Seed::getSeedName() const
+{
+  return SourceTechSTM1251Seed::seed_name;
+}
+
+// Return the seed strength
+double SourceTechSTM1251Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double SourceTechSTM1251Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

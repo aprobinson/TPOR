@@ -79,62 +79,49 @@ public:
   void getNeedleTemplate( std::vector<bool> &needle_template );
 
   //! Test if adjoint data has been generated for a specific seed
-  bool adjointDataExists( const BrachytherapySeedType seed_type,
-			  const double orientation_angle = 0.0 );
+  bool adjointDataExists( const std::string &seed_name );
 
   //! Return the prostate adjoint data for the desired seed
   void getProstateAdjointData( std::vector<double> &prostate_adjoint_data,
-			       const BrachytherapySeedType desired_seed_type,
-			       const double desired_seed_strength,
-			       const double orientation_angle = 0.0 );
-
+			       const std::string &desired_seed_name,
+			       const double desired_seed_strength );
+			       
   //! Set the prostate adjoint data for the desired seed
   void setProstateAdjointData(const std::vector<double> &prostate_adjoint_data,
-			      const BrachytherapySeedType seed_type,
-			      const double seed_strength,
-			      const double orientation_angle = 0.0 );
+			      const std::string &seed_name,
+			      const double seed_strength );
 
   //! Return the urethra adjoint data for the desired seed
   void getUrethraAdjointData( std::vector<double> &urethra_adjoint_data,
-			      const BrachytherapySeedType desired_seed_type,
-			      const double desired_seed_strength,
-			      const double orientation_angle = 0.0 );
+			      const std::string &desired_seed_name,
+			      const double desired_seed_strength );
 
   //! Set the urethra adjoint data for the desired seed
   void setUrethraAdjointData( const std::vector<double> &urethra_adjoint_data,
-			      const BrachytherapySeedType seed_type,
-			      const double seed_strength,
-			      const double orientation_angle = 0.0 );
+			      const std::string &seed_name,
+			      const double seed_strength );
 
   //! Return the margin adjoint data for the desired seed
   void getMarginAdjointData( std::vector<double> &margin_adjoint_data,
-			     const BrachytherapySeedType desired_seed_type,
-			     const double desired_seed_strength,
-			     const double orientation_angle = 0.0 );
+			     const std::string &desired_seed_name,
+			     const double desired_seed_strength );
 
   //! Set the margin adjoint data for the desired seed
   void setMarginAdjointData( const std::vector<double> &margin_adjoint_data,
-			     const BrachytherapySeedType seed_type,
-			     const double seed_strength,
-			     const double orientation_angle = 0.0 );
+			     const std::string &seed_name,
+			     const double seed_strength );
 
   //! Return the rectum adjoint data for the desired seed
   void getRectumAdjointData( std::vector<double> &rectum_adjoint_data,
-			     const BrachytherapySeedType desired_seed_type,
-			     const double desired_seed_strength,
-			     const double orientation_angle = 0.0 );
+			     const std::string &desired_seed_name,
+			     const double desired_seed_strength );
 
   //! Set the rectum adjoint data for the desired seed
   void setRectumAdjointData( const std::vector<double> &rectum_adjoint_data,
-			     const BrachytherapySeedType seed_type,
-			     const double seed_strength,
-			     const double orientation_angle = 0.0 );
+			     const std::string &seed_name,
+			     const double seed_strength );
 
 private:
-
-  //! Return the location of the adjoint data for the desired seed
-  void getPathToAdjointData( std::string &seed_data_path,
-			     const BrachytherapySeedType desired_seed_type );
 
   //! Fill a boolean array using an array of signed chars
   void fillBooleanArray( std::vector<bool> &bool_array,

@@ -32,6 +32,12 @@ public:
 
   //! Return the seed type
   BrachytherapySeedType getSeedType() const;
+  
+  //! Return the seed name
+  std::string getSeedName() const;
+
+  //! Return the seed strength
+  double getSeedStrength() const;
 
   //! Return the dose rate at a given point (cGy/hr)
   double getDoseRate( const double x,
@@ -43,10 +49,13 @@ public:
 		       const double y,
 		       const double z ) const;
 
-private:
-
   // The seed type
   static const BrachytherapySeedType seed_type = ISOAID_IAI_125A_SEED;
+
+  // The seed name
+  static const std::string seed_name;
+
+private:
 
   // The effective seed length (Leff)
   static const double effective_length;

@@ -3,7 +3,7 @@ from matplotlib import patches, path, pyplot
 from matplotlib.widgets import Lasso, Button
 import numpy as np
 
-class UltrasoundSliceManager(object):
+class ImageSliceManager(object):
     """
     This class allows one to select the prostate, urethra, margin and rectum
     contours on an ultrasound image. 
@@ -19,7 +19,7 @@ class UltrasoundSliceManager(object):
     """
     def __init__(self, image_axis_handle, mask_axis_handle, slice_image_data ):
         """
-        Initialize the UltrasoundSliceManager class.
+        Initialize the ImageSliceManager class.
 
         Two matplotlib.axes objects and an array containing the slice image 
         data must be passed as arguments. The first matplotlib.axes object must
@@ -248,13 +248,13 @@ class UltrasoundSliceManager(object):
         del self.lasso
 
         
-# Test the UltrasoundSliceManager class with a single slice
+# Test the ImageSliceManager class with a single slice
 if __name__ == '__main__':
     import sys
     import argparse as ap
 
     # Set up the argument parser
-    description = "Testing script for the UltrasoundSliceManager class. "
+    description = "Testing script for the ImageSliceManager class. "
     "Close the figure window when contouring is completed to finish the tests."
     
     parser = ap.ArgumentParser(description=description)
@@ -300,7 +300,7 @@ if __name__ == '__main__':
                                                autoscale_on = False)
 
     # Create the slice manager
-    slice_manager = UltrasoundSliceManager(image_axis_handle, \
+    slice_manager = ImageSliceManager(image_axis_handle, \
                                            mask_axis_handle,  \
                                            slice_image[::-1])
 

@@ -33,6 +33,12 @@ public:
   //! Return the seed type
   BrachytherapySeedType getSeedType() const;
 
+  //! Return the seed name
+  std::string getSeedName() const;
+
+  //! Return the seed strength
+  double getSeedStrength() const;
+
   //! Return the dose rate at a given point (cGy/hr)
   double getDoseRate( const double x,
 		      const double y,
@@ -43,19 +49,22 @@ public:
 		       const double y,
 		       const double z ) const;
 
-private:
-
   // The seed type
   static const BrachytherapySeedType seed_type = AMERSHAM_6733_SEED;
 
+  // The seed name
+  static const std::string seed_name;
+
+private:
+
   // The effective seed length (Leff)
   static const double effective_length;
-  
-  // The reference value of the geometry function - G(1.0,pi/2)
-  static const double ref_geometry_func_value;
-  
+
   // The dose rate constant
   static const double dose_rate_constant;
+
+  // The reference value of the geometry function - G(1.0,pi/2)
+  static const double ref_geometry_func_value;
 
   // The radial dose function
   static const int rdf_points = 16;

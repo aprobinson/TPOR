@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string Amersham6702Seed::seed_name = "Amersham6702Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double Amersham6702Seed::effective_length = 0.30;
 
@@ -83,12 +86,29 @@ BrachytherapySeedType Amersham6702Seed::getSeedType() const
   return Amersham6702Seed::seed_type;
 }
 
+// Return the seed name
+std::string Amersham6702Seed::getSeedName() const
+{
+  return Amersham6702Seed::seed_name;
+}
+
+// Return the seed strength
+double Amersham6702Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double Amersham6702Seed::getDoseRate( const double x, 
 				      const double y, 
 				      const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+  
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

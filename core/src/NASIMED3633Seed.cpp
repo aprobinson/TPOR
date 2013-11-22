@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string NASIMED3633Seed::seed_name = "NASIMED3633Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double NASIMED3633Seed::effective_length = 0.42;
 
@@ -85,12 +88,29 @@ BrachytherapySeedType NASIMED3633Seed::getSeedType() const
   return NASIMED3633Seed::seed_type;
 }
 
+// Return the seed name
+std::string NASIMED3633Seed::getSeedName() const
+{
+  return NASIMED3633Seed::seed_name;
+}
+
+// Return the seed strength
+double NASIMED3633Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double NASIMED3633Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

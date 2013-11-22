@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string IBt1251LSeed::seed_name = "IBt1251LSeed";
+
 // Set the effective seed length (Leff) (cm)
 const double IBt1251LSeed::effective_length = 0.435;
 
@@ -82,12 +85,29 @@ BrachytherapySeedType IBt1251LSeed::getSeedType() const
   return IBt1251LSeed::seed_type;
 }
 
+// Return the seed name
+std::string IBt1251LSeed::getSeedName() const
+{
+  return IBt1251LSeed::seed_name;
+}
+
+// Return the seed strength
+double IBt1251LSeed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double IBt1251LSeed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string IsoAidIAI125ASeed::seed_name = "IsoAidIAI125ASeed";
+
 // Set the effective seed length (Leff) (cm)
 const double IsoAidIAI125ASeed::effective_length = 0.3;
 
@@ -83,12 +86,29 @@ BrachytherapySeedType IsoAidIAI125ASeed::getSeedType() const
   return IsoAidIAI125ASeed::seed_type;
 }
 
+// Return the seed name
+std::string IsoAidIAI125ASeed::getSeedName() const
+{
+  return IsoAidIAI125ASeed::seed_name;
+}
+
+// Return the seed strength
+double IsoAidIAI125ASeed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double IsoAidIAI125ASeed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------//
 //! 
-//! \file   AdjointDataGenerator.cpp
+//! \file   BrachytherapyAdjointDataGenerator.cpp
 //! \author Alex Robinson
-//! \brief  Adjoint data generator class definition.
+//! \brief  Brachytherapy adjoint data generator class definition.
 //!
 //---------------------------------------------------------------------------//
 
@@ -10,13 +10,13 @@
 #include <limits>
 
 // TPOR Includes
-#include "AdjointDataGenerator.hpp"
+#include "BrachytherapyAdjointDataGenerator.hpp"
 #include "ContractException.hpp"
 
 namespace TPOR{
 
 // Constructor
-AdjointDataGenerator::AdjointDataGenerator(
+BrachytherapyAdjointDataGenerator::BrachytherapyAdjointDataGenerator(
 		    const BrachytherapySeedFactory::BrachytherapySeedPtr &seed,
 		    const double mesh_element_x_dim,
 		    const double mesh_element_y_dim,
@@ -31,7 +31,7 @@ AdjointDataGenerator::AdjointDataGenerator(
 }
 
 // Calculate the adjoint dose
-void AdjointDataGenerator::calculateAdjointDose( 
+void BrachytherapyAdjointDataGenerator::calculateAdjointDose( 
 			               std::vector<double> &organ_adjoint_data,
 				       const std::vector<bool> &organ_mask,
 				       const unsigned mesh_x_dim,
@@ -70,7 +70,7 @@ void AdjointDataGenerator::calculateAdjointDose(
 }
 
 // Calculate the average dose to the organ at a seed location
-double AdjointDataGenerator::calculateAverageDoseToOrgan(
+double BrachytherapyAdjointDataGenerator::calculateAverageDoseToOrgan(
 				      const std::vector<double> &seed_position,
 				      const std::vector<bool> &organ_mask,
 				      const unsigned mesh_x_dim,
@@ -126,5 +126,5 @@ double AdjointDataGenerator::calculateAverageDoseToOrgan(
 } // end TPOR namespace
 
 //---------------------------------------------------------------------------//
-// end AdjointDataGenerator.cpp
+// end BrachytherapyAdjointDataGenerator.cpp
 //---------------------------------------------------------------------------//

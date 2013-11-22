@@ -4,10 +4,11 @@ import math
 import argparse as ap
 import h5py
 from matplotlib import pyplot, figure
-from UltrasoundImageMetadataManager import UltrasoundImageMetadataManager
-from UltrasoundImagePreviewer import UltrasoundImagePreviewer
-from UltrasoundImageManager import UltrasoundImageManager
-from OrganMaskProcessor import OrganMaskProcessor
+import pytpor
+from pytpor.ultrasound.imagemetadata import ImageMetadata
+from pytpor.ultrasound.imagepreviewer import ImagePreviewer
+from pytpor.ultrasound.imagemanager import ImageManager
+from pytpor.ultrasound.maskprocessor import MaskProcessor
 
 # Set up the argument parser
 description = "This script allows one to process a patients ultrasound images"\
@@ -33,16 +34,16 @@ parser.add_argument('--no-view-processed-data', action='store_true', \
 user_args = parser.parse_args()
 
 # Create the ultrasound image metadata manager
-image_metadata = UltrasoundImageMetadataManager(user_args.image_header_file)
+image_metadata = ImageMetadata(user_args.image_header_file)
 
 # Preview the ultrasound slices unless the no-preview option was requested
 if not user_args.no_preview:
-    preview = UltrasoundImagePreviewer(user_args.image_file)
+    preview = ImagePreviewer(user_args.image_file)
 
 # Create the ultrasound image manager
-image_manager = UltrasoundImageManager(user_args.image_file,\
-                                      image_metadata.get_image_x_resolution(),\
-                                      image_metadata.get_image_y_resolution())
+image_manager = ImageManager(user_args.image_file,\
+                             image_metadata.get_image_x_resolution(),\
+                             image_metadata.get_image_y_resolution())
 
 
 # Retrieve the organ masks that were created by the user
@@ -55,14 +56,13 @@ rectum_masks = image_manager.get_rectum_masks()
 del image_manager
 
 # Create the organ mask processor
-organ_mask_processor = OrganMaskProcessor( \
-                                       prostate_masks, \
-                                       urethra_masks, \
-                                       margin_masks, \
-                                       rectum_masks, \
-                                       image_metadata.get_pixel_size_x(), \
-                                       image_metadata.get_pixel_size_y(), \
-                                       image_metadata.get_slice_offset())
+organ_mask_processor = MaskProcessor(prostate_masks, \
+                                     urethra_masks, \
+                                     margin_masks, \
+                                     rectum_masks, \
+                                     image_metadata.get_pixel_size_x(), \
+                                     image_metadata.get_pixel_size_y(), \
+                                     image_metadata.get_slice_offset())
 
 # Display the processed organ masks unless the no-view-processed_data option 
 # was requested

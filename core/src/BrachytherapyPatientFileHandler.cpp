@@ -181,26 +181,24 @@ void BrachytherapyPatientFileHandler::getNeedleTemplate(
 
 // Test if adjoint data has been generated for a specific seed
 bool BrachytherapyPatientFileHandler::adjointDataExists( 
-					 const BrachytherapySeedType seed_type,
-					 const double orientation_angle )
+						 const std::string &seed_name )
 {
-  std::string group_location;
-  getPathToAdjointData( group_location, seed_type );
+  std::string group_location = "/adjoint_data/";
+  group_location += seed_name;
   
   return d_hdf5_file.groupExists( group_location );
 }
 
 // Return the prostate adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getProstateAdjointData( 
-				 std::vector<double> &prostate_adjoint_data,
-				 const BrachytherapySeedType desired_seed_type,
-				 const double desired_seed_strength,
-				 const double orientation_angle )
+				    std::vector<double> &prostate_adjoint_data,
+				    const std::string &desired_seed_name,
+				    const double desired_seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, desired_seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += desired_seed_name;
   dataset_location += "/prostate_adjoint_data";
-
+  
   d_hdf5_file.readArrayFromDataSet( prostate_adjoint_data, dataset_location );
 
   // Scale the adjoint data by the desired seed strength
@@ -210,12 +208,11 @@ void BrachytherapyPatientFileHandler::getProstateAdjointData(
 // Set the prostate adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::setProstateAdjointData(
 			      const std::vector<double> &prostate_adjoint_data,
-			      const BrachytherapySeedType seed_type,
-			      const double seed_strength,
-			      const double orientation_angle )
+			      const std::string &seed_name,
+			      const double seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += seed_name;
   dataset_location += "/prostate_adjoint_data";
   
   // Normalize the adjoint data
@@ -228,12 +225,11 @@ void BrachytherapyPatientFileHandler::setProstateAdjointData(
 // Return the urethra adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getUrethraAdjointData( 
 				 std::vector<double> &urethra_adjoint_data,
-				 const BrachytherapySeedType desired_seed_type,
-				 const double desired_seed_strength,
-				 const double orientation_angle )
+				 const std::string &desired_seed_name,
+				 const double desired_seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, desired_seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += desired_seed_name;
   dataset_location += "/urethra_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( urethra_adjoint_data, dataset_location );
@@ -245,12 +241,11 @@ void BrachytherapyPatientFileHandler::getUrethraAdjointData(
 // Set the urethra adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::setUrethraAdjointData( 
 			       const std::vector<double> &urethra_adjoint_data,
-			       const BrachytherapySeedType seed_type,
-			       const double seed_strength,
-			       const double orientation_angle )
+			       const std::string &seed_name,
+			       const double seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += seed_name;
   dataset_location += "/urethra_adjoint_data";
 
   
@@ -264,12 +259,11 @@ void BrachytherapyPatientFileHandler::setUrethraAdjointData(
 // Return the margin adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getMarginAdjointData( 
 				 std::vector<double> &margin_adjoint_data,
-				 const BrachytherapySeedType desired_seed_type,
-				 const double desired_seed_strength,
-				 const double orientation_angle )
+				 const std::string &desired_seed_name,
+				 const double desired_seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, desired_seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += desired_seed_name;
   dataset_location += "/margin_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( margin_adjoint_data, dataset_location );
@@ -281,12 +275,11 @@ void BrachytherapyPatientFileHandler::getMarginAdjointData(
 // Set the margin adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::setMarginAdjointData( 
 			        const std::vector<double> &margin_adjoint_data,
-				const BrachytherapySeedType seed_type,
-				const double seed_strength,
-				const double orientation_angle )
+				const std::string &seed_name,
+				const double seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += seed_name;
   dataset_location += "/margin_adjoint_data";
 
   
@@ -300,12 +293,11 @@ void BrachytherapyPatientFileHandler::setMarginAdjointData(
 // Return the rectum adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::getRectumAdjointData( 
 				 std::vector<double> &rectum_adjoint_data,
-				 const BrachytherapySeedType desired_seed_type,
-				 const double desired_seed_strength,
-				 const double orientation_angle )
+				 const std::string &desired_seed_name,
+				 const double desired_seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, desired_seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += desired_seed_name;
   dataset_location += "/rectum_adjoint_data";
 
   d_hdf5_file.readArrayFromDataSet( rectum_adjoint_data, dataset_location );
@@ -317,12 +309,11 @@ void BrachytherapyPatientFileHandler::getRectumAdjointData(
 //! Set the rectum adjoint data for the desired seed
 void BrachytherapyPatientFileHandler::setRectumAdjointData( 
 			        const std::vector<double> &rectum_adjoint_data,
-				const BrachytherapySeedType seed_type,
-				const double seed_strength,
-				const double orientation_angle )
+				const std::string &seed_name,
+				const double seed_strength )
 {
-  std::string dataset_location;
-  getPathToAdjointData( dataset_location, seed_type );
+  std::string dataset_location = "/adjoint_data/";
+  dataset_location += seed_name;
   dataset_location += "/rectum_adjoint_data";
 
   
@@ -331,15 +322,6 @@ void BrachytherapyPatientFileHandler::setRectumAdjointData(
   scaleAdjointData( normalized_adjoint_data, 1.0/seed_strength );
 
   d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
-}
-
-// Return the location of the adjoint data for the desired seed
-void BrachytherapyPatientFileHandler::getPathToAdjointData( 
-				std::string &seed_data_path,
-				const BrachytherapySeedType desired_seed_type )
-{
-  seed_data_path = "/adjoint_data/" +
-    brachytherapySeedTypeToString( desired_seed_type );
 }
 
 // Fill a boolean array using an array of signed chars

@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string ImagynIS12501Seed::seed_name = "ImagynIS12501Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double ImagynIS12501Seed::effective_length = 0.34;
 
@@ -81,12 +84,29 @@ BrachytherapySeedType ImagynIS12501Seed::getSeedType() const
   return ImagynIS12501Seed::seed_type;
 }
 
+// Return the seed name
+std::string ImagynIS12501Seed::getSeedName() const
+{
+  return ImagynIS12501Seed::seed_name;
+}
+
+// Return the seed strength
+double ImagynIS12501Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double ImagynIS12501Seed::getDoseRate( const double x, 
 				     const double y, 
 				     const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

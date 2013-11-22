@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <set>
 #include <utility>
 
 // Boost Includes
@@ -21,7 +22,7 @@
 
 // TPOR includes
 #include "BrachytherapyTreatmentPlanner.hpp"
-#include "SeedPosition.hpp"
+#include "BrachytherapySeedPosition.hpp"
 #include "BrachytherapySeedFactory.hpp" 
 
 namespace TPOR
@@ -34,10 +35,10 @@ class IIEMTreatmentPlanner : public BrachytherapyTreatmentPlanner
 public:
 
   //! Constructor
-  IIEMTreatmentPlanner( const std::string &patient_hdf5_file_name,
-			const BrachytherapySeedType desired_seed_type,
-			const double desired_seed_strength,
-			const double prescribed_dose );
+  IIEMTreatmentPlanner( 
+		     const std::string &patient_hdf5_file_name,
+		     const BrachytherapySeedFactory::BrachytherapySeedPtr seed,
+		     const double prescribed_dose );
 
   //! Destructor
   virtual ~IIEMTreatmentPlanner()
@@ -61,56 +62,51 @@ public:
 private:
 
   //! Create the seed position list
-  void createSeedPositionList( const std::vector<double> &prostate_adjoint,
-			       const std::vector<double> &urethra_adjoint,
-			       const std::vector<double> &margin_adjoint,
-			       const std::vector<double> &rectum_adjoint );
+  void createSeedPositionList( 
+		     const double position_x_dimension,
+		     const double position_y_dimension,
+		     const double position_z_dimension,
+		     const BrachytherapySeedFactory::BrachytherapySeedPtr seed,
+		     const std::vector<double> &prostate_adjoint,
+		     const std::vector<double> &urethra_adjoint,
+		     const std::vector<double> &margin_adjoint,
+		     const std::vector<double> &rectum_adjoint );
 
   //! Conduct the isodose constant iteration 
   void conductIsodoseConstantIteration( 
-      unsigned needle_goal,
-      std::set<unsigned> &chosen_needle_ids,
-      std::list<std::pair<unsigned,SeedPosition> > &remaining_seed_positions );
+                      unsigned needle_goal,
+                      std::set<unsigned> &chosen_needle_ids,
+                      std::list<std::pair<unsigned,BrachytherapySeedPosition> >
+		      &remaining_seed_positions );
 
   //! Conduct the needle isodose constant iteration
   void conductNeedleIsodoseConstantIteration(
-			     const double start_constant,
-			     const double end_constant,
-			     const double step,
-                             const std::set<unsigned> &chosen_needle_ids,
-                             const std::list<std::pair<unsigned,SeedPosition> >
-			     &remaining_seed_positions );
+		const double start_constant,
+		const double end_constant,
+		const double step,
+		const std::set<unsigned> &chosen_needle_ids,
+                const std::list<std::pair<unsigned,BrachytherapySeedPosition> >
+		&remaining_seed_positions );
 
   //! Calculate the minimum seed isodose constant
   double calculateMinSeedIsodoseConstant() const;
 
-  //! Map the seed dose distribution to the problem mesh
-  void mapSeedDoseDistribution( const double seed_x_index,
-				const double seed_y_index,
-				const double seed_z_index );
-
   //! Calculate the prostate dose coverage (% of vol with prescribed dose)
   double calculateProstateDoseCoverage() const;
   
-
   //! Calculate the dose-volume-histogram data
   void calculateDoseVolumeHistogramData();				     
-
-  // Prescribed dose
-  double d_prescribed_dose;
   
-  // Mesh dimensions
+  // Mesh dimensions  
   unsigned d_mesh_x_dim;
   unsigned d_mesh_y_dim;
   unsigned d_mesh_z_dim;
 
-  // Mesh element dimensions
-  double d_mesh_element_x_dim;
-  double d_mesh_element_y_dim;
-  double d_mesh_element_z_dim;
+  // Prescribed dose
+  double d_prescribed_dose;
 
   // Prostate volume (number of mesh elements)
-  unsigned d_prostate_vol;
+  unsigned d_prostate_relative_vol;
 
   // Minimum number of needles that will be needed
   unsigned d_min_number_of_needles;
@@ -133,14 +129,11 @@ private:
   // Needle template
   std::vector<bool> d_needle_template;
 
-  // Brachytherapy Seed
-  BrachytherapySeedFactory::BrachytherapySeedPtr d_seed;
-
   // Seed positions
-  std::list<std::pair<unsigned,SeedPosition> > d_seed_positions;
+  std::list<std::pair<unsigned,BrachytherapySeedPosition> > d_seed_positions;
 
   // Treatment plan (needle id is coupled to a chosen seed position)
-  std::list<std::pair<unsigned,SeedPosition> > d_treatment_plan;
+  std::list<std::pair<unsigned,BrachytherapySeedPosition> > d_treatment_plan;
 
   // Treatment plan dose distribution
   std::vector<double> d_dose_distribution;

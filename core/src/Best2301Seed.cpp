@@ -16,6 +16,9 @@
 
 namespace TPOR{
 
+// Set the seed name
+const std::string Best2301Seed::seed_name = "Best2301Seed";
+
 // Set the effective seed length (Leff) (cm)
 const double Best2301Seed::effective_length = 0.40;
 
@@ -86,12 +89,29 @@ BrachytherapySeedType Best2301Seed::getSeedType() const
   return Best2301Seed::seed_type;
 }
 
+// Return the seed name
+std::string Best2301Seed::getSeedName() const
+{
+  return Best2301Seed::seed_name;
+}
+
+// Return the seed strength
+double Best2301Seed::getSeedStrength() const
+{
+  return d_air_kerma_strength;
+}
+
 // Return the dose rate at a given point (cGy/hr)
 double Best2301Seed::getDoseRate( const double x, 
 				  const double y, 
 				  const double z ) const
 {
   double radius = calculateRadius( x, y, z );
+
+  // Don't evaluate dose rates inside of the seed
+  if( radius < 0.04 )
+    radius = 0.04; 
+  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function
