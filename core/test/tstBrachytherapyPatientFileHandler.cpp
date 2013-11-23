@@ -35,19 +35,19 @@ struct MockPatientFileGenerator{
     mesh_dimensions[1] = 3u;
     mesh_dimensions[2] = 4u;
     
-    std::vector<signed char> needle_template( 2*3 );
+    std::vector<char> needle_template( 2*3 );
     needle_template[0] = 1;
     
-    std::vector<signed char> prostate_mask( 2*3*4 );
+    std::vector<char> prostate_mask( 2*3*4 );
     prostate_mask[0] = 1;
     
-    std::vector<signed char> urethra_mask( 2*3*4 );
+    std::vector<char> urethra_mask( 2*3*4 );
     urethra_mask[0] = 1;
     
-    std::vector<signed char> margin_mask( 2*3*4 );
+    std::vector<char> margin_mask( 2*3*4 );
     margin_mask[0] = 1;
     
-    std::vector<signed char> rectum_mask( 2*3*4 );
+    std::vector<char> rectum_mask( 2*3*4 );
     rectum_mask[0] = 1;
 
     std::vector<double> prostate_adjoint( 2*3*4 );

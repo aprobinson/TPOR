@@ -97,7 +97,6 @@ void HDF5FileHandler::readArrayFromDataSet( Array &data,
   // The size type associated with the array
   typedef typename Traits::ArrayTraits<Array>::size_type size_type;
   
-  
   // HDF5 exceptions can be thrown when opening and reading from datasets
   try
   {
@@ -119,7 +118,7 @@ void HDF5FileHandler::readArrayFromDataSet( Array &data,
       size *= dims[i];
     
     resizeArray( data, size );
-    
+
     // Read the data in the dataset and save it to the output array
     dataset.read( getHeadPtr( data ),
 		  Traits::HDF5TypeTraits<value_type>::dataType() );

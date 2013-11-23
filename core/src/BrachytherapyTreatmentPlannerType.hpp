@@ -9,10 +9,14 @@
 #ifndef BRACHYTHERAPY_TREATMENT_PLANNER_TYPE_HPP
 #define BRACHYTHERAPY_TREATMENT_PLANNER_TYPE_HPP
 
+namespace TPOR{
+
 //! Brachytherapy treatment planner type enumeration
 enum BrachytherapyTreatmentPlannerType{
   IIEM_TREATMENT_PLANNER  
 };
+
+} // end TPOR namespace
 
 #endif // end BRACHYTHERAPY_TREATMENT_PLANNER_TYPE_HPP
 

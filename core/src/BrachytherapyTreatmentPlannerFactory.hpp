@@ -35,7 +35,9 @@ public:
   
   //! Constructor
   BrachytherapyTreatmentPlannerFactory( 
-				   const std::string &patient_hdf5_file_name );
+      const std::string &patient_hdf5_file_name,
+      const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> &seeds,
+      const double prescribed_dose );
 
   //! Destructor
   ~BrachytherapyTreatmentPlannerFactory()
@@ -43,14 +45,18 @@ public:
 
   //! Brachytherapy treatment planner construction method
   BrachytherapyTreatmentPlannerPtr createTreatmentPlanner(
-      const BrachytherapyTreatmentPlannerType planner_type,
-      const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> &seeds,
-      const double prescribed_dose );
+			const BrachytherapyTreatmentPlannerType planner_type );
 
 private:
 
   // Patient file name
   std::string d_patient_file_name;  
+
+  // Seeds
+  std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> d_seeds;
+
+  // Prescribed dose
+  double d_prescribed_dose;
 };
 
 } // end TPOR namespace

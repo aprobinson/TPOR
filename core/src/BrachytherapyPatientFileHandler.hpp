@@ -123,9 +123,9 @@ public:
 
 private:
 
-  //! Fill a boolean array using an array of signed chars
+  //! Fill a boolean array using an array of chars
   void fillBooleanArray( std::vector<bool> &bool_array,
-			 const std::vector<signed char> &schar_array );
+			 const std::vector<char> &schar_array );
 
   //! Scale adjoint data by a factor
   void scaleAdjointData( std::vector<double> &adjoint_data,

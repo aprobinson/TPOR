@@ -22,16 +22,15 @@ int main( int argc, char** argv )
   
   // Create the treatment planner factory
   TPOR::BrachytherapyTreatmentPlannerFactory
-    planner_factory( user_args.getPatientFile() );
-							    
-
+    planner_factory( user_args.getPatientFile(),
+		     user_args.getSeeds(),
+		     user_args.getPrescribedDose() );
+  
   // Create the treatment planner
   TPOR::BrachytherapyTreatmentPlannerFactory::BrachytherapyTreatmentPlannerPtr
     planner = planner_factory.createTreatmentPlanner( 
-					       user_args.getPlannerType(),
-					       user_args.getSeeds(),
-					       user_args.getPrescribedDose() );
-
+						  user_args.getPlannerType() );
+					       
   // Create the treatment plan
   planner->calculateOptimumTreatmentPlan();
 
@@ -40,6 +39,8 @@ int main( int argc, char** argv )
 
   // Print the dose-volume-histogram
   planner->printDoseVolumeHistogramData( user_args.getDVHOutputStream() );
+
+  planner.reset();
 
   return 0;
  }

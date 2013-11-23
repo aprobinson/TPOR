@@ -17,7 +17,7 @@
 // Boost Includes
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 // TPOR Includes
 #include "BrachytherapySeedFactory.hpp"
@@ -39,13 +39,14 @@ public:
   { /* ... */ }
 
   //! Return the patient file
-  std::string getPatientFile() const;
+  const std::string& getPatientFile() const;
   
   //! Return the treament planner type
   BrachytherapyTreatmentPlannerType getPlannerType() const;
 
   //! Return the brachytherapy seeds
-  std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> getSeeds() const;
+  const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr>& 
+  getSeeds() const;
 
   //! Return the prescribed dose
   double getPrescribedDose() const;
@@ -98,10 +99,10 @@ private:
   double d_prescribed_dose;
 
   // The treatment plan output file
-  boost::shared_ptr<std::ostream> d_treatment_plan_output_file;
+  boost::scoped_ptr<std::ostream> d_treatment_plan_os;
 
   // The dose-volume-histogram output file
-  boost::shared_ptr<std::ostream>  d_dvh_output_file;
+  boost::scoped_ptr<std::ostream>  d_dvh_os;
 };
 
 } // end TPOR namespace

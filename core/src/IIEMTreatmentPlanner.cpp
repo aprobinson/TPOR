@@ -33,9 +33,14 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
     d_mesh_z_dim( 0 ),
     d_prescribed_dose( prescribed_dose ),
     d_prostate_relative_vol( 0 ),
+    d_urethra_relative_vol( 0 ),
+    d_margin_relative_vol( 0 ),
+    d_rectum_relative_vol( 0 ),
     d_min_number_of_needles( 0 ),
     d_min_isodose_constant( 0.0 )
 {
+  std::cout << "initializing IIEM treatment planner..." << std::endl;
+  
   // Create the file handler for the desired patient file
   BrachytherapyPatientFileHandler patient_file( patient_hdf5_file_name );
 
@@ -59,12 +64,21 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
   // Load in the prostate mask
   patient_file.getProstateMask( d_prostate_mask );
 
+  // Load the urethra mask relative volume
+  patient_file.getUrethraMaskRelativeVolume( d_urethra_relative_vol );
+  
   // Load in the urethra mask
   patient_file.getUrethraMask( d_urethra_mask );
 
+  // Load the margin mask relative volume
+  patient_file.getMarginMaskRelativeVolume( d_margin_relative_vol );
+  
   // Load in the margin mask
   patient_file.getMarginMask( d_margin_mask );
 
+  // Load the rectum mask relative volume
+  patient_file.getRectumMaskRelativeVolume( d_rectum_relative_vol );
+  
   // Load in the rectum mask
   patient_file.getRectumMask( d_rectum_mask );
 
@@ -107,25 +121,33 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
 						   mesh_element_dimensions[0],
 						   mesh_element_dimensions[1],
 						   mesh_element_dimensions[2]);
-				          
+    
+    std::cout << "generating prostate adjoint data for "
+	      << seed->getSeedName() << "..." << std::endl;
     adjoint_gen.calculateAdjointDose( prostate_adjoint_data,
 				      d_prostate_mask,
 				      d_mesh_x_dim,
 				      d_mesh_y_dim,
 				      d_mesh_z_dim );
 
+    std::cout << "generating urethra adjoint data for "
+	      << seed->getSeedName() << "..." << std::endl;
     adjoint_gen.calculateAdjointDose( urethra_adjoint_data,
 				      d_urethra_mask,
 				      d_mesh_x_dim,
 				      d_mesh_y_dim,
 				      d_mesh_z_dim );
 
+    std::cout << "generating margin adjoint data for "
+	      << seed->getSeedName() << "..." << std::endl;
     adjoint_gen.calculateAdjointDose( margin_adjoint_data,
 				      d_margin_mask,
 				      d_mesh_x_dim,
 				      d_mesh_y_dim,
 				      d_mesh_z_dim );
 
+    std::cout << "generating rectum adjoint data for "
+	      << seed->getSeedName() << "..." << std::endl;
     adjoint_gen.calculateAdjointDose( rectum_adjoint_data,
 				      d_rectum_mask,
 				      d_mesh_x_dim,
@@ -168,19 +190,23 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
   double prostate_volume; 
   patient_file.getProstateMaskVolume( prostate_volume );
   
-  unsigned d_min_number_of_needles = 
-    (unsigned)floor( 0.24*prostate_volume + 11.33 );
-
+  d_min_number_of_needles = 
+    static_cast<unsigned>( floor( 0.24*prostate_volume + 11.33 ) );
+  
   // Determine the minimum seed isodose constant for the seed selection process
   d_min_isodose_constant = calculateMinSeedIsodoseConstant();
-
+  std::cout << d_min_isodose_constant << std::endl;
   // Initialize the dose distribution
-  d_dose_distribution.resize( d_prostate_mask.size(), 0.0 );
+  d_dose_distribution.resize( d_prostate_mask.size() );
+
+  // Initialize the dose-volume-histogram array
+  d_dose_volume_histogram_data.resize( 5*301 );
 }
 
 // Calculate optimum treatment plan
 void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
 {
+  std::cout << "starting treatment plan optimization..." << std::endl;
   // Make a copy of the seed positions
   std::list<std::pair<unsigned,BrachytherapySeedPosition> > 
     seed_positions_copy = d_seed_positions;
@@ -193,13 +219,15 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
   // Inner iteration A: isodose_constant
   // Inner iteration B: needle_isodose_constant
   for( unsigned needle_goal = d_min_number_of_needles;
-       needle_goal <= 19;
+       needle_goal <= 30;
        ++needle_goal )
   {
     std::list<std::pair<unsigned,BrachytherapySeedPosition> > 
       remaining_seed_positions;
 
     // Conduct the inner iteration A
+    std::cout << "conducting isodose constant iteration for needle goal of "
+	      << needle_goal << "..." << std::endl;
     conductIsodoseConstantIteration( needle_goal,
 				     chosen_needle_ids,
 				     remaining_seed_positions );
@@ -209,6 +237,8 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
       continue;
 
     // Conduct the inner iteration B
+    std::cout << "conducting needle isodose constant iteration..."
+	      << std::endl;
     conductNeedleIsodoseConstantIteration( 1.02,
 					   1.08,
 					   0.02,
@@ -234,8 +264,10 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
   // If successful, generate the dose-volume-histogram data
   else
   {
-    calculateDoseVolumeHistogramData();
+    std::cout << "treatment plan optimization complete." << std::endl;
   }
+
+  calculateDoseVolumeHistogramData();
 }
 
 // Conduct the isodose constant iteration
@@ -548,11 +580,9 @@ double IIEMTreatmentPlanner::calculateProstateDoseCoverage() const
 void IIEMTreatmentPlanner::calculateDoseVolumeHistogramData()
 {
 
-  unsigned target_elements = 0, urethra_elements = 0, margin_elements = 0,
+  unsigned prostate_elements = 0, urethra_elements = 0, margin_elements = 0,
     rectum_elements = 0;
 
-  d_dose_volume_histogram_data.resize( 5*300 );
-  
   for( int dose = 0; dose <= 300; ++dose )
   {
     for( int k = 0; k < d_mesh_z_dim; ++k )
@@ -562,26 +592,35 @@ void IIEMTreatmentPlanner::calculateDoseVolumeHistogramData()
 	for( int i = 0; i < d_mesh_x_dim; ++i )
 	{
 	  unsigned index = i + j*d_mesh_x_dim + k*d_mesh_x_dim*d_mesh_y_dim;
+	  double dose_cgy = dose*100;
 	  
-	  if( d_prostate_mask[index] && d_dose_distribution[index] >= dose )
-	    ++target_elements;
-	  else if( d_urethra_mask[index] && d_dose_distribution[index] >= dose)
+	  if( d_prostate_mask[index] && d_dose_distribution[index] >= 
+	      dose_cgy )
+	    ++prostate_elements;
+	  else if( d_urethra_mask[index] && d_dose_distribution[index] >= 
+		   dose_cgy)
 	    ++urethra_elements;
-	  else if( d_margin_mask[index] && d_dose_distribution[index] >= dose )
+	  else if( d_margin_mask[index] && d_dose_distribution[index] >= 
+		   dose_cgy )
 	    ++margin_elements;
-	  else if( d_rectum_mask[index] && d_dose_distribution[index] >= dose )
+	  else if( d_rectum_mask[index] && d_dose_distribution[index] >= 
+		   dose_cgy )
 	    ++rectum_elements;
 	}
       }
     }
 
     d_dose_volume_histogram_data[dose*5] = dose;
-    d_dose_volume_histogram_data[dose*5+1] = target_elements;
-    d_dose_volume_histogram_data[dose*5+2] = urethra_elements;
-    d_dose_volume_histogram_data[dose*5+3] = margin_elements;
-    d_dose_volume_histogram_data[dose*5+4] = rectum_elements;
+    d_dose_volume_histogram_data[dose*5+1] = 
+      (double)prostate_elements/d_prostate_relative_vol;
+    d_dose_volume_histogram_data[dose*5+2] = 
+      (double)urethra_elements/d_urethra_relative_vol;
+    d_dose_volume_histogram_data[dose*5+3] = 
+      (double)margin_elements/d_margin_relative_vol;
+    d_dose_volume_histogram_data[dose*5+4] = 
+      (double)rectum_elements/d_rectum_relative_vol;
 
-    target_elements = 0;
+    prostate_elements = 0;
     urethra_elements = 0;
     margin_elements = 0;
     rectum_elements = 0;
@@ -626,9 +665,9 @@ void IIEMTreatmentPlanner::printTreatmentPlan() const
 void IIEMTreatmentPlanner::printDoseVolumeHistogramData( 
 						       std::ostream &os ) const
 {
-  os << "# Dose[Gy]\tProstate\tUrethra\tMargin\tRectum\n";
+  os << "# Dose[Gy] Prostate Urethra Margin Rectum\n";
   
-  for( unsigned i = 0; i < d_dose_volume_histogram_data.size()/5; ++i )
+  for( unsigned i = 0; i <= 300; ++i )
   {
     os << d_dose_volume_histogram_data[i*5] << " " 
        << d_dose_volume_histogram_data[i*5+1] << " "

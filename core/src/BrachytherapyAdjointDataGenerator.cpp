@@ -31,6 +31,8 @@ BrachytherapyAdjointDataGenerator::BrachytherapyAdjointDataGenerator(
 }
 
 // Calculate the adjoint dose
+/*! \details The calculated adjoint dose with have units of cGy/source
+ */
 void BrachytherapyAdjointDataGenerator::calculateAdjointDose( 
 			               std::vector<double> &organ_adjoint_data,
 				       const std::vector<bool> &organ_mask,
@@ -113,6 +115,7 @@ double BrachytherapyAdjointDataGenerator::calculateAverageDoseToOrgan(
     }
   }
 
+  // cGy/source
   double average_dose = dose/samples;
   
   // Make sure that the average dose calculated is valid

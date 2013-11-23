@@ -41,7 +41,7 @@ public:
 		     const double prescribed_dose );
 
   //! Destructor
-  virtual ~IIEMTreatmentPlanner()
+  ~IIEMTreatmentPlanner()
   { /* ... */ }
 
   //! Calculate optimum treatment plan
@@ -107,6 +107,15 @@ private:
 
   // Prostate volume (number of mesh elements)
   unsigned d_prostate_relative_vol;
+
+  // Urethra volume (number of mesh elements)
+  unsigned d_urethra_relative_vol;
+  
+  // Margin volume (number of mesh elements)
+  unsigned d_margin_relative_vol;
+
+  // Rectum volume (number of mesh elements)
+  unsigned d_rectum_relative_vol;
 
   // Minimum number of needles that will be needed
   unsigned d_min_number_of_needles;

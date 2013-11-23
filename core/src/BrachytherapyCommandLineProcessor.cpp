@@ -28,8 +28,8 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
   : d_patient_file(),
     d_seeds(),
     d_prescribed_dose(),
-    d_treatment_plan_output_file(),
-    d_dvh_output_file()
+    d_treatment_plan_os(),
+    d_dvh_os()
 { 
   // Create the command-line argument parser
   boost::program_options::options_description desc( "Allowed options" );
@@ -64,16 +64,16 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
      "\t19.) Theragenics200Seed\n"
      "\t20.) TheragenicsAgX100Seed\n")
     ("prescribed_dose,d", boost::program_options::value<double>(),
-     "set the prescribed dose")
-    ("patient_file_name,p", boost::program_options::value<std::string>(),
+     "set the prescribed dose (Gy)")
+    ("patient_file_name", boost::program_options::value<std::string>(),
      "set the patient hdf5 file name (with path)")
-    ("plan_output_file,pf", boost::program_options::value<std::string>(),
+    ("plan_output_file,f", boost::program_options::value<std::string>(),
      "set the treatment plan output file (with path)")
-    ("dvh_output_file,df", boost::program_options::value<std::string>(),
+    ("dvh_output_file,h", boost::program_options::value<std::string>(),
      "set the dose-volume-histogram output file (with path)");
 
   boost::program_options::positional_options_description pd;
-  pd.add("patient_file_name,p", 1);
+  pd.add("patient_file_name", 1);
   
   boost::program_options::variables_map vm;
   boost::program_options::store(
@@ -94,7 +94,7 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
 }
 
 //! Return the patient file
-std::string BrachytherapyCommandLineProcessor::getPatientFile() const
+const std::string& BrachytherapyCommandLineProcessor::getPatientFile() const
 {
   return d_patient_file;
 }
@@ -107,13 +107,17 @@ BrachytherapyCommandLineProcessor::getPlannerType() const
 }
 
 // Return the brachytherapy seeds
-std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> 
+const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr>&
 BrachytherapyCommandLineProcessor::getSeeds() const
 {
   return d_seeds;
 }
 
 // Return the prescribed dose
+/*! \details The units of prescribed dose are cGy to conform with the doses
+ * returned by brachytherapy seeds (the user specified prescribed dose should 
+ * be in units of Gy).
+ */
 double BrachytherapyCommandLineProcessor::getPrescribedDose() const
 {
   return d_prescribed_dose;
@@ -122,13 +126,19 @@ double BrachytherapyCommandLineProcessor::getPrescribedDose() const
 // Get the treatment plan output stream
 std::ostream& BrachytherapyCommandLineProcessor::getTreatmentPlanOutputStream()
 {
-  return *d_treatment_plan_output_file;
+  if( d_treatment_plan_os )
+    return *d_treatment_plan_os;
+  else
+    return std::cout;
 }
   
 // Get the dose-volume-histogram output stream
 std::ostream& BrachytherapyCommandLineProcessor::getDVHOutputStream()
 {
-  return *d_dvh_output_file;
+  if( d_dvh_os )
+    return *d_dvh_os;
+  else
+    return std::cout;
 }
 
 // Parse the patient file
@@ -136,9 +146,9 @@ void BrachytherapyCommandLineProcessor::parsePatientFile(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-  if( vm.count( "patient_file_name,p" ) )
+  if( vm.count( "patient_file_name" ) )
   {
-    d_patient_file = vm["patient_file_name,p"].as<std::string>();
+    d_patient_file = vm["patient_file_name"].as<std::string>();
   }
   else
   {
@@ -154,10 +164,10 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlannerType(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-  if( vm.count( "treatment_planner,t" ) )
+  if( vm.count( "treatment_planner" ) )
   {
     std::string treatment_planner_name = 
-      vm["treatment_planner,t"].as<std::string>();
+      vm["treatment_planner"].as<std::string>();
     
     if( treatment_planner_name.compare( "IIEMTreatmentPlanner" ) == 0 )
       d_planner_type = IIEM_TREATMENT_PLANNER;
@@ -181,10 +191,10 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-  if( vm.count( "seeds,s" ) )
+  if( vm.count( "seeds" ) )
   {
     std::vector<std::string> seed_names = 
-      vm["seeds,s"].as<std::vector<std::string> >();
+      vm["seeds"].as<std::vector<std::string> >();
     
     if( d_planner_type == IIEM_TREATMENT_PLANNER && seed_names.size() > 1 )
     {
@@ -198,79 +208,79 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
       if( seed_names[i].compare( "Amersham6702Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed( 
 								AMERSHAM_6702_SEED,
-								 1.0 ) );
+								 0.508 ) );
       else if( seed_names[i].compare( "Amersham6711Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								AMERSHAM_6711_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Amersham6733Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								AMERSHAM_6733_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Amersham9011Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed( 
 								AMERSHAM_9011_SEED,
-								 1.0 ) );
+								 0.508 ) );
       else if( seed_names[i].compare( "BebigI25S06Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								BEBIG_I25_S06_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Best2301Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								BEST_2301_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Best2335Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								BEST_2335_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "DraximageLS1Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								DRAXIMAGE_LS1_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "IBt1251LSeed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								IBT_1251L_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "ImagynIS12501Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								IMAGYN_IS_12501_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "ImplantSciences3500Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								IMPLANT_SCIENCES_3500_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "IsoAidIAI125ASeed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								ISOAID_IAI_125A_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "IsoAidIAPd103ASeed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								ISOAID_IAPD_103A_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "MBISL125SH125Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								MBI_SL125_SH125_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "NASIMED3631Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								NASI_MED_3631_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "NASIMED3633Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								NASI_MED_3633_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Nucletron130002Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								NUCLETRON_130002_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "Theragenics200Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								THERAGENICS_200_SEED,
-								1.0 ) );
+								0.508 ) );
       else if( seed_names[i].compare( "TheragenicsAgX100Seed" ) == 0 )
 	d_seeds.push_back( BrachytherapySeedFactory::createSeed(
 								THERAGENICS_AGX100_SEED,
-								1.0 ) );
+								0.508 ) );
       else
       {
 	std::cout << "The seed " << seed_names[i] << " is invalid."
@@ -293,9 +303,10 @@ void BrachytherapyCommandLineProcessor::parsePrescribedDose(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-   if( vm.count( "prescribed_dose,d" ) )
+   if( vm.count( "prescribed_dose" ) )
   {
-    double d_prescribed_dose = vm["prescribed_dose,d"].as<double>();
+    // Convert the specified prescribed dose from Gy to cGy
+    d_prescribed_dose = vm["prescribed_dose"].as<double>()*100;
     
     if( d_prescribed_dose < 0.0 )
     {
@@ -318,16 +329,14 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlanOutputFile(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-  if( vm.count( "plan_output_file,pf" ) )
+  if( vm.count( "plan_output_file" ) )
   {
     std::string treatment_plan_output_file_name = 
-      vm["plan_output_file,pf"].as<std::string>();
+      vm["plan_output_file"].as<std::string>();
 
-    d_treatment_plan_output_file.reset( 
+    d_treatment_plan_os.reset( 
 		new std::ofstream( treatment_plan_output_file_name.c_str() ) );
   }
-  else
-    d_treatment_plan_output_file.reset( &std::cout );
 }
 
 // Parse the dose-volume-histogram output file name
@@ -335,15 +344,13 @@ void BrachytherapyCommandLineProcessor::parseDVHOutputFile(
 			    boost::program_options::variables_map &vm,
 			    boost::program_options::options_description &desc )
 {
-  if( vm.count( "dvh_output_file,df" ) )
+  if( vm.count( "dvh_output_file" ) )
   {
     std::string dvh_output_file_name = 
-      vm["dvh_output_file,df"].as<std::string>();
+      vm["dvh_output_file"].as<std::string>();
 
-    d_dvh_output_file.reset(new std::ofstream( dvh_output_file_name.c_str() ));
+    d_dvh_os.reset( new std::ofstream( dvh_output_file_name.c_str() ) );
   }
-  else
-    d_dvh_output_file.reset( &std::cout );
 }
 
 } // end TPOR namespace

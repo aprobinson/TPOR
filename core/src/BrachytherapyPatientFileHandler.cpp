@@ -56,7 +56,7 @@ void BrachytherapyPatientFileHandler::getOrganMeshDimensions(
 void BrachytherapyPatientFileHandler::getProstateMask( 
 					     std::vector<bool> &prostate_mask )
 {
-  std::vector<signed char> tmp_prostate_mask;
+  std::vector<char> tmp_prostate_mask;
   d_hdf5_file.readArrayFromDataSet( tmp_prostate_mask,
 				    "/organ_masks/prostate_mask" );
 
@@ -85,7 +85,7 @@ void BrachytherapyPatientFileHandler::getProstateMaskVolume(
 void BrachytherapyPatientFileHandler::getUrethraMask( 
 					      std::vector<bool> &urethra_mask )
 {
-  std::vector<signed char> tmp_urethra_mask;
+  std::vector<char> tmp_urethra_mask;
   d_hdf5_file.readArrayFromDataSet( tmp_urethra_mask,
 				    "/organ_masks/urethra_mask" );
 
@@ -114,7 +114,7 @@ void BrachytherapyPatientFileHandler::getUrethraMaskVolume(
 void BrachytherapyPatientFileHandler::getMarginMask( 
 					       std::vector<bool> &margin_mask )
 {
-  std::vector<signed char> tmp_margin_mask;
+  std::vector<char> tmp_margin_mask;
   d_hdf5_file.readArrayFromDataSet( tmp_margin_mask,
 				    "/organ_masks/margin_mask" );
 
@@ -143,7 +143,7 @@ void BrachytherapyPatientFileHandler::getMarginMaskVolume(
 void BrachytherapyPatientFileHandler::getRectumMask( 
 					       std::vector<bool> &rectum_mask )
 {
-  std::vector<signed char> tmp_rectum_mask;
+  std::vector<char> tmp_rectum_mask;
   d_hdf5_file.readArrayFromDataSet( tmp_rectum_mask,
 				    "/organ_masks/rectum_mask" );
   
@@ -172,7 +172,7 @@ void BrachytherapyPatientFileHandler::getRectumMaskVolume(
 void BrachytherapyPatientFileHandler::getNeedleTemplate( 
 					   std::vector<bool> &needle_template )
 {
-  std::vector<signed char> tmp_needle_template;
+  std::vector<char> tmp_needle_template;
   d_hdf5_file.readArrayFromDataSet( tmp_needle_template,
 				    "/needle_template" );
 
@@ -324,10 +324,10 @@ void BrachytherapyPatientFileHandler::setRectumAdjointData(
   d_hdf5_file.writeArrayToDataSet( normalized_adjoint_data, dataset_location );
 }
 
-// Fill a boolean array using an array of signed chars
+// Fill a boolean array using an array of chars
 void BrachytherapyPatientFileHandler::fillBooleanArray( 
 			        std::vector<bool> &bool_array,
-			        const std::vector<signed char> &schar_array )
+			        const std::vector<char> &schar_array )
 {
   bool_array.resize( schar_array.size() );
   
