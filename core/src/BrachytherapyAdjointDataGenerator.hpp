@@ -12,12 +12,15 @@
 // Std Lib Includes
 #include <vector>
 
+// Boost Includes
+#include <boost/shared_ptr.hpp>
+
 // TPOR Includes
-#include "BrachytherapySeedFactory.hpp"
+#include "BrachytherapySeedProxy.hpp"
 
 namespace TPOR{
 
-//! Adjoint data generator class 
+//! Adjoint data generator class
 class BrachytherapyAdjointDataGenerator
 {
 
@@ -25,11 +28,8 @@ public:
 
   //! Constructor
   BrachytherapyAdjointDataGenerator( 
-		    const BrachytherapySeedFactory::BrachytherapySeedPtr &seed,
-		    const double mesh_element_x_dim,
-		    const double mesh_element_y_dim,
-		    const double mesh_element_z_dim );
-
+		       const boost::shared_ptr<BrachytherapySeedProxy> &seed );
+  
   //! Destructor
   ~BrachytherapyAdjointDataGenerator()
   { /* ... */ }
@@ -41,22 +41,26 @@ public:
 			     const unsigned mesh_y_dim,
 			     const unsigned mesh_z_dim );
 
-private:
-
-  //! Calculate the average dose to the organ at a seed location
-  double calculateAverageDoseToOrgan( const std::vector<double> &seed_position,
+  //! Calculate the adjoint dose in the prostate only
+  void calculateCondensedAdjointDose( std::vector<double> &organ_adjoint_data,
 				      const std::vector<bool> &organ_mask,
+				      const std::vector<bool> &prostate_mask,
 				      const unsigned mesh_x_dim,
 				      const unsigned mesh_y_dim,
 				      const unsigned mesh_z_dim );
 
-  // Brachytherapy seed
-  BrachytherapySeedFactory::BrachytherapySeedPtr d_seed;
+private:
 
-  // Mesh element dimensions
-  double d_mesh_element_x_dim;
-  double d_mesh_element_y_dim;
-  double d_mesh_element_z_dim;
+  //! Calculate the average dose to the organ at a seed location
+  double calculateAverageDoseToOrgan( 
+				    const std::vector<int> &seed_position,
+				    const std::vector<bool> &organ_mask,
+				    const unsigned mesh_x_dim,
+				    const unsigned mesh_y_dim,
+				    const unsigned mesh_z_dim );
+
+  // Brachytherapy seed
+  boost::shared_ptr<BrachytherapySeedProxy> d_seed;
 };
 
 } // end TPOR namespace

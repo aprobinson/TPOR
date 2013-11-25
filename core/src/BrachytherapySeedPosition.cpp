@@ -23,11 +23,11 @@ double BrachytherapySeedPosition::z_dimension = 0.5;
 
 // Constructor
 BrachytherapySeedPosition::BrachytherapySeedPosition( 
-		   const unsigned x_index,
-		   const unsigned y_index,
-		   const unsigned z_index,
-		   const double weight,
-		   const BrachytherapySeedFactory::BrachytherapySeedPtr &seed )
+		        const int x_index,
+			const int y_index,
+			const int z_index,
+			const double weight,
+		        const boost::shared_ptr<BrachytherapySeedProxy> &seed )
   : d_x_index( x_index ),
     d_y_index( y_index ),
     d_z_index( z_index ),
@@ -90,28 +90,18 @@ void BrachytherapySeedPosition::mapSeedDoseDistribution(
   testPrecondition( d_y_index < mesh_y_dimension );
   testPrecondition( d_z_index < mesh_z_dimension );
 
-  double seed_x = (d_x_index + 0.5)*BrachytherapySeedPosition::x_dimension;
-  double seed_y = (d_y_index + 0.5)*BrachytherapySeedPosition::y_dimension;
-  double seed_z = (d_z_index + 0.5)*BrachytherapySeedPosition::z_dimension;
-
-  for( unsigned k = 0; k < mesh_z_dimension; ++k )
+  for( int k = 0; k < mesh_z_dimension; ++k )
   {
-    double mesh_z = (k+0.5)*BrachytherapySeedPosition::z_dimension;
-    
-    for( unsigned j = 0; j < mesh_y_dimension; ++j )
+    for( int j = 0; j < mesh_y_dimension; ++j )
     {
-      double mesh_y = (j+0.5)*BrachytherapySeedPosition::y_dimension;
-
-      for( unsigned i = 0; i < mesh_x_dimension; ++i )
+      for( int i = 0; i < mesh_x_dimension; ++i )
       {
-	double mesh_x = (i+0.5)*BrachytherapySeedPosition::x_dimension;
-
 	unsigned index = i + j*mesh_x_dimension + 
 	  k*mesh_x_dimension*mesh_y_dimension;
 	
-	dose_mesh[index] += d_seed->getTotalDose( mesh_x - seed_x,
-						  mesh_y - seed_y,
-						  mesh_z - seed_z );
+	dose_mesh[index] += d_seed->getTotalDose( i - d_x_index,
+						  j - d_y_index,
+						  k - d_z_index );
       }
     }
   }

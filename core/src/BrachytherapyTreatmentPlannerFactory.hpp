@@ -18,7 +18,7 @@
 #include <boost/shared_ptr.hpp>
 
 // TPOR Includes
-#include "BrachytherapySeedFactory.hpp"
+#include "BrachytherapySeedProxy.hpp"
 #include "BrachytherapyTreatmentPlanner.hpp"
 #include "BrachytherapyTreatmentPlannerType.hpp"
 
@@ -36,7 +36,7 @@ public:
   //! Constructor
   BrachytherapyTreatmentPlannerFactory( 
       const std::string &patient_hdf5_file_name,
-      const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> &seeds,
+      const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds,
       const double prescribed_dose );
 
   //! Destructor
@@ -53,7 +53,7 @@ private:
   std::string d_patient_file_name;  
 
   // Seeds
-  std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> d_seeds;
+  std::vector<boost::shared_ptr<BrachytherapySeedProxy> > d_seeds;
 
   // Prescribed dose
   double d_prescribed_dose;

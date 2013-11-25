@@ -14,8 +14,11 @@
 #include <vector>
 #include <string>
 
+// Boost Includes
+#include <boost/shared_ptr.hpp>
+
 // TPOR Includes
-#include "BrachytherapySeedFactory.hpp"
+#include "BrachytherapySeedProxy.hpp"
 
 namespace TPOR
 {
@@ -28,11 +31,11 @@ public:
   
   //! Constructor
   BrachytherapySeedPosition( 
-		  const unsigned x_index, 
-		  const unsigned y_index,
-		  const unsigned z_index,
-		  const double weight,
-		  const BrachytherapySeedFactory::BrachytherapySeedPtr &seed );
+		       const int x_index, 
+		       const int y_index,
+		       const int z_index,
+		       const double weight,
+		       const boost::shared_ptr<BrachytherapySeedProxy> &seed );
 
   //! Destructor
   virtual ~BrachytherapySeedPosition()
@@ -86,15 +89,15 @@ private:
   static double z_dimension;
 
   // Position indices
-  unsigned d_x_index;
-  unsigned d_y_index;
-  unsigned d_z_index;
+  int d_x_index;
+  int d_y_index;
+  int d_z_index;
 
   // Position weight
   double d_weight;
 
   // Brachytherapy seed
-  BrachytherapySeedFactory::BrachytherapySeedPtr d_seed;
+  boost::shared_ptr<BrachytherapySeedProxy> d_seed;
 };
 
 //! Less-than operator for BrachytherapySeedPositions

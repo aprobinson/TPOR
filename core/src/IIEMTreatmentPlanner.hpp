@@ -16,6 +16,7 @@
 #include <list>
 #include <set>
 #include <utility>
+#include <iostream>
 
 // Boost Includes
 #include <boost/shared_ptr.hpp>
@@ -23,7 +24,7 @@
 // TPOR includes
 #include "BrachytherapyTreatmentPlanner.hpp"
 #include "BrachytherapySeedPosition.hpp"
-#include "BrachytherapySeedFactory.hpp" 
+#include "BrachytherapySeedProxy.hpp"
 
 namespace TPOR
 {
@@ -37,7 +38,7 @@ public:
   //! Constructor
   IIEMTreatmentPlanner( 
 		     const std::string &patient_hdf5_file_name,
-		     const BrachytherapySeedFactory::BrachytherapySeedPtr seed,
+		     const boost::shared_ptr<BrachytherapySeedProxy> &seed,
 		     const double prescribed_dose );
 
   //! Destructor
@@ -63,14 +64,11 @@ private:
 
   //! Create the seed position list
   void createSeedPositionList( 
-		     const double position_x_dimension,
-		     const double position_y_dimension,
-		     const double position_z_dimension,
-		     const BrachytherapySeedFactory::BrachytherapySeedPtr seed,
-		     const std::vector<double> &prostate_adjoint,
-		     const std::vector<double> &urethra_adjoint,
-		     const std::vector<double> &margin_adjoint,
-		     const std::vector<double> &rectum_adjoint );
+			 const boost::shared_ptr<BrachytherapySeedProxy> &seed,
+			 const std::vector<double> &prostate_adjoint,
+			 const std::vector<double> &urethra_adjoint,
+			 const std::vector<double> &margin_adjoint,
+			 const std::vector<double> &rectum_adjoint );
 
   //! Conduct the isodose constant iteration 
   void conductIsodoseConstantIteration( 
@@ -95,7 +93,10 @@ private:
   double calculateProstateDoseCoverage() const;
   
   //! Calculate the dose-volume-histogram data
-  void calculateDoseVolumeHistogramData();				     
+  void calculateDoseVolumeHistogramData();
+
+  //! Print the treatment plan summary
+  void printTreatmentPlanSummary( std::ostream &os ) const;
   
   // Mesh dimensions  
   unsigned d_mesh_x_dim;
@@ -122,6 +123,12 @@ private:
 
   // Minimum seed isodose constant
   double d_min_isodose_constant;
+
+  // Initialization time
+  double d_init_time;
+
+  // Optimization time
+  double d_opt_time;
 
   // Prostate mask
   std::vector<bool> d_prostate_mask;

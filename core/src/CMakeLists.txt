@@ -14,8 +14,11 @@ SET(HEADERS ${HEADERS}
   BrachytherapyCommandLineProcessor.hpp
   BrachytherapyPatientFileHandler.hpp
   BrachytherapySeedFactory.hpp
+  BrachytherapySeedFileHandler.hpp
+  BrachytherapySeedHelpers.hpp
   BrachytherapySeed.hpp
   BrachytherapySeedPosition.hpp
+  BrachytherapySeedProxy.hpp
   BrachytherapySeedType.hpp
   BrachytherapyTreatmentPlannerFactory.hpp
   BrachytherapyTreatmentPlannerType.hpp
@@ -55,6 +58,7 @@ SET(SEED_SOURCES ${SEED_SOURCES}
   Best2335Seed.cpp
   BrachytherapySeed.cpp
   BrachytherapySeedFactory.cpp
+  BrachytherapySeedHelpers.cpp
   DraximageLS1Seed.cpp
   IBt1251LSeed.cpp
   ImagynIS12501Seed.cpp
@@ -73,7 +77,9 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
   BrachytherapyAdjointDataGenerator.cpp
   BrachytherapyCommandLineProcessor.cpp
   BrachytherapyPatientFileHandler.cpp
+  BrachytherapySeedFileHandler.cpp
   BrachytherapySeedPosition.cpp
+  BrachytherapySeedProxy.cpp
   BrachytherapyTreatmentPlannerFactory.cpp
   HDF5FileHandler.cpp
   IIEMTreatmentPlanner.cpp

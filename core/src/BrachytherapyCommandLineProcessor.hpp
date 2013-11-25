@@ -17,10 +17,11 @@
 // Boost Includes
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 
 // TPOR Includes
-#include "BrachytherapySeedFactory.hpp"
+#include "BrachytherapySeedProxy.hpp"
 #include "BrachytherapyTreatmentPlannerType.hpp"
 
 namespace TPOR{
@@ -45,7 +46,7 @@ public:
   BrachytherapyTreatmentPlannerType getPlannerType() const;
 
   //! Return the brachytherapy seeds
-  const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr>& 
+  const std::vector<boost::shared_ptr<BrachytherapySeedProxy> >& 
   getSeeds() const;
 
   //! Return the prescribed dose
@@ -62,6 +63,10 @@ private:
   //! Parse the patient file
   void parsePatientFile( boost::program_options::variables_map &vm,
 			 boost::program_options::options_description &desc );
+
+  //! Parse the seed file
+  void parseSeedFile( boost::program_options::variables_map &vm,
+		      boost::program_options::options_description &desc );
 
   //! Parse the treament planner type
   void parseTreatmentPlannerType( 
@@ -88,12 +93,15 @@ private:
 
   // The patient file
   std::string d_patient_file;
+
+  // The seed file
+  std::string d_seed_file;
   
   // The treatment planner type
   BrachytherapyTreatmentPlannerType d_planner_type;
 
   // The seeds
-  std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> d_seeds;
+  std::vector<boost::shared_ptr<BrachytherapySeedProxy> > d_seeds;
 
   // The prescribed dose
   double d_prescribed_dose;

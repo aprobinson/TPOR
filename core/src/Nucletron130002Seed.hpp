@@ -75,7 +75,7 @@ private:
 
   // The 2D anisotropy function
   static const int af_radii = 10;
-  static const int af_angles = 21;
+  static const int af_angles = 22;
   static const boost::array<double,af_radii> anisotropy_function_radii;
   static const boost::array<double,af_angles*(af_radii+1)> anisotropy_function;
   

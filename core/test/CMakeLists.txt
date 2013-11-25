@@ -134,13 +134,13 @@ ADD_EXECUTABLE(tstBrachytherapySeedFactory
 TARGET_LINK_LIBRARIES(tstBrachytherapySeedFactory ${PROJECT_NAME}_core)
 ADD_TEST(BrachtherapySeedFactory_test tstBrachytherapySeedFactory)
 
-ADD_EXECUTABLE(tstBrachytherapyCommandLineProcessor
-  tstBrachytherapyCommandLineProcessor.cpp)
-TARGET_LINK_LIBRARIES(tstBrachytherapyCommandLineProcessor ${PROJECT_NAME}_core)
-ADD_TEST(BrachytherapyCommandLineProcessor_test 
-  tstBrachytherapyCommandLineProcessor test_file.h5 --treatment_planner=IIEMTreatmentPlanner --seeds=Amersham6711Seed --prescribed_dose=145)
+# ADD_EXECUTABLE(tstBrachytherapyCommandLineProcessor
+#   tstBrachytherapyCommandLineProcessor.cpp)
+# TARGET_LINK_LIBRARIES(tstBrachytherapyCommandLineProcessor ${PROJECT_NAME}_core)
+# ADD_TEST(BrachytherapyCommandLineProcessor_test 
+#   tstBrachytherapyCommandLineProcessor test_file.h5 seed_file.h5 --treatment_planner=IIEMTreatmentPlanner --seeds=Amersham6711Seed --prescribed_dose=145)
 
-ADD_EXECUTABLE(tstIIEMTreatmentPlanner
-  tstIIEMTreatmentPlanner.cpp)
-TARGET_LINK_LIBRARIES(tstIIEMTreatmentPlanner ${PROJECT_NAME}_core)
-ADD_TEST(IIEMTreatmentPlanner_test tstIIEMTreatmentPlanner)
+# ADD_EXECUTABLE(tstIIEMTreatmentPlanner
+#   tstIIEMTreatmentPlanner.cpp)
+# TARGET_LINK_LIBRARIES(tstIIEMTreatmentPlanner ${PROJECT_NAME}_core)
+# ADD_TEST(IIEMTreatmentPlanner_test tstIIEMTreatmentPlanner)

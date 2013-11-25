@@ -17,7 +17,7 @@ namespace TPOR{
 // Constructor
 BrachytherapyTreatmentPlannerFactory::BrachytherapyTreatmentPlannerFactory(
       const std::string &patient_hdf5_file_name,
-      const std::vector<BrachytherapySeedFactory::BrachytherapySeedPtr> &seeds,
+      const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds,
       const double prescribed_dose )
   : d_patient_file_name( patient_hdf5_file_name ),
     d_seeds( seeds ),

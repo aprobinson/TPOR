@@ -16,7 +16,8 @@ namespace TPOR{
 
 //! Brachytherapy seed type enumeration
 enum BrachytherapySeedType{
-  AMERSHAM_6702_SEED,
+  SEED_min = 0,
+  AMERSHAM_6702_SEED = SEED_min,
   AMERSHAM_6711_SEED,
   AMERSHAM_6733_SEED,
   AMERSHAM_9011_SEED,
@@ -36,6 +37,7 @@ enum BrachytherapySeedType{
   MBI_SL125_SH125_SEED,
   SOURCE_TECH_STM1251_SEED,
   NUCLETRON_130002_SEED,
+  SEED_max = NUCLETRON_130002_SEED
 };
 
 } // end TPOR namespace

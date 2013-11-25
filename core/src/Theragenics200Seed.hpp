@@ -49,13 +49,13 @@ public:
 		       const double y,
 		       const double z ) const;
 
-private:
-
   // The seed type
   static const BrachytherapySeedType seed_type = THERAGENICS_200_SEED;
 
   // The seed name
   static const std::string seed_name;
+
+private:
 
   // The effective seed length (Leff)
   static const double effective_length;
