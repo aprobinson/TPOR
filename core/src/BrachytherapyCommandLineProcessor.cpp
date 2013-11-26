@@ -346,6 +346,10 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
 	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
 						  THERAGENICS_AGX100_SEED,
 						  seed_strength ) );
+	else if( seed_names[i*2].compare( "SourceTechSTM1251Seed" ) == 0 )
+	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
+						  SOURCE_TECH_STM1251_SEED,
+						  seed_strength ) );
 	else
 	{
 	  std::cout << "The seed " << seed_names[i*2] << " is invalid."

@@ -23,6 +23,20 @@
 namespace TPOR
 {
 
+//! = functor
+struct Equal
+{
+  static void set( double &data, const double value )
+  { data = value; }
+};
+
+//! += functor
+struct PlusEqual
+{
+  static void set( double &data, const double value )
+  { data += value; }
+};
+  
 //! Class that stores a brachytherapy seed, position indices, and weight
 class BrachytherapySeedPosition
 {
@@ -60,6 +74,7 @@ public:
   std::string getSeedName() const;
 
   //! Map the dose from the seed at this position
+  template<typename EqualOp>
   void mapSeedDoseDistribution( std::vector<double> &dose_mesh,
 				const unsigned mesh_x_dimension,
 				const unsigned mesh_y_dimension,
@@ -119,6 +134,14 @@ bool operator > (
 	     const std::pair<unsigned,BrachytherapySeedPosition> &position_b );
 
 } // end TPOR namespace
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "BrachytherapySeedPosition_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end BRACHYTHERAPY_SEED_POSITION_HPP
 

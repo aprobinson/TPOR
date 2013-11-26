@@ -78,7 +78,7 @@ private:
 		      &remaining_seed_positions );
 
   //! Conduct the needle isodose constant iteration
-  void conductNeedleIsodoseConstantIteration(
+  double conductNeedleIsodoseConstantIteration(
 		const double start_constant,
 		const double end_constant,
 		const double step,

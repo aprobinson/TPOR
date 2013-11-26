@@ -18,6 +18,7 @@ SET(HEADERS ${HEADERS}
   BrachytherapySeedHelpers.hpp
   BrachytherapySeed.hpp
   BrachytherapySeedPosition.hpp
+  BrachytherapySeedPosition_def.hpp
   BrachytherapySeedProxy.hpp
   BrachytherapySeedType.hpp
   BrachytherapyTreatmentPlannerFactory.hpp
