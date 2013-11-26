@@ -35,8 +35,8 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
     d_prescribed_dose( prescribed_dose ),
     d_prostate_relative_vol( 0 ),
     d_urethra_relative_vol( 0 ),
-    d_margin_relative_vol( 0 ),
     d_rectum_relative_vol( 0 ),
+    d_normal_relative_vol( 0 ),
     d_min_number_of_needles( 0 ),
     d_min_isodose_constant( 0.0 ),
     d_init_time( 0.0 ),
@@ -70,9 +70,6 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
   
   // Load in the urethra mask
   patient_file.getUrethraMask( d_urethra_mask );
-
-  // Load the margin mask relative volume
-  patient_file.getMarginMaskRelativeVolume( d_margin_relative_vol );
   
   // Load in the margin mask
   patient_file.getMarginMask( d_margin_mask );
@@ -82,6 +79,10 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
   
   // Load in the rectum mask
   patient_file.getRectumMask( d_rectum_mask );
+
+  // Set the normal tissue relative volume
+  d_normal_relative_vol = d_mesh_x_dim*d_mesh_y_dim*d_mesh_z_dim -
+    d_prostate_relative_vol - d_urethra_relative_vol - d_rectum_relative_vol;
 
   // Load in the needle template
   patient_file.getNeedleTemplate( d_needle_template );
@@ -286,7 +287,6 @@ void IIEMTreatmentPlanner::conductIsodoseConstantIteration(
        isodose_constant <= d_min_isodose_constant;
        isodose_constant += 0.001 )
   {
-
     // Reset the chosen needle id set
     chosen_needle_ids.clear();
 
@@ -591,8 +591,6 @@ void IIEMTreatmentPlanner::calculateDoseVolumeHistogramData()
 
   unsigned prostate_elements = 0, urethra_elements = 0, normal_elements = 0,
     rectum_elements = 0;
-  unsigned normal_relative_vol = d_mesh_x_dim*d_mesh_y_dim*d_mesh_z_dim -
-    d_prostate_relative_vol - d_urethra_relative_vol - d_rectum_relative_vol;
   
   for( int dose = 0; dose <= 300; ++dose )
   {
@@ -628,7 +626,7 @@ void IIEMTreatmentPlanner::calculateDoseVolumeHistogramData()
     d_dose_volume_histogram_data[dose*5+3] = 
       (double)rectum_elements/d_rectum_relative_vol;
     d_dose_volume_histogram_data[dose*5+4] = 
-      (double)normal_elements/normal_relative_vol;
+      (double)normal_elements/d_normal_relative_vol;
 
     prostate_elements = 0;
     urethra_elements = 0;

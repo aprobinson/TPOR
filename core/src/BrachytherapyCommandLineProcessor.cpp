@@ -35,30 +35,19 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
   // Create seed names
   std::string seed_msg = "add a desired seed with a specified air kerma ";
   seed_msg += "strength (arg = name strength):\n";
-  seed_msg += "\t1.) " + brachytherapySeedName( AMERSHAM_6702_SEED ) + "\n";
-  seed_msg += "\t2.) " + brachytherapySeedName( AMERSHAM_6711_SEED ) + "\n";
-  seed_msg += "\t3.) " + brachytherapySeedName( AMERSHAM_6733_SEED ) + "\n";
-  seed_msg += "\t4.) " + brachytherapySeedName( AMERSHAM_9011_SEED ) + "\n";
-  seed_msg += "\t5.) " + brachytherapySeedName( BEST_2301_SEED ) + "\n";
-  seed_msg += "\t6.) " + brachytherapySeedName( BEST_2335_SEED ) + "\n";
-  seed_msg += "\t7.) " + brachytherapySeedName( NASI_MED_3631_SEED ) + "\n";
-  seed_msg += "\t8.) " + brachytherapySeedName( NASI_MED_3633_SEED ) + "\n";
-  seed_msg += "\t9.) " + brachytherapySeedName( BEBIG_I25_S06_SEED ) + "\n";
-  seed_msg += "\t10.) " + brachytherapySeedName( IMAGYN_IS_12501_SEED ) + "\n";
-  seed_msg += "\t11.) " + brachytherapySeedName( THERAGENICS_200_SEED ) + "\n";
-  seed_msg += "\t12.) " + brachytherapySeedName( THERAGENICS_AGX100_SEED ) +
-    "\n";
-  seed_msg += "\t13.) " + brachytherapySeedName( DRAXIMAGE_LS1_SEED ) + "\n";
-  seed_msg += "\t14.) " + brachytherapySeedName( IMPLANT_SCIENCES_3500_SEED )
-    + "\n";
-  seed_msg += "\t15.) " + brachytherapySeedName( IBT_1251L_SEED ) + "\n";
-  seed_msg += "\t16.) " + brachytherapySeedName( ISOAID_IAI_125A_SEED ) + "\n";
-  seed_msg += "\t17.) " + brachytherapySeedName( ISOAID_IAPD_103A_SEED ) +
-    "\n";
-  seed_msg += "\t18.) " + brachytherapySeedName( MBI_SL125_SH125_SEED ) + "\n";
-  seed_msg += "\t19.) " + brachytherapySeedName( SOURCE_TECH_STM1251_SEED ) +
-    "\n";
-  seed_msg += "\t20.) " + brachytherapySeedName( NUCLETRON_130002_SEED ) +"\n";
+  
+  for( unsigned seed_id = SEED_min; seed_id <= SEED_max; ++seed_id )
+  {  
+    BrachytherapySeedType seed_type =
+      TPOR::unsignedToBrachytherapySeedType( seed_id );
+    
+    std::string seed_name = brachytherapySeedName( seed_type );
+
+    std::ostringstream oss;
+    oss << seed_id+1;
+    
+    seed_msg += "\t" + oss.str() + ".) " + seed_name + "\n";
+  }
   
   // Create the command-line argument parser
   boost::program_options::options_description desc( "Allowed options" );
@@ -252,104 +241,29 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
 	iss >> seed_strength;
 	
 	// Create the desired seed
-	if( seed_names[i*2].compare( "Amersham6702Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  AMERSHAM_6702_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Amersham6711Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  AMERSHAM_6711_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Amersham6733Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,	
-						  AMERSHAM_6733_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Amersham9011Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  AMERSHAM_9011_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "BebigI25S06Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  BEBIG_I25_S06_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Best2301Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  BEST_2301_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Best2335Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  BEST_2335_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "DraximageLS1Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  DRAXIMAGE_LS1_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "IBt1251LSeed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  IBT_1251L_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "ImagynIS12501Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  IMAGYN_IS_12501_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "ImplantSciences3500Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  IMPLANT_SCIENCES_3500_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "IsoAidIAI125ASeed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  ISOAID_IAI_125A_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "IsoAidIAPd103ASeed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  ISOAID_IAPD_103A_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "MBISL125SH125Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  MBI_SL125_SH125_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "NASIMED3631Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  NASI_MED_3631_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "NASIMED3633Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  NASI_MED_3633_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Nucletron130002Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  NUCLETRON_130002_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "Theragenics200Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  THERAGENICS_200_SEED,
-						  seed_strength ) );
-	
-	else if( seed_names[i*2].compare( "TheragenicsAgX100Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  THERAGENICS_AGX100_SEED,
-						  seed_strength ) );
-	else if( seed_names[i*2].compare( "SourceTechSTM1251Seed" ) == 0 )
-	  seed.reset( new BrachytherapySeedProxy( d_seed_file,
-						  SOURCE_TECH_STM1251_SEED,
-						  seed_strength ) );
+	for( unsigned seed_id = SEED_min; seed_id <= SEED_max; ++seed_id )
+	{  
+	  BrachytherapySeedType test_seed_type =
+	    TPOR::unsignedToBrachytherapySeedType( seed_id );
+	  
+	  std::string test_seed_name = brachytherapySeedName( test_seed_type );
+	  
+	  if( seed_names[i*2].compare( test_seed_name ) == 0 )
+	  {
+	    seed.reset( new BrachytherapySeedProxy( d_seed_file,
+						    test_seed_type,
+						    seed_strength ) );
+
+	    break;
+	  }
+	}
+      
+	if( seed )
+	{
+	  d_seeds.push_back( seed );
+	  
+	  seed.reset();
+	}
 	else
 	{
 	  std::cout << "The seed " << seed_names[i*2] << " is invalid."
@@ -357,14 +271,12 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
 	  
 	  exit( 1 );
 	}
-      
-	d_seeds.push_back( seed );
       }
     }
     else
     {
       std::cout << "The seed name and strength must be specified "
-		<< "(e.g. name strength)" 
+		<< "(e.g. -s name strength)" 
 		<< std::endl << desc << std::endl;
 
       exit( 1 );

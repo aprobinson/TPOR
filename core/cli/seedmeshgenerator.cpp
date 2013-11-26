@@ -15,38 +15,8 @@
 
 // TPOR Includes
 #include "BrachytherapySeedFactory.hpp"
+#include "BrachytherapySeedHelpers.hpp"
 #include "HDF5FileHandler.hpp"
-
-//! Convert an unsigned to a BrachytherapySeedType
-TPOR::BrachytherapySeedType unsignedToSeedType( const unsigned seed_id )
-{
-  switch( seed_id )
-  {
-  case 0u: return TPOR::AMERSHAM_6702_SEED;
-  case 1u: return TPOR::AMERSHAM_6711_SEED;
-  case 2u: return TPOR::AMERSHAM_6733_SEED;
-  case 3u: return TPOR::AMERSHAM_9011_SEED;
-  case 4u: return TPOR::BEST_2301_SEED;
-  case 5u: return TPOR::BEST_2335_SEED;
-  case 6u: return TPOR::NASI_MED_3631_SEED;
-  case 7u: return TPOR::NASI_MED_3633_SEED;
-  case 8u: return TPOR::BEBIG_I25_S06_SEED;
-  case 9u: return TPOR::IMAGYN_IS_12501_SEED;
-  case 10u: return TPOR::THERAGENICS_200_SEED;
-  case 11u: return TPOR::THERAGENICS_AGX100_SEED;
-  case 12u: return TPOR::DRAXIMAGE_LS1_SEED;
-  case 13u: return TPOR::IMPLANT_SCIENCES_3500_SEED;
-  case 14u: return TPOR::IBT_1251L_SEED;
-  case 15u: return TPOR::ISOAID_IAI_125A_SEED;
-  case 16u: return TPOR::ISOAID_IAPD_103A_SEED;
-  case 17u: return TPOR::MBI_SL125_SH125_SEED;
-  case 18u: return TPOR::SOURCE_TECH_STM1251_SEED;
-  case 19u: return TPOR::NUCLETRON_130002_SEED;
-  default:
-    std::cout << "Error: invalid seed id (" << seed_id << ")" << std::endl;
-    exit( 1 );
-  }
-}
 
 //! C++ command-line interface for create seed data meshes
 int main()
@@ -103,9 +73,10 @@ int main()
   TPOR::BrachytherapySeedFactory::BrachytherapySeedPtr seed;
 
   // Generate a data mesh for every seed type (cGy)
-  for( unsigned seed_id = 0; seed_id <= TPOR::SEED_max; ++seed_id)
+  for( unsigned seed_id = TPOR::SEED_min; seed_id <= TPOR::SEED_max; ++seed_id)
   {
-    TPOR::BrachytherapySeedType seed_type = unsignedToSeedType( seed_id );
+    TPOR::BrachytherapySeedType seed_type = 
+      TPOR::unsignedToBrachytherapySeedType( seed_id );
     
     seed = TPOR::BrachytherapySeedFactory::createSeed( seed_type, 1.0 );
     

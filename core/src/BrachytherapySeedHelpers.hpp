@@ -37,8 +37,11 @@
 
 namespace TPOR{
 
-//! Return the brachytherapy seed name give a BrachytherapySeedType enum
+//! Return the brachytherapy seed name given a BrachytherapySeedType enum
 std::string brachytherapySeedName( const BrachytherapySeedType seed_type );
+
+//! Return the BrachytherapySeedType given an unsigned int
+BrachytherapySeedType unsignedToBrachytherapySeedType( const unsigned seed_id);
 
 } // end TPOR namespace
 

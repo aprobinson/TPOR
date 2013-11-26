@@ -87,6 +87,38 @@ std::string brachytherapySeedName( const BrachytherapySeedType seed_type )
   return name;
 }
 
+// Return the BrachytherapySeedType given an unsigned int
+BrachytherapySeedType unsignedToBrachytherapySeedType( const unsigned seed_id )
+{
+  // Make sure the seed id is valid
+  testPrecondition( seed_id >= SEED_min );
+  testPrecondition( seed_id <= SEED_max );
+
+  switch( seed_id )
+  {
+  case 0u: return AMERSHAM_6702_SEED;
+  case 1u: return AMERSHAM_6711_SEED;
+  case 2u: return AMERSHAM_6733_SEED;
+  case 3u: return AMERSHAM_9011_SEED;
+  case 4u: return BEST_2301_SEED;
+  case 5u: return BEST_2335_SEED;
+  case 6u: return NASI_MED_3631_SEED;
+  case 7u: return NASI_MED_3633_SEED;
+  case 8u: return BEBIG_I25_S06_SEED;
+  case 9u: return IMAGYN_IS_12501_SEED;
+  case 10u: return THERAGENICS_200_SEED;
+  case 11u: return THERAGENICS_AGX100_SEED;
+  case 12u: return DRAXIMAGE_LS1_SEED;
+  case 13u: return IMPLANT_SCIENCES_3500_SEED;
+  case 14u: return IBT_1251L_SEED;
+  case 15u: return ISOAID_IAI_125A_SEED;
+  case 16u: return ISOAID_IAPD_103A_SEED;
+  case 17u: return MBI_SL125_SH125_SEED;
+  case 18u: return SOURCE_TECH_STM1251_SEED;
+  case 19u: return NUCLETRON_130002_SEED;
+  }
+}
+
 } // end TPOR namespace
 
 //---------------------------------------------------------------------------//
