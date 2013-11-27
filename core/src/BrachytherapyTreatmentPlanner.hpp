@@ -31,18 +31,6 @@ public:
 
   //! Calculate optimum treatment plan
   virtual void calculateOptimumTreatmentPlan() = 0;
-
-  //! Print the treatment plan
-  virtual void printTreatmentPlan( std::ostream &os ) const = 0;
-
-  //! Print the treatment plan to std::cout
-  virtual void printTreatmentPlan() const = 0;
-
-  //! Print the dose-volume-histogram data
-  virtual void printDoseVolumeHistogramData( std::ostream &os ) const = 0;
-
-  //! Print the dose-volume-histogram data to std::cout
-  virtual void printDoseVolumeHistogramData() const = 0;
 };
 
 } // end TPOR namespace

@@ -13,6 +13,7 @@ SET(HEADERS ${HEADERS}
   BrachytherapyAdjointDataGenerator.hpp
   BrachytherapyCommandLineProcessor.hpp
   BrachytherapyPatientFileHandler.hpp
+  BrachytherapyPatient.hpp
   BrachytherapySeedFactory.hpp
   BrachytherapySeedFileHandler.hpp
   BrachytherapySeedHelpers.hpp
@@ -47,6 +48,7 @@ SET(HEADERS ${HEADERS}
   SourceTechSTM1251Seed.hpp
   Theragenics200Seed.hpp
   TheragenicsAgX100Seed.hpp
+  TissueType.hpp
   UndefinedTraits.hpp)
 
 SET(SEED_SOURCES ${SEED_SOURCES}
@@ -79,6 +81,7 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
   BrachytherapyCommandLineProcessor.cpp
   BrachytherapyPatientFileHandler.cpp
   BrachytherapySeedFileHandler.cpp
+  BrachytherapyPatient.cpp
   BrachytherapySeedPosition.cpp
   BrachytherapySeedProxy.cpp
   BrachytherapyTreatmentPlannerFactory.cpp

@@ -95,6 +95,12 @@ public:
 
   friend bool operator > ( const BrachytherapySeedPosition &position_a,
 			   const BrachytherapySeedPosition &position_b );
+  
+  friend bool operator == ( const BrachytherapySeedPosition &position_a,
+			    const BrachytherapySeedPosition &position_b );
+
+  friend bool operator != ( const BrachytherapySeedPosition &position_a,
+			    const BrachytherapySeedPosition &position_b );
 
 private:
   
@@ -132,6 +138,14 @@ bool operator < (
 bool operator > ( 
 	     const std::pair<unsigned,BrachytherapySeedPosition> &position_a,
 	     const std::pair<unsigned,BrachytherapySeedPosition> &position_b );
+
+//! Equality operator for BrachytherapySeedPositions
+bool operator == ( const BrachytherapySeedPosition &position_a,
+		   const BrachytherapySeedPosition &position_b );
+
+//! Inequality operator for BrachytherapySeedPositions
+bool operator != ( const BrachytherapySeedPosition &position_a,
+		   const BrachytherapySeedPosition &position_b );
 
 } // end TPOR namespace
 

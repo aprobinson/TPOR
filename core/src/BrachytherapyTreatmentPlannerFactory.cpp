@@ -16,17 +16,13 @@ namespace TPOR{
 
 // Constructor
 BrachytherapyTreatmentPlannerFactory::BrachytherapyTreatmentPlannerFactory(
-      const std::string &patient_hdf5_file_name,
-      const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds,
-      const double prescribed_dose )
-  : d_patient_file_name( patient_hdf5_file_name ),
-    d_seeds( seeds ),
-    d_prescribed_dose( prescribed_dose )
+	 const boost::shared_ptr<BrachytherapyPatient> &patient,
+	 const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds )
+  : d_patient( patient ),
+    d_seeds( seeds )
 { 
   // Make sure that at least one seed has been requested
   testPrecondition( seeds.size() > 0 );
-  // Make sure the prescribed dose is valid
-  testPrecondition( prescribed_dose > 0 );
 }
 
 // Brachytherapy treatment planner construction method 
@@ -40,9 +36,7 @@ BrachytherapyTreatmentPlannerFactory::createTreatmentPlanner(
   switch( planner_type )
   {
   case IIEM_TREATMENT_PLANNER:
-    treatment_planner.reset( new IIEMTreatmentPlanner( d_patient_file_name,
-						       d_seeds[0],
-						       d_prescribed_dose ) );
+    treatment_planner.reset( new IIEMTreatmentPlanner( d_patient, d_seeds[0]));
     break;
   }
 

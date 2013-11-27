@@ -11,20 +11,27 @@
 #include <string>
 #include <vector>
 
+// Boost Includes
+#include <boost/shared_ptr.hpp>
+
 // TPOR Includes
 #include "BrachytherapyCommandLineProcessor.hpp"
+#include "BrachytherapyPatient.hpp"
 #include "BrachytherapyTreatmentPlannerFactory.hpp"
 
 //! Main c++ command-line-interface for creating a treatment plan
 int main( int argc, char** argv )
 {
   TPOR::BrachytherapyCommandLineProcessor user_args( argc, argv );
+
+  // Create the patient
+  boost::shared_ptr<TPOR::BrachytherapyPatient> 
+    patient( new TPOR::BrachytherapyPatient( user_args.getPatientFile(),
+					     user_args.getPrescribedDose() ) );
   
   // Create the treatment planner factory
   TPOR::BrachytherapyTreatmentPlannerFactory
-    planner_factory( user_args.getPatientFile(),
-		     user_args.getSeeds(),
-		     user_args.getPrescribedDose() );
+    planner_factory( patient, user_args.getSeeds() );
   
   // Create the treatment planner
   TPOR::BrachytherapyTreatmentPlannerFactory::BrachytherapyTreatmentPlannerPtr
@@ -35,12 +42,10 @@ int main( int argc, char** argv )
   planner->calculateOptimumTreatmentPlan();
 
   // Print the treatment plan
-  planner->printTreatmentPlan( user_args.getTreatmentPlanOutputStream() );
+  patient->printTreatmentPlan( user_args.getTreatmentPlanOutputStream() );
 
   // Print the dose-volume-histogram
-  planner->printDoseVolumeHistogramData( user_args.getDVHOutputStream() );
-
-  planner.reset();
+  patient->printDoseVolumeHistogramData( user_args.getDVHOutputStream() );
 
   return 0;
  }

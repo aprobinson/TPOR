@@ -126,6 +126,24 @@ bool operator > (
   return position_a.second > position_b.second;
 }
 
+// Equality operator for BrachytherapySeedPositions
+bool operator == ( const BrachytherapySeedPosition &position_a,
+		   const BrachytherapySeedPosition &position_b )
+{
+  return position_a.d_x_index == position_b.d_x_index &&
+    position_a.d_y_index == position_b.d_y_index &&
+    position_a.d_z_index == position_b.d_z_index;
+}
+
+// Inequality operator for BrachytherapySeedPositions
+bool operator != ( const BrachytherapySeedPosition &position_a,
+		   const BrachytherapySeedPosition &position_b )
+{
+  return position_a.d_x_index != position_b.d_x_index ||
+    position_a.d_y_index != position_b.d_y_index ||
+    position_a.d_z_index != position_b.d_z_index;
+}
+
 } // end TPOR namespace
 
 //---------------------------------------------------------------------------//
