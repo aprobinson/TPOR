@@ -2,16 +2,41 @@
 
 import h5py
 import numpy as np
+import argparse as ap
 
-# Open up the mask files
-organ_mask_file = open('organ_mesh-SUA', 'r')
+# Set up the argument parser
+description = "This script converts the organ masks used by the original" \
+    " greedy algorithm rewrites to the hdf5 format required by the new" \
+    " treatment planning code."
+
+parser = ap.ArgumentParser(description=description)
+
+organ_file_name = "organ mask file (with path)"
+parser.add_argument('organ_masks', help=organ_file_name)
+
+adjoint_file_name = "adjoint data for organ masks (with path)"
+parser.add_argument('--adjoint_data', default='', help=adjoint_file_name)
+
+adjoint_seed_type = "seed type used to make adjoint data"
+seed_type_choices = ['Amersham6711Seed', 'Best2301Seed']
+parser.add_argument('--adjoint_seed_type', choices=seed_type_choices, \
+                    help=adjoint_seed_type)
+
+patient_name = "patient name"
+parser.add_argument('--patient_name', default='test_patient', \
+                    help=patient_name)
+
+# Parse the user's arguments
+user_args = parser.parse_args()
 
 # Open the HDF5 file (overwrite if it exists)
-hdf5_file = h5py.File("Sua_test_patient.h5", 'w')
+hdf5_file = h5py.File(user_args.patient_name + '.h5', 'w')
+
+# Open up the mask file
+organ_mask_file = open(user_args.organ_masks, 'r')
 
 # Add a root level attribute for the patient name
-patient_name = "Sua test patient"
-patient_name_array = np.frombuffer(patient_name, dtype=np.int8)
+patient_name_array = np.frombuffer(user_args.patient_name, dtype=np.int8)
 hdf5_file.attrs['patient_name'] = patient_name_array
 
 # Mask dimensions
@@ -231,207 +256,117 @@ needle_template_dset = hdf5_file.create_dataset('needle_template', \
 needle_template_dset[...] = needle_template
 
 ##---------------------------------------------------------------------------##
-# # Open up the adjoint file
-# adjoint_file = open('adjoint_data-SUA', 'r')
+# Open up the adjoint file if requested
+if user_args.adjoint_data != '':
+    adjoint_file = open(user_args.adjoint_data, 'r')
 
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    
+    # Create the adjoint data group
+    adjoint_group = hdf5_file.create_group("adjoint_data")
+    seed_adjoint_group =adjoint_group.create_group(user_args.adjoint_seed_type)
 
-# # Create the adjoint data group
-# adjoint_group = hdf5_file.create_group("adjoint_data")
-# amersham6711seed_adjoint_group = adjoint_group.create_group("Amersham6711Seed")
+    # Read in the prostate adjoint
+    prostate_adjoint = np.zeros(mask_shape, np.float64)
+    
+    line = adjoint_file.readline()
+    
+    for k in range(z_mesh_dim):
+        if k > 0:
+            line = adjoint_file.readline()
+        for j in range(y_mesh_dim):
+            line = adjoint_file.readline()
+            words = line.split()
+            for i in range(x_mesh_dim):
+                prostate_adjoint[k,j,i] = float(words[i])
+                
+    # Store the prostate adjoint data
+    prostate_adjoint_dset = seed_adjoint_group.create_dataset( \
+        'prostate_adjoint_data', \
+        prostate_adjoint.shape, \
+        dtype = np.float64)
+    prostate_adjoint_dset[...] = prostate_adjoint
 
-# # Read in the prostate adjoint
-# prostate_adjoint = np.zeros(mask_shape, np.float64)
+    # Read in the urethra adjoint
+    urethra_adjoint = np.zeros(mask_shape, np.float64)
+    
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    
+    for k in range(z_mesh_dim):
+        if k > 0:
+            line = adjoint_file.readline()
+        for j in range(y_mesh_dim):
+            line = adjoint_file.readline()
+            words = line.split()
+            for i in range(x_mesh_dim):
+                urethra_adjoint[k,j,i] = float(words[i])
 
-# line = adjoint_file.readline()
+    # Store the urethra adjoint data
+    urethra_adjoint_dset = seed_adjoint_group.create_dataset( \
+        'urethra_adjoint_data', \
+        urethra_adjoint.shape, \
+        dtype = np.float64)
+    urethra_adjoint_dset[...] = urethra_adjoint
 
-# for k in range(z_mesh_dim):
-#     if k > 0:
-#         line = adjoint_file.readline()
-#     for j in range(y_mesh_dim):
-#         line = adjoint_file.readline()
-#         words = line.split()
-#         for i in range(x_mesh_dim):
-#             prostate_adjoint[k,j,i] = float(words[i])
+    # Read in the rectum adjoint
+    rectum_adjoint = np.zeros(mask_shape, np.float64)
 
-# # Store the prostate adjoint data
-# prostate_adjoint_dset = amersham6711seed_adjoint_group.create_dataset( \
-#     'prostate_adjoint_data', \
-#     prostate_adjoint.shape, \
-#     dtype = np.float64)
-# prostate_adjoint_dset[...] = prostate_adjoint
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    
+    for k in range(z_mesh_dim):
+        if k > 0:
+            line = adjoint_file.readline()
+        for j in range(y_mesh_dim):
+            line = adjoint_file.readline()
+            words = line.split()
+            for i in range(x_mesh_dim):
+                rectum_adjoint[k,j,i] = float(words[i])
 
-# # Read in the urethra adjoint
-# urethra_adjoint = np.zeros(mask_shape, np.float64)
+    # Store the rectum adjoint data
+    rectum_adjoint_dset = seed_adjoint_group.create_dataset( \
+        'rectum_adjoint_data', \
+        rectum_adjoint.shape, \
+        dtype = np.float64)
+    rectum_adjoint_dset[...] = rectum_adjoint
+    
+    # Skip the normal adjoint
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    
+    for k in range(z_mesh_dim):
+        if k > 0:
+            line = adjoint_file.readline()
+        for j in range(y_mesh_dim):
+            line = adjoint_file.readline()
+            
+    # Read in the margin adjoint
+    margin_adjoint = np.zeros(mask_shape, np.float64)
 
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    line = adjoint_file.readline()
+    
+    for k in range(z_mesh_dim):
+        if k > 0:
+            line = adjoint_file.readline()
+        for j in range(y_mesh_dim):
+            line = adjoint_file.readline()
+            words = line.split()
+            for i in range(x_mesh_dim):
+                margin_adjoint[k,j,i] = float(words[i])
 
-# for k in range(z_mesh_dim):
-#     if k > 0:
-#         line = adjoint_file.readline()
-#     for j in range(y_mesh_dim):
-#         line = adjoint_file.readline()
-#         words = line.split()
-#         for i in range(x_mesh_dim):
-#             urethra_adjoint[k,j,i] = float(words[i])
-
-# # Store the urethra adjoint data
-# urethra_adjoint_dset = amersham6711seed_adjoint_group.create_dataset( \
-#     'urethra_adjoint_data', \
-#     urethra_adjoint.shape, \
-#     dtype = np.float64)
-# urethra_adjoint_dset[...] = urethra_adjoint
-
-# # Read in the rectum adjoint
-# rectum_adjoint = np.zeros(mask_shape, np.float64)
-
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-
-# for k in range(z_mesh_dim):
-#     if k > 0:
-#         line = adjoint_file.readline()
-#     for j in range(y_mesh_dim):
-#         line = adjoint_file.readline()
-#         words = line.split()
-#         for i in range(x_mesh_dim):
-#             rectum_adjoint[k,j,i] = float(words[i])
-
-# # Store the rectum adjoint data
-# rectum_adjoint_dset = amersham6711seed_adjoint_group.create_dataset( \
-#     'rectum_adjoint_data', \
-#     rectum_adjoint.shape, \
-#     dtype = np.float64)
-# rectum_adjoint_dset[...] = rectum_adjoint
-
-# # Skip the normal adjoint
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-
-# for k in range(z_mesh_dim):
-#     if k > 0:
-#         line = adjoint_file.readline()
-#     for j in range(y_mesh_dim):
-#         line = adjoint_file.readline()
-
-# # Read in the margin adjoint
-# margin_adjoint = np.zeros(mask_shape, np.float64)
-
-# line = adjoint_file.readline()
-# line = adjoint_file.readline()
-
-# for k in range(z_mesh_dim):
-#     if k > 0:
-#         line = adjoint_file.readline()
-#     for j in range(y_mesh_dim):
-#         line = adjoint_file.readline()
-#         words = line.split()
-#         for i in range(x_mesh_dim):
-#             margin_adjoint[k,j,i] = float(words[i])
-
-# # Store the margin adjoint data
-# margin_adjoint_dset = amersham6711seed_adjoint_group.create_dataset( \
-#     'margin_adjoint_data', \
-#     margin_adjoint.shape, \
-#     dtype = np.float64)
-# margin_adjoint_dset[...] = margin_adjoint
+    # Store the margin adjoint data
+    margin_adjoint_dset = seed_adjoint_group.create_dataset( \
+        'margin_adjoint_data', \
+        margin_adjoint.shape, \
+        dtype = np.float64)
+    margin_adjoint_dset[...] = margin_adjoint
 
 hdf5_file.close()
 
-##---------------------------------------------------------------------------##
-# Open up the Amersham6711Seed file
-seed_file = open('I6711-SUA', 'r')
-
-# Open the HDF5 file (overwrite if it exists)
-hdf5_file = h5py.File("BrachytherapySeeds.h5", 'w')
-
-# Seed mesh dimensions
-x_mesh_dim = 0
-y_mesh_dim = 0
-z_mesh_dim = 0
-
-# Seed position indices
-seed_x_pos = 0
-seed_y_pos = 0
-seed_z_pos = 0
-
-# Mesh element dimensions
-x_element_dim = 0.0
-y_element_dim = 0.0
-z_element_dim = 0.0
-
-# Parse the organ mask file header
-line = seed_file.readline()
-words = line.split()
-x_mesh_dim = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-seed_x_pos = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-x_element_dim = float(words[1])
-
-line = seed_file.readline()
-words = line.split()
-y_mesh_dim = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-seed_y_pos = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-y_element_dim = float(words[1])
-
-line = seed_file.readline()
-words = line.split()
-z_mesh_dim = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-seed_z_pos = int(words[1])
-
-line = seed_file.readline()
-words = line.split()
-z_element_dim = float(words[1])
-
-# Add a root level attribute for the mesh element dimensions
-hdf5_file.attrs['mesh_element_dimensions']=(x_element_dim, \
-                                            y_element_dim, \
-                                            z_element_dim)
-
-# Add a root level attribute for the mesh dimensions
-hdf5_file.attrs.create('mesh_dimensions', \
-                       (x_mesh_dim, y_mesh_dim, z_mesh_dim), \
-                       dtype = np.uint32)
-
-# Add a root level attribute for the seed position
-hdf5_file.attrs.create('seed_position', \
-                       (seed_x_pos, seed_y_pos, seed_z_pos), \
-                       dtype = np.uint32)
-
-# Read in the margin mask
-dose_distribution = np.zeros((z_mesh_dim, y_mesh_dim, x_mesh_dim), np.float64)
-
-for k in range(z_mesh_dim):
-    if k > 0:
-        line = seed_file.readline()
-    for j in range(y_mesh_dim):
-        line = seed_file.readline()
-        words = line.split()
-        for i in range(x_mesh_dim):
-            dose_distribution[k,j,i] = float(words[i])*100
-
-# Store the dose distributions
-dose_dset = hdf5_file.create_dataset('Amersham6711Seed', \
-                                     (z_mesh_dim, y_mesh_dim, x_mesh_dim), \
-                                     dtype = np.float64)
-dose_dset[...] = dose_distribution

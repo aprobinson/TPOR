@@ -21,6 +21,7 @@
 // TPOR Includes
 #include "TissueType.hpp"
 #include "BrachytherapySeedPosition.hpp"
+#include "BrachytherapyDynamicWeightSeedPosition.hpp"
 #include "BrachytherapySeedProxy.hpp"
 
 namespace TPOR{
@@ -99,11 +100,13 @@ public:
 			    const unsigned z_mesh_index ) const;
 
   //! Return the potential seed positions for the desired seeds
-  std::list<BrachytherapySeedPosition> getPotentialSeedPositions( 
+  template<typename SeedPosition>
+  std::list<SeedPosition> getPotentialSeedPositions( 
   const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds ) const;
 
   //! Return the potential seed positions for the desired seed
-  std::list<BrachytherapySeedPosition> getPotentialSeedPositions( 
+  template<typename SeedPosition>
+  std::list<SeedPosition> getPotentialSeedPositions( 
 		 const boost::shared_ptr<BrachytherapySeedProxy> &seed ) const;
 
   //! Return the prostate dose coverage (% of prostate with >= prescribed dose)
@@ -138,9 +141,14 @@ public:
 
 private:
 
+  //! BrachytherapySeedPosition creation policy
+  template<typename SeedPosition>
+  friend struct SeedPositionCreationPolicy;
+
   //! Create potential seed positions
+  template<typename SeedPosition>
   void createSeedPositions( 
-			std::list<BrachytherapySeedPosition> &seed_positions,
+			std::list<SeedPosition> &seed_positions,
 			const boost::shared_ptr<BrachytherapySeedProxy> &seed,
 			const std::vector<double> &prostate_adjoint_data,
 			const std::vector<double> &urethra_adjoint_data,
@@ -204,7 +212,124 @@ private:
   std::vector<double> d_cached_dose_distribution;
 };
 
+//! BrachytherapySeedPosition creation policy
+template<typename SeedPosition>
+struct SeedPositionCreationPolicy
+{
+  static void create( std::list<SeedPosition> &seed_positions,
+		      const boost::shared_ptr<BrachytherapySeedProxy> &seed,
+		      const BrachytherapyPatient &patient,
+		      const std::vector<double> &prostate_adjoint_data,
+		      const std::vector<double> &urethra_adjoint_data,
+		      const std::vector<double> &margin_adjoint_data,
+		      const std::vector<double> &rectum_adjoint_data )
+  {
+    // Filter potential seed positions to those along the template positions 
+    // and set the position weight to the adjoint ratio at the position
+    for( unsigned j = 0; j < patient.d_mesh_y_dim; ++j )
+    {
+      for( unsigned i = 0; i < patient.d_mesh_x_dim; ++i )
+      {
+	unsigned needle_index = i + j*patient.d_mesh_x_dim;
+	
+	if( patient.d_needle_template[needle_index] )
+	{
+	  for( unsigned slice = 0; slice < patient.d_mesh_z_dim; ++slice )
+	  {
+	    unsigned mask_index = needle_index + 
+	      slice*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
+	    
+	    if( patient.d_prostate_mask[mask_index] )
+	    {
+	      double weight = 
+		(urethra_adjoint_data[mask_index] +
+		 margin_adjoint_data[mask_index] +
+		 rectum_adjoint_data[mask_index])/
+		prostate_adjoint_data[mask_index];
+	      
+	      seed_positions.push_back(SeedPosition(
+						    i, 
+						    j, 
+						    slice, 
+						    weight, 
+						    seed ) );
+	    }
+	  }
+	}
+      }
+    }
+  }
+};
+
+//! BrachytherapySeedPosition creation policy specialization
+template<>
+struct SeedPositionCreationPolicy<BrachytherapyDynamicWeightSeedPosition>
+{
+  static void create(
+	     std::list<BrachytherapyDynamicWeightSeedPosition> &seed_positions,
+	     const boost::shared_ptr<BrachytherapySeedProxy> &seed,
+	     const BrachytherapyPatient &patient,
+	     const std::vector<double> &prostate_adjoint_data,
+	     const std::vector<double> &urethra_adjoint_data,
+	     const std::vector<double> &margin_adjoint_data,
+	     const std::vector<double> &rectum_adjoint_data )
+  {
+    // Organ weights (trial and error by Vibha)
+    double prostate_weight = 1.0;
+    double urethra_weight = 0.5;
+    double margin_weight = 0.5;
+    double rectum_weight = 1.0;
+    
+    // Filter potential seed positions to those along the template positions 
+    // and set the position weight to the adjoint ratio at the position
+    for( unsigned j = 0; j < patient.d_mesh_y_dim; ++j )
+    {
+      for( unsigned i = 0; i < patient.d_mesh_x_dim; ++i )
+      {
+	unsigned needle_index = i + j*patient.d_mesh_x_dim;
+	
+	if( patient.d_needle_template[needle_index] )
+	{
+	  for( unsigned slice = 0; slice < patient.d_mesh_z_dim; ++slice )
+	  {
+	    unsigned mask_index = needle_index + 
+	      slice*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
+	    
+	    if( patient.d_prostate_mask[mask_index] )
+	    {
+	      double weight = 
+		(urethra_weight*urethra_adjoint_data[mask_index] +
+		 margin_weight*margin_adjoint_data[mask_index] +
+		 rectum_weight*rectum_adjoint_data[mask_index])/
+		(prostate_weight*prostate_adjoint_data[mask_index]);
+	      
+	      const double* weight_multiplier = 
+		&patient.d_dose_distribution[mask_index];
+	      
+	      seed_positions.push_back( BrachytherapyDynamicWeightSeedPosition(
+							     i, 
+							     j, 
+							     slice, 
+							     weight,
+							     weight_multiplier,
+							     seed ) );
+	    }
+	  }
+	}
+      }
+    }
+  }
+};
+
 } // end TPOR namespace
+
+//---------------------------------------------------------------------------//
+// Template includes.
+//---------------------------------------------------------------------------//
+
+#include "BrachytherapyPatient_def.hpp"
+
+//---------------------------------------------------------------------------//
 
 #endif // end BRACHYTHERAPY_PATIENT_HPP
 

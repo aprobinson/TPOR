@@ -80,6 +80,17 @@ public:
 				const unsigned mesh_y_dimension,
 				const unsigned mesh_z_dimension ) const;
 
+  //! Comparison methods
+  virtual bool operator < ( const BrachytherapySeedPosition &operand ) const;
+
+  virtual bool operator > ( const BrachytherapySeedPosition &operand ) const;
+  
+  virtual bool operator == ( const BrachytherapySeedPosition &operand ) const;
+
+  virtual bool operator != ( const BrachytherapySeedPosition &operand ) const;
+
+private:
+
   //! Set the position x dimension (mesh element x dimension)
   static void setXDimension( const double x_dimension );
 
@@ -88,21 +99,6 @@ public:
 
   //! Set the position z dimension (mesh element z dimension)
   static void setZDimension( const double z_dimension );
-
-  //! Comparison methods
-  friend bool operator < ( const BrachytherapySeedPosition &position_a,
-			   const BrachytherapySeedPosition &position_b );
-
-  friend bool operator > ( const BrachytherapySeedPosition &position_a,
-			   const BrachytherapySeedPosition &position_b );
-  
-  friend bool operator == ( const BrachytherapySeedPosition &position_a,
-			    const BrachytherapySeedPosition &position_b );
-
-  friend bool operator != ( const BrachytherapySeedPosition &position_a,
-			    const BrachytherapySeedPosition &position_b );
-
-private:
   
   // Position dimensions (cm)
   static double x_dimension;
@@ -120,32 +116,6 @@ private:
   // Brachytherapy seed
   boost::shared_ptr<BrachytherapySeedProxy> d_seed;
 };
-
-//! Less-than operator for BrachytherapySeedPositions
-bool operator < ( const BrachytherapySeedPosition &position_a,
-		  const BrachytherapySeedPosition &position_b );
-
-//! Greater-than operator for BrachytherapySeedPositions
-bool operator > ( const BrachytherapySeedPosition &position_a,
-		  const BrachytherapySeedPosition &position_b );
-
-//! Less-than operator for BrachytherapySeedPosition Pairs
-bool operator < ( 
-	     const std::pair<unsigned,BrachytherapySeedPosition> &position_a,
-	     const std::pair<unsigned,BrachytherapySeedPosition> &position_b );
-  
-//! Greater-than operator for BrachytherapySeedPosition Pairs
-bool operator > ( 
-	     const std::pair<unsigned,BrachytherapySeedPosition> &position_a,
-	     const std::pair<unsigned,BrachytherapySeedPosition> &position_b );
-
-//! Equality operator for BrachytherapySeedPositions
-bool operator == ( const BrachytherapySeedPosition &position_a,
-		   const BrachytherapySeedPosition &position_b );
-
-//! Inequality operator for BrachytherapySeedPositions
-bool operator != ( const BrachytherapySeedPosition &position_a,
-		   const BrachytherapySeedPosition &position_b );
 
 } // end TPOR namespace
 

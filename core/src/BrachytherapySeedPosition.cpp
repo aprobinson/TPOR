@@ -97,51 +97,35 @@ void BrachytherapySeedPosition::setZDimension( const double z_dimension )
 }
 
 // Less-than operator for BrachytherapySeedPositions
-bool operator < ( const BrachytherapySeedPosition &position_a,
-		  const BrachytherapySeedPosition &position_b )
+bool BrachytherapySeedPosition::operator < ( 
+			       const BrachytherapySeedPosition &operand ) const
 {
-  return position_a.d_weight < position_b.d_weight;
+  return d_weight < operand.d_weight;
 }
 
 // Greater-than operator for BrachytherapySeedPositions
-bool operator > ( const BrachytherapySeedPosition &position_a,
-		  const BrachytherapySeedPosition &position_b )
+bool BrachytherapySeedPosition::operator > ( 
+			       const BrachytherapySeedPosition &operand ) const
 {
-  return position_a.d_weight > position_b.d_weight;
-}
-
-// Less-than operator for BrachytherapySeedPosition Pairs
-bool operator < ( 
-	      const std::pair<unsigned,BrachytherapySeedPosition> &position_a,
-	      const std::pair<unsigned,BrachytherapySeedPosition> &position_b )
-{
-  return position_a.second < position_b.second;
-}
-  
-// Greater-than operator for BrachytherapySeedPosition Pairs
-bool operator > ( 
-	      const std::pair<unsigned,BrachytherapySeedPosition> &position_a,
-	      const std::pair<unsigned,BrachytherapySeedPosition> &position_b )
-{
-  return position_a.second > position_b.second;
+  return d_weight > operand.d_weight;
 }
 
 // Equality operator for BrachytherapySeedPositions
-bool operator == ( const BrachytherapySeedPosition &position_a,
-		   const BrachytherapySeedPosition &position_b )
+bool BrachytherapySeedPosition::operator == ( 
+			       const BrachytherapySeedPosition &operand ) const
 {
-  return position_a.d_x_index == position_b.d_x_index &&
-    position_a.d_y_index == position_b.d_y_index &&
-    position_a.d_z_index == position_b.d_z_index;
+  return d_x_index == operand.d_x_index &&
+    d_y_index == operand.d_y_index &&
+    d_z_index == operand.d_z_index;
 }
 
 // Inequality operator for BrachytherapySeedPositions
-bool operator != ( const BrachytherapySeedPosition &position_a,
-		   const BrachytherapySeedPosition &position_b )
+bool BrachytherapySeedPosition::operator != ( 
+			       const BrachytherapySeedPosition &operand ) const
 {
-  return position_a.d_x_index != position_b.d_x_index ||
-    position_a.d_y_index != position_b.d_y_index ||
-    position_a.d_z_index != position_b.d_z_index;
+  return d_x_index != operand.d_x_index ||
+    d_y_index != operand.d_y_index ||
+    d_z_index != operand.d_z_index;
 }
 
 } // end TPOR namespace

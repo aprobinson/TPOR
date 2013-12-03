@@ -62,7 +62,7 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
     ("treatment_planner,t", boost::program_options::value<std::string>(), 
      "set the treatment planner:\n"
      "\t1.) IIEMTreatmentPlanner\n"
-     "\t2.) \n"
+     "\t2.) DWDMMTreatmentPlanner\n"
      "\t3.) \n")
     ("seed,s", 
      boost::program_options::value<std::vector<std::string> >()->multitoken()->composing(), 
@@ -197,6 +197,8 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlannerType(
     
     if( treatment_planner_name.compare( "IIEMTreatmentPlanner" ) == 0 )
       d_planner_type = IIEM_TREATMENT_PLANNER;
+    else if( treatment_planner_name.compare( "DWDMMTreatmentPlanner" ) == 0 )
+      d_planner_type = DWDMM_TREATMENT_PLANNER;
     else
     {
       std::cout << "Invalid treatment planner: " << treatment_planner_name

@@ -13,7 +13,8 @@ namespace TPOR{
 
 //! Brachytherapy treatment planner type enumeration
 enum BrachytherapyTreatmentPlannerType{
-  IIEM_TREATMENT_PLANNER  
+  IIEM_TREATMENT_PLANNER,
+  DWDMM_TREATMENT_PLANNER
 };
 
 } // end TPOR namespace

@@ -20,12 +20,14 @@ SET(HEADERS ${HEADERS}
   BrachytherapySeed.hpp
   BrachytherapySeedPosition.hpp
   BrachytherapySeedPosition_def.hpp
+  BrachytherapyDynamicWeightSeedPosition.hpp
   BrachytherapySeedProxy.hpp
   BrachytherapySeedType.hpp
   BrachytherapyTreatmentPlannerFactory.hpp
   BrachytherapyTreatmentPlannerType.hpp
   ContractException.hpp
   DraximageLS1Seed.hpp
+  DWDMMTreatmentPlanner.hpp
   Empty.hpp
   ExceptionCatchMacros.hpp
   ExceptionTestMacros.hpp
@@ -83,8 +85,10 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
   BrachytherapySeedFileHandler.cpp
   BrachytherapyPatient.cpp
   BrachytherapySeedPosition.cpp
+  BrachytherapyDynamicWeightSeedPosition.cpp
   BrachytherapySeedProxy.cpp
   BrachytherapyTreatmentPlannerFactory.cpp
+  DWDMMTreatmentPlanner.cpp
   HDF5FileHandler.cpp
   IIEMTreatmentPlanner.cpp
   Interpolation.cpp)

@@ -126,7 +126,7 @@ double BrachytherapyAdjointDataGenerator::calculateAverageDoseToOrgan(
   testPrecondition( organ_mask.size() == mesh_x_dim*mesh_y_dim*mesh_z_dim );
 
   double dose = 0.0;
-  double samples = 0;
+  unsigned samples = 0;
 
   for( int k = 0; k < mesh_z_dim; ++k )
   {
@@ -150,9 +150,9 @@ double BrachytherapyAdjointDataGenerator::calculateAverageDoseToOrgan(
   double average_dose = dose/samples;
   
   // Make sure that the average dose calculated is valid
+  testPostcondition( average_dose == average_dose ); // Nan test
   testPostcondition( average_dose >= 0.0 );
   testPostcondition( average_dose != std::numeric_limits<double>::infinity() );
-  testPostcondition( average_dose == average_dose ); // Nan test
 
   return average_dose;
 }

@@ -9,6 +9,7 @@
 // TPOR Includes
 #include "BrachytherapyTreatmentPlannerFactory.hpp"
 #include "IIEMTreatmentPlanner.hpp"
+#include "DWDMMTreatmentPlanner.hpp"
 #include "ContractException.hpp"
 
 
@@ -37,6 +38,9 @@ BrachytherapyTreatmentPlannerFactory::createTreatmentPlanner(
   {
   case IIEM_TREATMENT_PLANNER:
     treatment_planner.reset( new IIEMTreatmentPlanner( d_patient, d_seeds[0]));
+    break;
+  case DWDMM_TREATMENT_PLANNER:
+    treatment_planner.reset( new DWDMMTreatmentPlanner( d_patient, d_seeds ) );
     break;
   }
 

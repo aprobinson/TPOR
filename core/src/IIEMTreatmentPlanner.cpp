@@ -16,13 +16,10 @@
 #include <time.h>
 
 // TPOR includes
-#include "ContractException.hpp"
-#include "BrachytherapyPatientFileHandler.hpp"
-#include "BrachytherapyAdjointDataGenerator.hpp"
 #include "IIEMTreatmentPlanner.hpp"
+#include "ContractException.hpp"
 
-namespace TPOR
-{
+namespace TPOR{
 
 // Constructor
 IIEMTreatmentPlanner::IIEMTreatmentPlanner( 
@@ -36,7 +33,8 @@ IIEMTreatmentPlanner::IIEMTreatmentPlanner(
     d_seed_positions()
 {
   // Get the potential seed positions
-  d_seed_positions = d_patient->getPotentialSeedPositions( seed );
+  d_seed_positions = 
+    d_patient->getPotentialSeedPositions<BrachytherapySeedPosition>( seed );
   
   // Sort the seed positions
   d_seed_positions.sort();
@@ -91,8 +89,6 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
     std::cout << "Warning: The treatment planning algorithm was not "
 	      << "successful." << std::endl;
   }  
-  
-  // If successful, generate the dose-volume-histogram data
   else
   {
     std::cout << std::endl << "treatment plan optimization complete." 
