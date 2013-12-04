@@ -40,6 +40,12 @@ namespace TPOR{
 //! Return the brachytherapy seed name given a BrachytherapySeedType enum
 std::string brachytherapySeedName( const BrachytherapySeedType seed_type );
 
+//! Return the radioactive nuclide of the desired brachytherapy seed
+std::string brachytherapySeedNuclide( const BrachytherapySeedType seed_type );
+
+//! Return if the brachytherapy seed is still in production
+bool brachytherapySeedInProduction( const BrachytherapySeedType seed_type );
+
 //! Return the BrachytherapySeedType given an unsigned int
 BrachytherapySeedType unsignedToBrachytherapySeedType( const unsigned seed_id);
 

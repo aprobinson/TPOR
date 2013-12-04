@@ -85,11 +85,17 @@ public:
 
   virtual bool operator > ( const BrachytherapySeedPosition &operand ) const;
   
-  virtual bool operator == ( const BrachytherapySeedPosition &operand ) const;
+  bool operator == ( const BrachytherapySeedPosition &operand ) const;
 
-  virtual bool operator != ( const BrachytherapySeedPosition &operand ) const;
+  bool operator != ( const BrachytherapySeedPosition &operand ) const;
 
-private:
+protected:
+
+  // Position weight
+  double d_weight;
+
+  // Brachytherapy seed
+  boost::shared_ptr<BrachytherapySeedProxy> d_seed;
 
   //! Set the position x dimension (mesh element x dimension)
   static void setXDimension( const double x_dimension );
@@ -109,12 +115,6 @@ private:
   int d_x_index;
   int d_y_index;
   int d_z_index;
-
-  // Position weight
-  double d_weight;
-
-  // Brachytherapy seed
-  boost::shared_ptr<BrachytherapySeedProxy> d_seed;
 };
 
 } // end TPOR namespace

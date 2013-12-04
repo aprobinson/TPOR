@@ -13,7 +13,9 @@
 #include <math.h>
 #include <limits>
 #include <set>
-#include <time.h>
+
+// Boost Includes
+#include <boost/chrono.hpp>
 
 // TPOR includes
 #include "IIEMTreatmentPlanner.hpp"
@@ -53,7 +55,8 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
 {
   std::cout << std::endl << "starting treatment plan optimization..." 
 	    << std::endl;
-  clock_t start_clock = clock();
+  boost::chrono::steady_clock::time_point start_clock = 
+    boost::chrono::steady_clock::now();
   
   // Start the selection process
   // Outer iteration: needle_goal
@@ -77,11 +80,12 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
     else
       break;
   }   
-
-  clock_t end_clock = clock();
-
+  
+  boost::chrono::duration<double> seconds =
+    boost::chrono::steady_clock::now() - start_clock;
+  
   // Store the optimization time
-  d_opt_time = (double)(end_clock-start_clock)/CLOCKS_PER_SEC;
+  d_opt_time = seconds.count();
 
   // Check if the algorithm failed to create a treatment plan
   if( d_patient->getProstateDoseCoverage() < 0.98 )

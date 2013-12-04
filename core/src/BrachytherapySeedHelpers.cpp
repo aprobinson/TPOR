@@ -87,6 +87,116 @@ std::string brachytherapySeedName( const BrachytherapySeedType seed_type )
   return name;
 }
 
+// Return the radioactive nuclide of the desired brachytherapy seed
+std::string brachytherapySeedNuclide( const BrachytherapySeedType seed_type )
+{
+  std::string nuclide;
+
+  const std::string i125( "I-125" );
+  const std::string pd103( "Pd-103" );
+  
+  switch( seed_type )
+  {
+  case AMERSHAM_6702_SEED: 
+    nuclide = i125;
+    break;
+  case AMERSHAM_6711_SEED: 
+    nuclide = i125;
+    break;
+  case AMERSHAM_6733_SEED: 
+    nuclide = i125;
+    break;
+  case AMERSHAM_9011_SEED: 
+    nuclide = i125;
+    break;
+  case BEST_2301_SEED: 
+    nuclide = i125;
+    break;
+  case BEST_2335_SEED: 
+    nuclide = pd103;
+    break;
+  case NASI_MED_3631_SEED: 
+    nuclide = i125;
+    break;
+  case NASI_MED_3633_SEED: 
+    nuclide = pd103;
+    break;
+  case BEBIG_I25_S06_SEED: 
+    nuclide = i125;
+    break;
+  case IMAGYN_IS_12501_SEED: 
+    nuclide = i125;
+    break;
+  case THERAGENICS_200_SEED: 
+    nuclide = pd103;
+    break;
+  case THERAGENICS_AGX100_SEED: 
+    nuclide = i125;
+    break;
+  case DRAXIMAGE_LS1_SEED: 
+    nuclide = i125;
+    break;
+  case IMPLANT_SCIENCES_3500_SEED: 
+    nuclide = i125;
+    break;
+  case IBT_1251L_SEED: 
+    nuclide = i125;
+    break;
+  case ISOAID_IAI_125A_SEED: 
+    nuclide = i125;
+    break;
+  case ISOAID_IAPD_103A_SEED: 
+    nuclide = pd103;
+    break;
+  case MBI_SL125_SH125_SEED: 
+    nuclide = i125;
+    break;
+  case SOURCE_TECH_STM1251_SEED: 
+    nuclide = i125;
+    break;
+  case NUCLETRON_130002_SEED: 
+    nuclide = i125;
+    break;
+  }
+
+  // Make sure the name was set
+  testPostcondition( nuclide.size() > 0 );
+
+  return nuclide;
+}
+
+// Return if the brachytherapy seed is still in production
+/*! \details According to the Joint AAPM/RPC Registry of Brachytherapy Sources
+ * Meeting of the AAPM Dosimetric Prerequisites (Dec. 3 2013).
+ */
+bool brachytherapySeedInProduction( const BrachytherapySeedType seed_type )
+{
+  switch( seed_type )
+  {
+  case AMERSHAM_6702_SEED: return false;
+  case AMERSHAM_6711_SEED: return true;
+  case AMERSHAM_6733_SEED: return false;    
+  case AMERSHAM_9011_SEED: return true;    
+  case BEST_2301_SEED: return true;    
+  case BEST_2335_SEED: return true;    
+  case NASI_MED_3631_SEED: return false;    
+  case NASI_MED_3633_SEED: return false;    
+  case BEBIG_I25_S06_SEED: return true;    
+  case IMAGYN_IS_12501_SEED: return false;    
+  case THERAGENICS_200_SEED: return true;    
+  case THERAGENICS_AGX100_SEED: return true;    
+  case DRAXIMAGE_LS1_SEED: return false;    
+  case IMPLANT_SCIENCES_3500_SEED: return false;    
+  case IBT_1251L_SEED: return false;    
+  case ISOAID_IAI_125A_SEED: return true;    
+  case ISOAID_IAPD_103A_SEED: return false;    
+  case MBI_SL125_SH125_SEED: return false;    
+  case SOURCE_TECH_STM1251_SEED: return true;    
+  case NUCLETRON_130002_SEED: return true;    
+  default: return false;
+  }
+}
+
 // Return the BrachytherapySeedType given an unsigned int
 BrachytherapySeedType unsignedToBrachytherapySeedType( const unsigned seed_id )
 {

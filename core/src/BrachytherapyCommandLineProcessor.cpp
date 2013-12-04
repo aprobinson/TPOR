@@ -29,6 +29,9 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
   : d_patient_file(),
     d_seeds(),
     d_prescribed_dose(),
+    d_urethra_weight(),
+    d_rectum_weight(),
+    d_margin_weight(),
     d_treatment_plan_os(),
     d_dvh_os()
 { 
@@ -42,63 +45,102 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
       TPOR::unsignedToBrachytherapySeedType( seed_id );
     
     std::string seed_name = brachytherapySeedName( seed_type );
+    std::string seed_nuclide = brachytherapySeedNuclide( seed_type );
 
     std::ostringstream oss;
     oss << seed_id+1;
     
-    seed_msg += "\t" + oss.str() + ".) " + seed_name + "\n";
+    seed_msg += "\t" + oss.str() + ".) " + seed_name + 
+      " (" + seed_nuclide;
+    
+    if( brachytherapySeedInProduction( seed_type ) )
+      seed_msg += ")\n";
+    else
+      seed_msg += ", NIP)\n";
   }
-  
-  // Create the command-line argument parser
-  boost::program_options::options_description desc( "Allowed options" );
-  desc.add_options()
-    ("help", "produce help message")
+  seed_msg += "*NIP = not-in-production\n";
+  seed_msg += "default value: Amersham6711Seed 0.55\n";
+
+  // Set the generic program options
+  boost::program_options::options_description generic( "Allowed options" );
+  generic.add_options()
+    ("help,h", "produce help message")
+    ("treatment_planner,t", 
+     boost::program_options::value<std::string>()->default_value("SCMTreatmentPlanner"), 
+     "set the treatment planner:\n"
+     "\t1.) IIEMTreatmentPlanner\n"
+     "\t2.) DWDMMTreatmentPlanner\n"
+     "\t3.) SCMTreatmentPlanner\n")
+    ("seed,s", 
+     boost::program_options::value<std::vector<std::string> >()->multitoken()->composing(),
+     seed_msg.c_str())
+    ("prescribed_dose,d", 
+     boost::program_options::value<double>()->default_value(145.0),
+     "set the prescribed dose (Gy)\n"
+     "default value: 145.0 Gy\n")
+    ("urethra_weight",
+     boost::program_options::value<double>()->default_value(1.0),
+     "set the importance (weight) of the urethra relative to the prostate\n"
+     "default value: 1.0\n")
+    ("rectum_weight",
+     boost::program_options::value<double>()->default_value(1.0),
+     "set the importance (weight) of the rectum relative to the prostate\n"
+     "default value: 1.0\n")
+    ("margin_weight",
+     boost::program_options::value<double>()->default_value(1.0),
+     "set the importance (weight) of the margin relative to the prostate\n"
+     "default value: 1.0\n")
+    ("plan_output_file", boost::program_options::value<std::string>(),
+     "set the treatment plan output file (with path)\n")
+    ("dvh_output_file", boost::program_options::value<std::string>(),
+     "set the dose-volume-histogram output file (with path)\n");
+
+  // Set the hidden program options (required args)
+  boost::program_options::options_description hidden( "Hidden options" );
+  hidden.add_options()
     ("patient_file_name", 
      boost::program_options::value<std::string>(),
      "set the patient hdf5 file name (with path)")
     ("seed_file_name", 
      boost::program_options::value<std::string>(),
-     "set the seed hdf5 file name (with path)")
-    ("treatment_planner,t", boost::program_options::value<std::string>(), 
-     "set the treatment planner:\n"
-     "\t1.) IIEMTreatmentPlanner\n"
-     "\t2.) DWDMMTreatmentPlanner\n"
-     "\t3.) \n")
-    ("seed,s", 
-     boost::program_options::value<std::vector<std::string> >()->multitoken()->composing(), 
-     seed_msg.c_str())
-    ("prescribed_dose,d", 
-     boost::program_options::value<double>()->default_value(145.0),
-     "set the prescribed dose (Gy)\n"
-     "default value: 145.0 Gy")
-    ("plan_output_file", boost::program_options::value<std::string>(),
-     "set the treatment plan output file (with path)")
-    ("dvh_output_file", boost::program_options::value<std::string>(),
-     "set the dose-volume-histogram output file (with path)");
+     "set the seed hdf5 file name (with path)");
 
+  // Create the positional (requierd args) corresponding to the hidden options
   boost::program_options::positional_options_description pd;
   pd.add("patient_file_name", 1);
   pd.add("seed_file_name", 2 );
+
+  // Create the command-line argument parser
+  boost::program_options::options_description 
+    cmdline_options( "Allowed options" ); 
+  cmdline_options.add(generic).add(hidden);
   
   boost::program_options::variables_map vm;
   boost::program_options::store(
 		       boost::program_options::command_line_parser(argc, argv).
-		       options(desc).positional(pd).run(), vm);
+		       options(cmdline_options).positional(pd).run(), vm);
   boost::program_options::notify( vm );
 
   if( vm.count( "help" ) )
   {
-    std::cout << desc << std::endl;
+    std::cout << generic << std::endl;
     exit( 1 );
   }
 
-  parsePatientFile( vm, desc );
-  parseSeedFile( vm, desc );
-  parseTreatmentPlannerType( vm, desc );
-  parseBrachytherapySeeds( vm, desc );
-  parsePrescribedDose( vm, desc );
-  parseTreatmentPlanOutputFile( vm, desc );
-  parseDVHOutputFile( vm, desc );
+  // The option parsing must be done in the following order
+  parsePatientFile( vm );
+  parseSeedFile( vm );
+  parseTreatmentPlannerType( vm );
+  parseBrachytherapySeeds( vm );
+  parsePrescribedDose( vm );
+  parseUrethraWeight( vm );
+  parseRectumWeight( vm );
+  parseMarginWeight( vm );
+  parseTreatmentPlanOutputFile( vm );
+  parseDVHOutputFile( vm );
+
+  // Print a summary of the options specified by the user
+  printUserOptionsSummary();
 }
 
 //! Return the patient file
@@ -131,6 +173,24 @@ double BrachytherapyCommandLineProcessor::getPrescribedDose() const
   return d_prescribed_dose;
 }
 
+//! Return the urethra weight
+double BrachytherapyCommandLineProcessor::getUrethraWeight() const
+{
+  return d_urethra_weight;
+}
+
+//! Return the rectum weight
+double BrachytherapyCommandLineProcessor::getRectumWeight() const
+{
+  return d_rectum_weight;
+}
+
+//! Return the margin weight
+double BrachytherapyCommandLineProcessor::getMarginWeight() const
+{
+  return d_margin_weight;
+}
+
 // Get the treatment plan output stream
 std::ostream& BrachytherapyCommandLineProcessor::getTreatmentPlanOutputStream()
 {
@@ -151,8 +211,7 @@ std::ostream& BrachytherapyCommandLineProcessor::getDVHOutputStream()
 
 // Parse the patient file
 void BrachytherapyCommandLineProcessor::parsePatientFile( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "patient_file_name" ) )
   {
@@ -161,7 +220,7 @@ void BrachytherapyCommandLineProcessor::parsePatientFile(
   else
   {
     std::cout << "The patient hdf5 file name (with path) must be specified."
-	      << std::endl << desc << std::endl;
+	      << std::endl;
     
     exit( 1 );
   }
@@ -169,8 +228,7 @@ void BrachytherapyCommandLineProcessor::parsePatientFile(
 
 // Parse the seed file
 void BrachytherapyCommandLineProcessor::parseSeedFile( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "seed_file_name" ) )
   {
@@ -179,7 +237,7 @@ void BrachytherapyCommandLineProcessor::parseSeedFile(
   else
   {
     std::cout << "The seed hdf5 file name (with path) must be specified."
-	      << std::endl << desc << std::endl;
+	      << std::endl;
     
     exit( 1 );
   }
@@ -187,8 +245,7 @@ void BrachytherapyCommandLineProcessor::parseSeedFile(
 
 // Parse the treament planner type
 void BrachytherapyCommandLineProcessor::parseTreatmentPlannerType( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "treatment_planner" ) )
   {
@@ -199,25 +256,26 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlannerType(
       d_planner_type = IIEM_TREATMENT_PLANNER;
     else if( treatment_planner_name.compare( "DWDMMTreatmentPlanner" ) == 0 )
       d_planner_type = DWDMM_TREATMENT_PLANNER;
+    else if( treatment_planner_name.compare( "SCMTreatmentPlanner" ) == 0 )
+      d_planner_type = SCM_TREATMENT_PLANNER;
     else
     {
       std::cout << "Invalid treatment planner: " << treatment_planner_name
-		<< std::endl << desc << std::endl;
+		<< std::endl;
       exit( 1 );
     }
   }
   else
   {
     std::cout << "The desired treatment planner must be specified."
-	      << std::endl << desc << std::endl;
+	      << std::endl;
     exit( 1 );
   }
 }
 
 // Parse the brachytherapy seeds
 void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "seed" ) )
   {
@@ -269,7 +327,7 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
 	else
 	{
 	  std::cout << "The seed " << seed_names[i*2] << " is invalid."
-		    << std::endl << desc << std::endl;
+		    << std::endl;
 	  
 	  exit( 1 );
 	}
@@ -279,25 +337,30 @@ void BrachytherapyCommandLineProcessor::parseBrachytherapySeeds(
     {
       std::cout << "The seed name and strength must be specified "
 		<< "(e.g. -s name strength)" 
-		<< std::endl << desc << std::endl;
+		<< std::endl;
 
       exit( 1 );
     }
   }
+  
+  // Use the default seed
   else
   {
-    std::cout << "At least one seed must be specified."
-	      << std::endl << desc << std::endl;
-    exit( 1 );
+    double seed_strength = 0.55;
+    boost::shared_ptr<BrachytherapySeedProxy> 
+      seed( new BrachytherapySeedProxy( d_seed_file,
+					AMERSHAM_6711_SEED,
+					seed_strength ) );
+    if( seed )
+      d_seeds.push_back( seed );
   }
 }
 
 // Parse the prescribed dose
 void BrachytherapyCommandLineProcessor::parsePrescribedDose(
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
-   if( vm.count( "prescribed_dose" ) )
+  if( vm.count( "prescribed_dose" ) )
   {
     // Convert the specified prescribed dose from Gy to cGy
     d_prescribed_dose = vm["prescribed_dose"].as<double>()*100;
@@ -312,16 +375,66 @@ void BrachytherapyCommandLineProcessor::parsePrescribedDose(
   else
   {
     std::cout << "The prescribed dose must be specified."
-	      << std::endl << desc << std::endl;
+	      << std::endl;
 
     exit( 1 );
   }
 }
 
+// Parse the urethra weight
+void BrachytherapyCommandLineProcessor::parseUrethraWeight( 
+				    boost::program_options::variables_map &vm )
+{
+  if( vm.count( "urethra_weight" ) )
+  {
+    d_urethra_weight = vm["urethra_weight"].as<double>();
+
+    if( d_urethra_weight < 0.0 )
+    {
+      std::cout << "The urethra weight must be greater than 0.0" << std::endl;
+
+      exit( 1 );
+    }
+  }
+}
+  
+// Parse the rectum weight
+void BrachytherapyCommandLineProcessor::parseRectumWeight( 
+				    boost::program_options::variables_map &vm )
+{
+  if( vm.count( "rectum_weight" ) )
+  {
+    d_rectum_weight = vm["rectum_weight"].as<double>();
+
+    if( d_rectum_weight < 0.0 )
+    {
+      std::cout << "The rectum weight must be greater than 0.0" << std::endl;
+
+      exit( 1 );
+    }
+  }
+}
+
+// Parse the margin weight
+void BrachytherapyCommandLineProcessor::parseMarginWeight( 
+				    boost::program_options::variables_map &vm )
+{
+  if( vm.count( "margin_weight" ) )
+  {
+    d_margin_weight = vm["margin_weight"].as<double>();
+
+    if( d_margin_weight < 0.0 )
+    {
+      std::cout << "The margin weight must be greater than 0.0" << std::endl;
+
+      exit( 1 );
+    }
+  }
+}
+
 // Parse the treatment plan output file name
 void BrachytherapyCommandLineProcessor::parseTreatmentPlanOutputFile( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "plan_output_file" ) )
   {
@@ -336,8 +449,7 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlanOutputFile(
 
 // Parse the dose-volume-histogram output file name
 void BrachytherapyCommandLineProcessor::parseDVHOutputFile( 
-			    boost::program_options::variables_map &vm,
-			    boost::program_options::options_description &desc )
+				    boost::program_options::variables_map &vm )
 {
   if( vm.count( "dvh_output_file" ) )
   {
@@ -347,6 +459,40 @@ void BrachytherapyCommandLineProcessor::parseDVHOutputFile(
     d_dvh_os.reset( new std::ofstream( dvh_output_file_name.c_str(),
 				       std::ofstream::trunc ) );
   }
+}
+
+// Print the user options summary
+void BrachytherapyCommandLineProcessor::printUserOptionsSummary()
+{
+  std::cout << std::endl << "...User Options Summary..." << std::endl;
+  std::cout << "patient_file:         " << d_patient_file << std::endl;
+  std::cout << "seed_file:            " << d_seed_file << std::endl;
+  std::cout << "planner:              ";
+  switch( d_planner_type )
+  {
+  case IIEM_TREATMENT_PLANNER:
+    std::cout << "IIEMTreatmentPlanner" << std::endl;
+    break;
+  case DWDMM_TREATMENT_PLANNER:
+    std::cout << "DWDMMTreatmentPlanner" << std::endl;
+    break;
+  case SCM_TREATMENT_PLANNER:
+    std::cout << "SCMTreatmentPlanner" << std::endl;
+    break;
+  }
+  
+  std::cout << "seeds: " << std::endl;
+  for( unsigned i = 0; i < d_seeds.size(); ++i )
+  {
+    std::cout << "                  " << i+1 << ".) " 
+	      << d_seeds[i]->getSeedName() << " " 
+	      << d_seeds[i]->getSeedStrength() << std::endl;
+  }
+
+  std::cout << "prescribed dose (Gy): " << d_prescribed_dose/100 << std::endl;
+  std::cout << "urethra weight:       " << d_urethra_weight << std::endl;
+  std::cout << "rectum weight:        " << d_rectum_weight << std::endl;
+  std::cout << "margin weight:        " << d_margin_weight << std::endl;
 }
 
 } // end TPOR namespace

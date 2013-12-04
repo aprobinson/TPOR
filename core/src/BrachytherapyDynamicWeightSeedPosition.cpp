@@ -38,7 +38,7 @@ BrachytherapyDynamicWeightSeedPosition::BrachytherapyDynamicWeightSeedPosition(
 // Multiply the base weight by a value
 void BrachytherapyDynamicWeightSeedPosition::updateWeight()
 {
-  d_dynamic_weight = getWeight()*(*d_weight_multiplier);
+  d_dynamic_weight = d_weight*(*d_weight_multiplier);
 }
 
 // Multiply the dynamic weight by a multiplier

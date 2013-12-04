@@ -34,7 +34,7 @@ ENDIF()
 
 # Enable BOOST Support
 IF(BOOST_PREFIX)
-  ENABLE_BOOST_SUPPORT(program_options test_exec_monitor)
+  ENABLE_BOOST_SUPPORT(program_options test_exec_monitor chrono system)
 ELSE()
   MESSAGE(STATUS "The BOOST_PREFIX has not been set. The system default will be used.")
 ENDIF()

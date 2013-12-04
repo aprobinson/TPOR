@@ -1,15 +1,14 @@
 //---------------------------------------------------------------------------//
 //!
-//! \file   DWDMMTreatmentPlanner.hpp
+//! \file   SCMTreatmentPlanner.hpp
 //! \author Alex Robinson
-//! \brief  Dynamically weighted dose multiplication method (DWDMM) class 
-//!         declaration brachytherapy treatment planner based on Vibha's
-//!         algorithm.
+//! \brief  Set cover method (SCM) class declaration brachytherapy treatment
+//!         planner.
 //!
 //---------------------------------------------------------------------------//
 
-#ifndef DWDMM_TREATMENT_PLANNER_HPP
-#define DWDMM_TREATMENT_PLANNER_HPP
+#ifndef SCM_TREATMENT_PLANNER_HPP
+#define SCM_TREATMENT_PLANNER_HPP
 
 // Std Lib Includes
 #include <iostream>
@@ -18,23 +17,23 @@
 // TPOR Includes
 #include "BrachytherapyTreatmentPlanner.hpp"
 #include "BrachytherapyPatient.hpp"
-#include "BrachytherapyDynamicWeightSeedPosition.hpp"
+#include "BrachytherapySetCoverSeedPosition.hpp"
 
 namespace TPOR{
 
-//! The dynamically weighted dose mult. method treatment planning class
-class DWDMMTreatmentPlanner : public BrachytherapyTreatmentPlanner
+//! The set cover method treatment planning class
+class SCMTreatmentPlanner : public BrachytherapyTreatmentPlanner
 {
 
 public:
 
   //! Constructor
-  DWDMMTreatmentPlanner( 
+  SCMTreatmentPlanner(
 	const boost::shared_ptr<BrachytherapyPatient> &patient,
 	const std::vector<boost::shared_ptr<BrachytherapySeedProxy> > &seeds );
 
   //! Destructor
-  ~DWDMMTreatmentPlanner()
+  ~SCMTreatmentPlanner()
   { /* ... */ }
 
   //! Calculate optimum treatment plan
@@ -55,13 +54,14 @@ private:
   double d_opt_time;
 
   // Seed positions
-  std::list<BrachytherapyDynamicWeightSeedPosition> d_seed_positions;
+  std::list<BrachytherapySetCoverSeedPosition> d_seed_positions;
 };
 
 } // end TPOR namespace
 
-#endif // end DWDMM_TREATMENT_PLANNER_HPP
+#endif // end SCM_TREATMENT_PLANNER_HPP
 
 //---------------------------------------------------------------------------//
-// end DWDMMTreatmentPlanner.hpp
+// end SCMTreatmentPlanner.hpp
 //---------------------------------------------------------------------------//
+

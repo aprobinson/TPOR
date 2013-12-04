@@ -38,7 +38,7 @@ public:
 		       const boost::shared_ptr<BrachytherapySeedProxy> &seed );
 
   //! Destructor
-  virtual ~BrachytherapyDynamicWeightSeedPosition()
+  ~BrachytherapyDynamicWeightSeedPosition()
   { /* ... */ }
 
   //! Multiply the base weight by the weight multiplier (dynamic weight)
@@ -49,7 +49,7 @@ public:
 
   //! Comparison methods
   bool operator < ( const BrachytherapyDynamicWeightSeedPosition &operand );
-		    
+  
   bool operator > ( const BrachytherapyDynamicWeightSeedPosition &operand );
 		    
 private:

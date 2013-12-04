@@ -21,6 +21,7 @@ SET(HEADERS ${HEADERS}
   BrachytherapySeedPosition.hpp
   BrachytherapySeedPosition_def.hpp
   BrachytherapyDynamicWeightSeedPosition.hpp
+  BrachytherapySetCoverSeedPosition.hpp
   BrachytherapySeedProxy.hpp
   BrachytherapySeedType.hpp
   BrachytherapyTreatmentPlannerFactory.hpp
@@ -47,6 +48,7 @@ SET(HEADERS ${HEADERS}
   NASIMED3631Seed.hpp
   NASIMED3633Seed.hpp
   Nucletron130002Seed.hpp
+  SCMTreatmentPlanner.hpp
   SourceTechSTM1251Seed.hpp
   Theragenics200Seed.hpp
   TheragenicsAgX100Seed.hpp
@@ -86,12 +88,14 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
   BrachytherapyPatient.cpp
   BrachytherapySeedPosition.cpp
   BrachytherapyDynamicWeightSeedPosition.cpp
+  BrachytherapySetCoverSeedPosition.cpp
   BrachytherapySeedProxy.cpp
   BrachytherapyTreatmentPlannerFactory.cpp
   DWDMMTreatmentPlanner.cpp
   HDF5FileHandler.cpp
   IIEMTreatmentPlanner.cpp
-  Interpolation.cpp)
+  Interpolation.cpp
+  SCMTreatmentPlanner.cpp)
 
 # ADD_LIBRARY(${PROJECT_NAME}_seeds SHARED ${SEED_SOURCES})
 # SET_TARGET_PROPERTIES(${PROJECT_NAME}_seeds

@@ -23,7 +23,10 @@ namespace TPOR{
  */ 
 BrachytherapyPatient::BrachytherapyPatient( 
 					  const std::string &patient_file_name,
-					  const double prescribed_dose )
+					  const double prescribed_dose,
+					  const double urethra_weight,
+					  const double rectum_weight,
+					  const double margin_weight )
   : d_patient_file_name( patient_file_name ),
     d_prescribed_dose( prescribed_dose ),
     d_mesh_x_dim( 0u ),
@@ -33,6 +36,9 @@ BrachytherapyPatient::BrachytherapyPatient(
     d_urethra_relative_vol( 0u ),
     d_rectum_relative_vol( 0u ),
     d_normal_relative_vol( 0u ),
+    d_urethra_weight( urethra_weight ),
+    d_rectum_weight( rectum_weight ),
+    d_margin_weight( margin_weight ),
     d_prostate_mask(),
     d_urethra_mask(),
     d_margin_mask(),
@@ -40,13 +46,19 @@ BrachytherapyPatient::BrachytherapyPatient(
     d_needle_template(),
     d_treatment_plan(),
     d_treatment_plan_needles(),
+    d_treatment_plan_positions(),
     d_dose_distribution(),
     d_cached_treatment_plan(),
     d_cached_treatment_plan_needles(),
+    d_cached_treatment_plan_positions(),
     d_cached_dose_distribution()
 {
   // Make sure the prescribed dose is valid
   testPrecondition( prescribed_dose > 0.0 );
+  // Make sure that the organ weights are valid
+  testPrecondition( urethra_weight > 0.0 );
+  testPrecondition( rectum_weight > 0.0 );
+  testPrecondition( margin_weight > 0.0 );
   
   std::cout << std::endl << "creating patient..." << std::endl;
 
@@ -122,8 +134,13 @@ unsigned BrachytherapyPatient::insertSeed(
 
   d_treatment_plan.push_back( seed_position );
 
-  d_treatment_plan_needles.insert( seed_position.getXIndex() +
-				   seed_position.getYIndex()*d_mesh_x_dim );
+  unsigned needle_index = seed_position.getXIndex() +
+    seed_position.getYIndex()*d_mesh_x_dim;
+  d_treatment_plan_needles.insert( needle_index );
+
+  unsigned seed_index = needle_index + 
+    seed_position.getZIndex()*d_mesh_x_dim*d_mesh_y_dim;
+  d_treatment_plan_positions.insert( seed_index );
 }
 
 // Test if the seed position lies on an inserted needle
@@ -143,26 +160,14 @@ bool BrachytherapyPatient::isSeedOnNeedle(
 bool BrachytherapyPatient::isSeedPositionFree( 
 			 const BrachytherapySeedPosition &seed_position ) const
 {
-  std::list<BrachytherapySeedPosition>::const_iterator 
-    position = d_treatment_plan.begin();
-  std::list<BrachytherapySeedPosition>::const_iterator 
-    end_position = d_treatment_plan.end();
-
-  bool free_position = true;
+  unsigned seed_index = seed_position.getXIndex() +
+    seed_position.getYIndex()*d_mesh_x_dim +
+    seed_position.getZIndex()*d_mesh_x_dim*d_mesh_y_dim;
   
-  while( position != end_position )
-  {
-    if( *position == seed_position )
-    {
-      free_position = false;
-      
-      break;
-    }
-
-    ++position;
-  }
-
-  return free_position;
+  if( d_treatment_plan_positions.count( seed_index ) == 0 )
+    return true;
+  else
+    return false;
 }
 
 // Return the dose at a seed position
@@ -319,6 +324,7 @@ void BrachytherapyPatient::saveState()
 {
   d_cached_treatment_plan = d_treatment_plan;
   d_cached_treatment_plan_needles = d_treatment_plan_needles;
+  d_cached_treatment_plan_positions = d_treatment_plan_positions;
   d_cached_dose_distribution = d_dose_distribution;
 }
 
@@ -327,6 +333,7 @@ void BrachytherapyPatient::loadSavedState()
 {
   d_treatment_plan = d_cached_treatment_plan;
   d_treatment_plan_needles = d_cached_treatment_plan_needles;
+  d_treatment_plan_positions = d_cached_treatment_plan_positions;
   d_dose_distribution = d_cached_dose_distribution;
 }
 
@@ -335,6 +342,7 @@ void BrachytherapyPatient::resetState()
 {
   d_treatment_plan.clear();
   d_treatment_plan_needles.clear();
+  d_treatment_plan_positions.clear();
 
   std::fill( d_dose_distribution.begin(), d_dose_distribution.end(), 0.0 );
 }

@@ -10,6 +10,7 @@
 #include "BrachytherapyTreatmentPlannerFactory.hpp"
 #include "IIEMTreatmentPlanner.hpp"
 #include "DWDMMTreatmentPlanner.hpp"
+#include "SCMTreatmentPlanner.hpp"
 #include "ContractException.hpp"
 
 
@@ -41,6 +42,9 @@ BrachytherapyTreatmentPlannerFactory::createTreatmentPlanner(
     break;
   case DWDMM_TREATMENT_PLANNER:
     treatment_planner.reset( new DWDMMTreatmentPlanner( d_patient, d_seeds ) );
+    break;
+  case SCM_TREATMENT_PLANNER:
+    treatment_planner.reset( new SCMTreatmentPlanner( d_patient, d_seeds ) );
     break;
   }
 
