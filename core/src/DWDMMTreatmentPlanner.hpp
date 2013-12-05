@@ -40,6 +40,9 @@ public:
   //! Calculate optimum treatment plan
   void calculateOptimumTreatmentPlan();
 
+  // Treatment planner name
+  static const std::string name;
+
 private:
 
   //! Update the seed positions

@@ -25,6 +25,7 @@ SET(HEADERS ${HEADERS}
   BrachytherapySeedProxy.hpp
   BrachytherapySeedType.hpp
   BrachytherapyTreatmentPlannerFactory.hpp
+  BrachytherapyTreatmentPlannerHelpers.hpp
   BrachytherapyTreatmentPlannerType.hpp
   ContractException.hpp
   DraximageLS1Seed.hpp
@@ -91,6 +92,7 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
   BrachytherapySetCoverSeedPosition.cpp
   BrachytherapySeedProxy.cpp
   BrachytherapyTreatmentPlannerFactory.cpp
+  BrachytherapyTreatmentPlannerHelpers.cpp
   DWDMMTreatmentPlanner.cpp
   HDF5FileHandler.cpp
   IIEMTreatmentPlanner.cpp
@@ -104,10 +106,10 @@ SET(SOURCES ${SOURCES} ${SEED_SOURCES}
 # TARGET_LINK_LIBRARIES(${PROJECT_NAME}_seeds ${HDF5} ${MOAB})
 
 ADD_LIBRARY(${PROJECT_NAME}_seeds STATIC ${SEED_SOURCES})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}_seeds ${HDF5} ${MOAB})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}_seeds ${MOAB} ${HDF5})
 
 ADD_LIBRARY(${PROJECT_NAME}_core STATIC ${SOURCES})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}_core ${HDF5} ${MOAB} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}_core ${MOAB} ${HDF5} ${Boost_LIBRARIES})
   
 INSTALL(TARGETS 
   ${PROJECT_NAME}_core ${PROJECT_NAME}_seeds

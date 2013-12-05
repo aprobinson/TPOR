@@ -22,6 +22,9 @@
 
 namespace TPOR{
 
+// Initialize the name static member
+const std::string DWDMMTreatmentPlanner::name = "DWDMMTreatmentPlanner";
+
 // Constructor
 DWDMMTreatmentPlanner::DWDMMTreatmentPlanner( 
 	 const boost::shared_ptr<BrachytherapyPatient> &patient,

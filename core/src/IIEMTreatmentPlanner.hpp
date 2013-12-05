@@ -12,6 +12,7 @@
 
 // Std Lib Includes
 #include <list>
+#include <string>
 #include <iostream>
 
 // Boost Includes
@@ -42,6 +43,9 @@ public:
 
   //! Calculate optimum treatment plan
   void calculateOptimumTreatmentPlan();
+  
+  // Treatment planner name
+  static const std::string name;
 
 private:
 

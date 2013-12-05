@@ -27,9 +27,9 @@ ENDIF()
 
 # Enable HDF5 Support
 IF(HDF5_PREFIX)
-  ENABLE_HDF5_SUPPORT()
+  ENABLE_HDF5_SUPPORT(libhdf5_cpp.a)
 ELSE()
-  MESSAGE(STATUS "HDF5 Support not enabled.")
+  MESSAGE(FATAL_ERROR "The HDF5_PREFIX must be set!")
 ENDIF()
 
 # Enable BOOST Support

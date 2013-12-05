@@ -23,6 +23,9 @@
 
 namespace TPOR{
 
+// Initialize the name static member
+const std::string IIEMTreatmentPlanner::name = "IIEMTreatmentPlanner";
+
 // Constructor
 IIEMTreatmentPlanner::IIEMTreatmentPlanner( 
 			const boost::shared_ptr<BrachytherapyPatient> &patient,

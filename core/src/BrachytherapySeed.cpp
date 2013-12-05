@@ -124,7 +124,7 @@ double BrachytherapySeed::evaluateGeometryFunction( const double r,
 {
   // Make sure that the radius is valid
   testPrecondition( r == r ); // Nan test
-  testPrecondition( r > 0.0 );
+  testPrecondition( r >= 0.0 );
   testPrecondition( r < std::numeric_limits<double>::infinity() );
   // Make sure theta is in radians
   testPrecondition( theta == theta );
@@ -133,18 +133,26 @@ double BrachytherapySeed::evaluateGeometryFunction( const double r,
   // Make sure that the effective length is valid
   testPrecondition( Leff > 0.0 );
   // Check if the special case requirement has been violated
-  testPrecondition( (theta == 0.0) ? (r > Leff) : true )
+  testPrecondition( (theta == 0.0) ? (r > Leff) : true );
+
+  // Don't evaluate the function when r < 0.1 cm since most radial dose
+  // function data tables start at that distance
+  double radius;
+  if( r < 0.1 )
+    radius = 0.1;
+  else
+    radius = r;
 
   double geometry_function_value;
 
   if( theta != 0.0 )
   {
-    double beta = calculateAngleSubtendedBySeed( r, theta, Leff );
+    double beta = calculateAngleSubtendedBySeed( radius, theta, Leff );
     
-    geometry_function_value = beta/(Leff*r*sin(theta));
+    geometry_function_value = beta/(Leff*radius*sin(theta));
   }
   else
-    geometry_function_value = 1.0/(r*r-Leff*Leff/4.0);
+    geometry_function_value = 1.0/(radius*radius-Leff*Leff/4.0);
 
   // The geometry function must return a positive value
   //std::cout << r << " " << theta << " " << Leff << std::endl;

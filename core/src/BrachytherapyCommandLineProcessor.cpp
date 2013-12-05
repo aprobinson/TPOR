@@ -17,6 +17,7 @@
 // TPOR Includes
 #include "BrachytherapyCommandLineProcessor.hpp"
 #include "BrachytherapySeedHelpers.hpp"
+#include "BrachytherapyTreatmentPlannerHelpers.hpp"
 
 namespace TPOR{
 
@@ -35,6 +36,24 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
     d_treatment_plan_os(),
     d_dvh_os()
 { 
+  // Create the treatment planner names
+  std::string planner_msg = "set the treatment planner:\n";
+  
+  for( unsigned planner_id = PLANNER_min; 
+       planner_id <= PLANNER_max;
+       ++planner_id )
+  {
+    BrachytherapyTreatmentPlannerType planner_type = 
+      unsignedToBrachytherapyTreatmentPlannerType( planner_id );
+
+    std::string planner_name = brachytherapyTreatmentPlannerName(planner_type);
+    
+    std::ostringstream oss;
+    oss << planner_id+1;
+
+    planner_msg += "\t" + oss.str() + ".) " + planner_name + "\n";
+  }
+
   // Create seed names
   std::string seed_msg = "add a desired seed with a specified air kerma ";
   seed_msg += "strength (arg = name strength):\n";
@@ -42,7 +61,7 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
   for( unsigned seed_id = SEED_min; seed_id <= SEED_max; ++seed_id )
   {  
     BrachytherapySeedType seed_type =
-      TPOR::unsignedToBrachytherapySeedType( seed_id );
+      unsignedToBrachytherapySeedType( seed_id );
     
     std::string seed_name = brachytherapySeedName( seed_type );
     std::string seed_nuclide = brachytherapySeedNuclide( seed_type );
@@ -59,18 +78,15 @@ BrachytherapyCommandLineProcessor::BrachytherapyCommandLineProcessor(
       seed_msg += ", NIP)\n";
   }
   seed_msg += "*NIP = not-in-production\n";
-  seed_msg += "default value: Amersham6711Seed 0.55\n";
+  seed_msg += "default value: " + Amersham6711Seed::seed_name +" 0.55\n";
 
   // Set the generic program options
   boost::program_options::options_description generic( "Allowed options" );
   generic.add_options()
     ("help,h", "produce help message")
     ("treatment_planner,t", 
-     boost::program_options::value<std::string>()->default_value("SCMTreatmentPlanner"), 
-     "set the treatment planner:\n"
-     "\t1.) IIEMTreatmentPlanner\n"
-     "\t2.) DWDMMTreatmentPlanner\n"
-     "\t3.) SCMTreatmentPlanner\n")
+     boost::program_options::value<std::string>()->default_value(SCMTreatmentPlanner::name.c_str()), 
+     planner_msg.c_str())
     ("seed,s", 
      boost::program_options::value<std::vector<std::string> >()->multitoken()->composing(),
      seed_msg.c_str())
@@ -251,14 +267,29 @@ void BrachytherapyCommandLineProcessor::parseTreatmentPlannerType(
   {
     std::string treatment_planner_name = 
       vm["treatment_planner"].as<std::string>();
+
+    bool valid_planner = false;
+
+    // Create the desired treatment planner
+    for( unsigned planner_id = PLANNER_min; 
+	 planner_id <= PLANNER_max;
+	 ++planner_id )
+    {  
+      BrachytherapyTreatmentPlannerType test_planner_type =
+	unsignedToBrachytherapyTreatmentPlannerType( planner_id );
+      
+      std::string test_planner_name = 
+	brachytherapyTreatmentPlannerName( test_planner_type );
+      
+      if( treatment_planner_name.compare( test_planner_name ) == 0 )
+      {
+	d_planner_type = test_planner_type;
+	valid_planner = true;
+	break;
+      }
+    }
     
-    if( treatment_planner_name.compare( "IIEMTreatmentPlanner" ) == 0 )
-      d_planner_type = IIEM_TREATMENT_PLANNER;
-    else if( treatment_planner_name.compare( "DWDMMTreatmentPlanner" ) == 0 )
-      d_planner_type = DWDMM_TREATMENT_PLANNER;
-    else if( treatment_planner_name.compare( "SCMTreatmentPlanner" ) == 0 )
-      d_planner_type = SCM_TREATMENT_PLANNER;
-    else
+    if( !valid_planner )
     {
       std::cout << "Invalid treatment planner: " << treatment_planner_name
 		<< std::endl;
@@ -481,12 +512,15 @@ void BrachytherapyCommandLineProcessor::printUserOptionsSummary()
     break;
   }
   
-  std::cout << "seeds: " << std::endl;
+  std::cout << "seeds:                ";
   for( unsigned i = 0; i < d_seeds.size(); ++i )
   {
-    std::cout << "                  " << i+1 << ".) " 
-	      << d_seeds[i]->getSeedName() << " " 
-	      << d_seeds[i]->getSeedStrength() << std::endl;
+    std::cout << d_seeds[i]->getSeedName() << " " 
+	      << d_seeds[i]->getSeedStrength();
+    if( i < d_seeds.size()-1 )
+      std::cout << ", ";
+    else
+      std::cout << std::endl;
   }
 
   std::cout << "prescribed dose (Gy): " << d_prescribed_dose/100 << std::endl;

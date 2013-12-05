@@ -108,10 +108,6 @@ double ImplantSciences3500Seed::getDoseRate( const double x,
 {
   double radius = calculateRadius( x, y, z );
 
-  // Don't evaluate dose rates inside of the seed
-  if( radius < 0.04 )
-    radius = 0.04; 
-  
   double theta = calculatePolarAngle( radius, z );
   
   // Evaluate the geometry function

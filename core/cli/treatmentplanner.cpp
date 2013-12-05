@@ -60,6 +60,9 @@ int main( int argc, char** argv )
 
   // Print the dose-volume-histogram
   patient->printDoseVolumeHistogramData( user_args.getDVHOutputStream() );
+  
+  // Export the patient data to vtk
+  patient->exportDataToVTK();
 
   return 0;
  }

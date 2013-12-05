@@ -10,21 +10,16 @@ MACRO(ENABLE_HDF5_SUPPORT)
     ${HDF5_PREFIX}/include/hl)
   SET(HDF5_LIBRARY_DIRS ${HDF5_PREFIX}/lib)
  
-  # Find the HDF5 c++ wrapper library
-  FIND_LIBRARY(HDF5CPP libhdf5_cpp.a ${HDF5_LIBRARY_DIRS})
-  IF(${HDF5CPP} MATCHES NOTFOUND)
-    MESSAGE(FATAL_ERROR "The HDF5 cpp library could not be found.")
-  ENDIF(${HDF5CPP} MATCHES NOTFOUND)
-  
-  # Find the HDF5 core library
-  FIND_LIBRARY(HDF5CORE libhdf5.a ${HDF5_LIBRARY_DIRS})
-  IF(${HDF5CORE} MATCHES NOTFOUND)
-    MESSAGE(FATAL_ERROR "The HDF5 core library could not be found.")
-  ENDIF(${HDF5CORE} MATCHES NOTFOUND)
-
-  # Any execs built off of HFD5 will need both libraries so they will both
-  # be stored in a single variable
-  SET(HDF5 ${HDF5CPP} ${HDF5CORE})
+  # Find the libraries requested by the user
+  FOREACH(HDF5LIB_NAME ${ARGN})
+    FIND_LIBRARY(HDF5LIB ${HDF5LIB_NAME} ${HDF5_LIBRARY_DIRS})
+    
+    IF(${HDF5LIB} MATCHES NOTFOUND)
+      MESSAGE(FATAL_ERROR "The HDF5 library ${HDF5LIB} could not be found.")
+    ENDIF()
+    
+    SET(HDF5 ${HDF5LIB} ${HDF5})
+  ENDFOREACH()
   
   # Set the include paths for HDF5
   INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})

@@ -11,10 +11,20 @@
 #include <iomanip>
 #include <map>
 
+// Boost Includes
+#include <boost/scoped_ptr.hpp>
+
+// MOAB Includes
+#include <MBInterface.hpp>
+#include <MBCore.hpp>
+#include <MBRange.hpp>
+
 // TPOR Includes
 #include "BrachytherapyPatient.hpp"
 #include "BrachytherapyPatientFileHandler.hpp"
 #include "ContractException.hpp"
+#include "ExceptionTestMacros.hpp"
+#include "ExceptionCatchMacros.hpp"
 
 namespace TPOR{
 
@@ -452,6 +462,454 @@ void BrachytherapyPatient::printDoseVolumeHistogramData() const
 {
   printDoseVolumeHistogramData( std::cout );
 }
+
+// Export the patient data to a vtk vile for 3D visualization
+void BrachytherapyPatient::exportDataToVTK( 
+				       const bool export_treatment_plan ) const
+{
+  // Set the mesh element dimensions (should always be the same)
+  double mesh_element_x_dim = 0.1;
+  double mesh_element_y_dim = 0.1;
+  double mesh_element_z_dim = 0.5;
+  
+  // Create the mesh element corner coordinates
+  std::vector<double> coordinates;
+  
+  for( unsigned k = 0; k <= d_mesh_z_dim; ++k )
+  {
+    for( unsigned j = 0; j <= d_mesh_y_dim; ++j )
+    {
+      for( unsigned i = 0; i <= d_mesh_x_dim; ++i )
+      {
+	unsigned index = i + j*(d_mesh_x_dim+1) + 
+	  k*(d_mesh_x_dim+1)*(d_mesh_y_dim+1);
+	
+	coordinates.push_back( i*mesh_element_x_dim );
+	coordinates.push_back( j*mesh_element_y_dim );
+	coordinates.push_back( k*mesh_element_z_dim );
+      }
+    }
+  }
+ 
+  try{
+    // Initialize the MOAB interface
+    boost::scoped_ptr<moab::Interface> moab_interface( new moab::Core() );
+
+    // Tag creation flag
+    unsigned tag_creation_flag = moab::MB_TAG_DENSE|moab::MB_TAG_CREAT|
+      moab::MB_TAG_EXCL|moab::MB_TAG_BYTES;
+    
+    // Create MOAB vertices from the coordinates
+    moab::Range vertices;
+    
+    moab::ErrorCode err = moab_interface->create_vertices(&coordinates[0], 
+							  coordinates.size()/3,
+							  vertices );
+    
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    // Create the hexahedrons
+    moab::Range hexahedrons;
+    moab::EntityHandle connections[8];
+    
+    for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+    {
+      for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+      {
+	for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+	{
+	  unsigned index = i + j*(d_mesh_x_dim+1) + 
+	    k*(d_mesh_x_dim+1)*(d_mesh_y_dim+1);
+	  
+	  connections[0] = vertices[index];
+	  connections[1] = vertices[index+1];
+	  connections[2] = vertices[index+(d_mesh_x_dim+1)+1];
+	  connections[3] = vertices[index+(d_mesh_x_dim+1)];
+	  connections[4] = vertices[index+(d_mesh_x_dim+1)*(d_mesh_y_dim+1)];
+	  connections[5] = vertices[index+(d_mesh_x_dim+1)*(d_mesh_y_dim+1)+1];
+	  connections[6] = vertices[index+(d_mesh_x_dim+1)*(d_mesh_y_dim+1)+
+				    (d_mesh_x_dim+1)+1];
+	  connections[7] = vertices[index+(d_mesh_x_dim+1)*(d_mesh_y_dim+1)+
+				    (d_mesh_x_dim+1)];
+	  
+	  // Create a MOAB hexahedron from the connectivity data
+	  moab::EntityHandle hex;
+	  
+	  err = moab_interface->create_element( moab::MBHEX,
+						connections,
+						8,
+						hex );
+	  
+	  TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			      MOABException, 
+			      moab::ErrorCodeStr[err] );
+	  
+	  hexahedrons.insert( hex );
+	}
+      }
+    }
+
+    // Create the organ mask tags
+    moab::Tag prostate_tag;
+    moab::Tag urethra_tag;
+    moab::Tag rectum_tag;
+    moab::Tag margin_tag;
+    moab::Tag normal_tag;
+    moab::Tag needle_template_tag;
+  
+    err = moab_interface->tag_get_handle( "prostate", 
+					  sizeof(int), 
+					  moab::MB_TYPE_INTEGER, 
+					  prostate_tag, 
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    err = moab_interface->tag_get_handle( "urethra", 
+					  sizeof(int), 
+					  moab::MB_TYPE_INTEGER, 
+					  urethra_tag, 
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    err = moab_interface->tag_get_handle( "rectum",
+					  sizeof(int),
+					  moab::MB_TYPE_INTEGER,
+					  rectum_tag,
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    err = moab_interface->tag_get_handle( "margin",
+					  sizeof(int),
+					  moab::MB_TYPE_INTEGER,
+					  margin_tag,
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    err = moab_interface->tag_get_handle( "normal",
+					  sizeof(int),
+					  moab::MB_TYPE_INTEGER,
+					  normal_tag,
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+    
+    err = moab_interface->tag_get_handle( "needle_template",
+					  sizeof(int),
+					  moab::MB_TYPE_INTEGER,
+					  needle_template_tag,
+					  tag_creation_flag,
+					  0 );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+
+    // Convert the boolean organ masks to integer organ masks
+    std::vector<int> int_prostate_mask( d_prostate_mask.size(), 0.0 );
+    std::vector<int> int_urethra_mask( d_urethra_mask.size(), 0.0 );
+    std::vector<int> int_rectum_mask( d_rectum_mask.size(), 0.0 );
+    std::vector<int> int_margin_mask( d_margin_mask.size(), 0.0 );
+    std::vector<int> int_normal_mask( d_margin_mask.size(), 0.0 );
+    
+    for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+    {
+      for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+      {
+	for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+	{
+	  unsigned index = i + j*d_mesh_x_dim +
+	    k*d_mesh_x_dim*d_mesh_y_dim;
+
+	  if( d_prostate_mask[index] )
+	    int_prostate_mask[index] = 1;
+	  else if( d_urethra_mask[index] )
+	    int_urethra_mask[index] = 2;
+	  else if( d_rectum_mask[index] )
+	    int_rectum_mask[index] = 3;
+	  else if( d_margin_mask[index] )
+	  {
+	    int_margin_mask[index] = 4;
+	    int_normal_mask[index] = 5;
+	  }
+	  else
+	    int_normal_mask[index] = 5;
+	}
+      }
+    }
+    
+    // Tag the hexes
+    err = moab_interface->tag_set_data( prostate_tag, 
+					hexahedrons,
+					&int_prostate_mask[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+
+    err = moab_interface->tag_set_data( urethra_tag,
+					hexahedrons,
+					&int_urethra_mask[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+
+    err = moab_interface->tag_set_data( rectum_tag,
+    					hexahedrons,
+    					&int_rectum_mask[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+    			MOABException, 
+    			moab::ErrorCodeStr[err] );
+
+    err = moab_interface->tag_set_data( margin_tag,
+    					hexahedrons,
+    					&int_margin_mask[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+    			MOABException, 
+    			moab::ErrorCodeStr[err] );
+
+    err = moab_interface->tag_set_data( normal_tag,
+    					hexahedrons,
+    					&int_normal_mask[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+    			MOABException, 
+    			moab::ErrorCodeStr[err] );
+
+    int_prostate_mask.clear();
+    int_urethra_mask.clear();
+    int_rectum_mask.clear();
+    int_margin_mask.clear();
+    int_normal_mask.clear();
+
+    // Create an expanded needle template
+    std::vector<int> expanded_needle_template( d_prostate_mask.size() );
+    for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+    {
+      for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+      {
+	for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+	{
+	  unsigned template_index = i + j*d_mesh_x_dim;
+	  unsigned ext_template_index = template_index + 
+	    k*d_mesh_x_dim*d_mesh_y_dim;
+
+	  if( d_needle_template[template_index] )
+	    expanded_needle_template[ext_template_index] = 1;
+	}
+      }
+    }
+    
+    err = moab_interface->tag_set_data( needle_template_tag,
+    					hexahedrons,
+    					&expanded_needle_template[0] );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+    			MOABException, 
+    			moab::ErrorCodeStr[err] );
+
+    if( export_treatment_plan )
+    {
+      // Create the treatment plan tags
+      moab::Tag prostate_dose;
+      moab::Tag urethra_dose;
+      moab::Tag rectum_dose;
+      moab::Tag margin_dose;
+      moab::Tag normal_dose;
+      moab::Tag treatment_plan;
+      
+      err = moab_interface->tag_get_handle( "prostate_dose",
+					    sizeof(double),
+					    moab::MB_TYPE_DOUBLE,
+					    prostate_dose,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_get_handle( "urethra_dose",
+					    sizeof(double),
+					    moab::MB_TYPE_DOUBLE,
+					    urethra_dose,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_get_handle( "rectum_dose",
+					    sizeof(double),
+					    moab::MB_TYPE_DOUBLE,
+					    rectum_dose,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_get_handle( "margin_dose",
+					    sizeof(double),
+					    moab::MB_TYPE_DOUBLE,
+					    margin_dose,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_get_handle( "normal_dose",
+					    sizeof(double),
+					    moab::MB_TYPE_DOUBLE,
+					    normal_dose,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_get_handle( "treatment_plan",
+					    sizeof(int),
+					    moab::MB_TYPE_INTEGER,
+					    treatment_plan,
+					    tag_creation_flag,
+					    0 );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			  MOABException, 
+			  moab::ErrorCodeStr[err] );
+      
+      // Calculate the organ doses
+      std::vector<double> prostate_dose_data( d_prostate_mask.size() );
+      std::vector<double> urethra_dose_data( d_urethra_mask.size() );
+      std::vector<double> rectum_dose_data( d_rectum_mask.size() );
+      std::vector<double> margin_dose_data( d_margin_mask.size() );
+      std::vector<double> normal_dose_data( d_margin_mask.size() );
+
+      for( unsigned k = 0; k < d_mesh_z_dim; ++k )
+      {
+	for( unsigned j = 0; j < d_mesh_y_dim; ++j )
+	{
+	  for( unsigned i = 0; i < d_mesh_x_dim; ++i )
+	  {
+	    unsigned index = i + j*d_mesh_x_dim +
+	      k*d_mesh_x_dim*d_mesh_y_dim;
+	    
+	    if( d_prostate_mask[index] )
+	      prostate_dose_data[index] = d_dose_distribution[index];
+	    else if( d_urethra_mask[index] )
+	      urethra_dose_data[index] = d_dose_distribution[index];
+	    else if( d_rectum_mask[index] )
+	      rectum_dose_data[index] = d_dose_distribution[index];
+	    else if( d_margin_mask[index] )
+	    {
+	      margin_dose_data[index] = d_dose_distribution[index];
+	      normal_dose_data[index] = d_dose_distribution[index];
+	    }
+	    else
+	      normal_dose_data[index] = d_dose_distribution[index];
+	  }
+	}
+      }
+
+      err = moab_interface->tag_set_data( prostate_dose,
+      					  hexahedrons,
+      					  &prostate_dose_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+
+      err = moab_interface->tag_set_data( urethra_dose,
+      					  hexahedrons,
+      					  &urethra_dose_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+
+      err = moab_interface->tag_set_data( rectum_dose,
+      					  hexahedrons,
+      					  &rectum_dose_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+
+      err = moab_interface->tag_set_data( margin_dose,
+      					  hexahedrons,
+      					  &margin_dose_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+      
+      err = moab_interface->tag_set_data( normal_dose,
+      					  hexahedrons,
+      					  &normal_dose_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+
+      prostate_dose_data.clear();
+      urethra_dose_data.clear();
+      rectum_dose_data.clear();
+      margin_dose_data.clear();
+      normal_dose_data.clear();      
+      
+      // Simplify the treatment plan
+      std::vector<int> treatment_plan_data( d_prostate_mask.size() );
+      
+      std::list<BrachytherapySeedPosition>::const_iterator position,
+	end_position;
+
+      position = d_treatment_plan.begin();
+      end_position = d_treatment_plan.end();
+
+      while( position != end_position )
+      {
+	int seed_type = position->getSeedType()+1;
+	unsigned index = position->getXIndex() + 
+	  position->getYIndex()*d_mesh_x_dim +
+	  position->getZIndex()*d_mesh_x_dim*d_mesh_y_dim;
+	
+	treatment_plan_data[index] = seed_type;
+	
+	++position;
+      }
+
+      err = moab_interface->tag_set_data( treatment_plan,
+      					  hexahedrons,
+      					  &treatment_plan_data[0] );
+      TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+      			  MOABException, 
+      			  moab::ErrorCodeStr[err] );
+    }
+
+    // Create the output file name
+    std::string vtk_file_name;
+    size_t pos = d_patient_file_name.find(".h5");
+    if( pos == std::string::npos )
+      vtk_file_name = d_patient_file_name + ".vtk";
+    else
+      vtk_file_name = d_patient_file_name.substr( 0, pos ) + ".vtk";
+
+    // Write the vtk file
+    err = moab_interface->write_mesh( vtk_file_name.c_str() );
+    TEST_FOR_EXCEPTION( err != moab::MB_SUCCESS, 
+			MOABException, 
+			moab::ErrorCodeStr[err] );
+  }
+  MOAB_EXCEPTION_CATCH_AND_EXIT();
+}
+
+
 
 } // end TPOR namespace
 

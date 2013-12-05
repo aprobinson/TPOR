@@ -144,6 +144,9 @@ public:
   //! Print the dose-volume-histogram data to std::cout
   void printDoseVolumeHistogramData() const ;
 
+  //! Export the patient data to a vtk file for 3D visualization
+  void exportDataToVTK( const bool export_treatment_plan = true ) const;
+
 private:
 
   //! BrachytherapySeedPosition creation policy
@@ -242,41 +245,27 @@ struct SeedPositionCreationPolicy
 		      const std::vector<double> &prostate_adjoint_data,
 		      const std::vector<double> &urethra_adjoint_data,
 		      const std::vector<double> &margin_adjoint_data,
-		      const std::vector<double> &rectum_adjoint_data )
+		      const std::vector<double> &rectum_adjoint_data,
+		      const unsigned mesh_x_index,
+		      const unsigned mesh_y_index,
+		      const unsigned mesh_z_index )
   {
-    // Filter potential seed positions to those along the template positions 
-    // and set the position weight to the adjoint ratio at the position
-    for( unsigned j = 0; j < patient.d_mesh_y_dim; ++j )
+    unsigned mask_index = mesh_x_index + mesh_y_index*patient.d_mesh_x_dim +
+      mesh_z_index*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
+    
+    if( patient.d_prostate_mask[mask_index] )
     {
-      for( unsigned i = 0; i < patient.d_mesh_x_dim; ++i )
-      {
-	unsigned needle_index = i + j*patient.d_mesh_x_dim;
-	
-	if( patient.d_needle_template[needle_index] )
-	{
-	  for( unsigned slice = 0; slice < patient.d_mesh_z_dim; ++slice )
-	  {
-	    unsigned mask_index = needle_index + 
-	      slice*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
-	    
-	    if( patient.d_prostate_mask[mask_index] )
-	    {
-	      double weight = 
-		(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
-		 patient.d_margin_weight*margin_adjoint_data[mask_index] +
-		 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
-		prostate_adjoint_data[mask_index];
-	      
-	      seed_positions.push_back(SeedPosition(
-						    i, 
-						    j, 
-						    slice, 
-						    weight, 
-						    seed ) );
-	    }
-	  }
-	}
-      }
+      double weight = 
+	(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
+	 patient.d_margin_weight*margin_adjoint_data[mask_index] +
+	 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
+	prostate_adjoint_data[mask_index];
+      
+      seed_positions.push_back( SeedPosition( mesh_x_index, 
+					      mesh_y_index, 
+					      mesh_z_index, 
+					      weight, 
+					      seed ) );
     }
   }
 };
@@ -292,45 +281,32 @@ struct SeedPositionCreationPolicy<BrachytherapyDynamicWeightSeedPosition>
 	     const std::vector<double> &prostate_adjoint_data,
 	     const std::vector<double> &urethra_adjoint_data,
 	     const std::vector<double> &margin_adjoint_data,
-	     const std::vector<double> &rectum_adjoint_data )
+	     const std::vector<double> &rectum_adjoint_data,
+	     const unsigned mesh_x_index,
+	     const unsigned mesh_y_index,
+	     const unsigned mesh_z_index )
   {
-    // Filter potential seed positions to those along the template positions 
-    // and set the position weight to the adjoint ratio at the position
-    for( unsigned j = 0; j < patient.d_mesh_y_dim; ++j )
+    unsigned mask_index = mesh_x_index + mesh_y_index*patient.d_mesh_x_dim +
+      mesh_z_index*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
+    
+    if( patient.d_prostate_mask[mask_index] )
     {
-      for( unsigned i = 0; i < patient.d_mesh_x_dim; ++i )
-      {
-	unsigned needle_index = i + j*patient.d_mesh_x_dim;
-	
-	if( patient.d_needle_template[needle_index] )
-	{
-	  for( unsigned slice = 0; slice < patient.d_mesh_z_dim; ++slice )
-	  {
-	    unsigned mask_index = needle_index + 
-	      slice*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
-	    
-	    if( patient.d_prostate_mask[mask_index] )
-	    {
-	      double weight = 
-		(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
-		 patient.d_margin_weight*margin_adjoint_data[mask_index] +
-		 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
-		prostate_adjoint_data[mask_index];
-	      
-	      const double* weight_multiplier = 
-		&patient.d_dose_distribution[mask_index];
-	      
-	      seed_positions.push_back( BrachytherapyDynamicWeightSeedPosition(
-							     i, 
-							     j, 
-							     slice, 
+      double weight = 
+	(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
+	 patient.d_margin_weight*margin_adjoint_data[mask_index] +
+	 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
+	prostate_adjoint_data[mask_index];
+      
+      const double* weight_multiplier = 
+	&patient.d_dose_distribution[mask_index];
+      
+      seed_positions.push_back( BrachytherapyDynamicWeightSeedPosition(
+							     mesh_x_index, 
+							     mesh_y_index, 
+							     mesh_z_index, 
 							     weight,
 							     weight_multiplier,
 							     seed ) );
-	    }
-	  }
-	}
-      }
     }
   }
 };
@@ -346,41 +322,32 @@ struct SeedPositionCreationPolicy<BrachytherapySetCoverSeedPosition>
 	     const std::vector<double> &prostate_adjoint_data,
 	     const std::vector<double> &urethra_adjoint_data,
 	     const std::vector<double> &margin_adjoint_data,
-	     const std::vector<double> &rectum_adjoint_data )
+	     const std::vector<double> &rectum_adjoint_data,
+	     const unsigned mesh_x_index,
+	     const unsigned mesh_y_index,
+	     const unsigned mesh_z_index )
   {    
+    unsigned mask_index = mesh_x_index + mesh_y_index*patient.d_mesh_x_dim +
+      mesh_z_index*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
+    
     // Create pointers to the dose distribution and the prostate mask
     const std::vector<double>* dose_distribution = 
       &patient.d_dose_distribution;
     const std::vector<bool>* prostate_mask =
       &patient.d_prostate_mask;
     
-    // Filter potential seed positions to those along the template positions 
-    // and set the position weight to the adjoint ratio at the position
-    for( unsigned j = 0; j < patient.d_mesh_y_dim; ++j )
+    if( patient.d_prostate_mask[mask_index] )
     {
-      for( unsigned i = 0; i < patient.d_mesh_x_dim; ++i )
-      {
-	unsigned needle_index = i + j*patient.d_mesh_x_dim;
-	
-	if( patient.d_needle_template[needle_index] )
-	{
-	  for( unsigned slice = 0; slice < patient.d_mesh_z_dim; ++slice )
-	  {
-	    unsigned mask_index = needle_index + 
-	      slice*patient.d_mesh_x_dim*patient.d_mesh_y_dim;
-	    
-	    if( patient.d_prostate_mask[mask_index] )
-	    {
-	      double cost = 
-		(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
-		 patient.d_margin_weight*margin_adjoint_data[mask_index] +
-		 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
-		prostate_adjoint_data[mask_index];
-	      
-	      seed_positions.push_back( BrachytherapySetCoverSeedPosition(
-						     i, 
-						     j, 
-						     slice, 
+      double cost = 
+	(patient.d_urethra_weight*urethra_adjoint_data[mask_index] +
+	 patient.d_margin_weight*margin_adjoint_data[mask_index] +
+	 patient.d_rectum_weight*rectum_adjoint_data[mask_index])/
+	prostate_adjoint_data[mask_index];
+      
+      seed_positions.push_back( BrachytherapySetCoverSeedPosition(
+						     mesh_x_index, 
+						     mesh_y_index, 
+						     mesh_z_index, 
 						     cost,
 						     patient.d_prescribed_dose,
 						     dose_distribution,
@@ -389,11 +356,7 @@ struct SeedPositionCreationPolicy<BrachytherapySetCoverSeedPosition>
 						     patient.d_mesh_y_dim,
 						     patient.d_mesh_z_dim,
 						     seed ) );
-	      seed_positions.back().updateWeight();
-	    }
-	  }
-	}
-      }
+      seed_positions.back().updateWeight();
     }
   }
 };
