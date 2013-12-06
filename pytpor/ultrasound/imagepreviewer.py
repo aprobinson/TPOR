@@ -1,3 +1,6 @@
+"""@package imagepreviewer
+The module for previewing ultrasound images
+"""
 #! /usr/bin/env python
 from matplotlib import pyplot, figure
 import numpy as np

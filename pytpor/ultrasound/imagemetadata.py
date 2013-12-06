@@ -1,4 +1,8 @@
+"""@package imagemetadata
+The module for managing ultrasound image metadata
+"""
 #! /usr/bin/env python
+
 class ImageMetadata(object):
     """
     This class stores all image metadata.

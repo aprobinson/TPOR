@@ -1,0 +1,24 @@
+// This file is used for miscellaneous code documentation
+
+/*! \namespace TPOR
+\brief The TPOR namespace contains all of the classes, structs, enums and
+       utility routines used by TPOR.
+
+\namespace TPOR::Traits
+\brief The Traits namespace contains all of the traits classes used by the
+       templated functions, structs, and classes in TPOR.
+
+\defgroup testing Unit Testing
+\brief This group contains all classes and structs that are used to unit test
+       TPOR.
+\detials Most of the lower level classes are tested through the use of one or
+         more unit tests. To make the tests simpler and/or to conduct 
+	 white-box testing several classes and structs have been created. The
+	 <em> boost unit test harness </em> is used for creating unit tests.
+	 
+	 After building TPOR, simply type <em> make test </em> in the build
+	 directory to run all of the unit tests. This should be done any time
+	 code changes have been made to ensure that the code is still in 
+	 working order (regression testing). Any errors found must be fixed
+	 immediately!
+*/

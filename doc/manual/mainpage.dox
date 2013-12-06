@@ -1,0 +1,287 @@
+// This file is used to add material to the index page
+
+/*! \mainpage TPOR: The treatment planning optimization routines library
+
+\section outline Outline
+<ul>
+  <li> \ref introduction
+  <li> \ref contributors
+  <li> \ref depends
+  <li> \ref config_options
+  <li> \ref subpackage_overview
+  <ul>
+    <li> \ref core_subpackage
+    <li> \ref pytpor_subpackage
+  </ul>
+  <li> \ref command_line_interface
+  <li> \ref binary_file_formats
+</ul>
+
+\section introduction Introduction
+The TPOR software package is a suite of tools for creating optimized treatment
+plans for patients with different types of cancer. The only type of treatment
+planning that is currently supported is low dose-rate interstitial 
+brachytherapy. In the future, more types of treatment planning will be
+supported (including but not limited to external beam and high dose-rate
+brachytherapy). In addition to providing treatment planning tools, TPOR also
+provides an API for creating new treatment planning algorithms. The API is
+currently written in C++ however, future releases will also provide a python
+API. Please refer to the following sections to learn more about the TPOR API
+and treatment planning tools.
+
+\section contributors TPOR Contributors
+The following people have contributed to the development of TPOR:
+<ul>
+  <li> Alex Robinson, University of Wisconsin-Madison, aprobinson@wisc.edu
+  <li> Douglass Henderson, University of Wisconsin-Madison, 
+       henderson@engr.wisc.edu
+  <li> Luke Kersting, University of Wisconsin-Madison, lkersting@wisc.edu
+  <li> Eli Moll, University of Wisconsin-Madison, ecmartin3@wisc.edu
+</ul>
+
+The following people are responsible for some of the algorithms found in the
+TPOR library but have not contributed directly to it:
+<ul>
+  <li> Sua Yoo, University of Wisconsin-Madison alumna
+  <li> Vibha Chaswal, University of Wisconsin-Madison alumna
+  <li> Liyong Lin, University of Wisconsin-Madison alumnus
+</ul>
+
+\section depends Summary of TPOR External Library Dependencies
+TPOR depends on the external libraries shown below. These libraries must be
+build before building TPOR. For predictable results, do not use library
+versions older than the listed version numbers.
+<ul>
+  <li> C/C++
+  <ul>
+    <li> boost 1.54.0
+    <ul>
+      <li> program options
+      <li> test exec monitor
+      <li> chrono    
+      <li> system
+    </ul>
+    <li> hdf5 1.8.12
+    <li> moab 4.6.2
+  </ul>
+  <li> Python
+  <ul>	
+    <li> numpy 1.7.1
+    <li> matplotlib 1.2.1
+    <li> argparse 3.2
+    <li> h5py 2.2.0
+  </ul>
+</ul>
+
+NOTE: A static moab library should be used. Unfortunately, it can only be 
+built with an hdf5 shared library. To avoid dynamic linking errors at run-time
+add the hdf5 library path to the LD_LIBRARY_PATH environment variable.
+
+\section config_options Summary of TPOR Configuration Options
+The configuration options available to TPOR developers are shown in the list 
+below. These options must be set before building TPOR, when configuring the 
+build using CMake.
+<ul>
+  <li> <b> \ref DBC </b>: You may enable design-by-contract 
+       checks by setting the TPOR_ENABLE_DBC:BOOL=ON CMake option. All 
+       functions expect inputs and outputs to have certain properties. Enabling
+       design-by-contract causes functions to check that inputs and output have
+       the necessary properties. Invalid properties cause the code to exit 
+       with a detailed error message regarding the broken contract. This
+       feature can be very useful for new API users by drastically reducing
+       debugging times.
+</ul>
+\section subpackage_overview Overview of TPOR Subpackages
+TPOR currently contains several different types of software. These different
+collections are organized into different subpackages.
+
+  \subsection core_subpackage TPOR Core Subpackage
+  <ul>
+    <li> <b> Low dose-rate (LDR) brachytherapy seed modeling: </b>
+    
+    Every I<sup>125</sup> and Pd<sup>103</sup> with published dose distribution
+    data can be modeled. All dose rates and total doses calculated with these
+    models are for water phantoms. All dose rates are in units of cGy/hr
+    while all total doses are in units of cGy. The individual classes that 
+    model the seeds should never used directly. To obtain an instance of a 
+    class that models a particular seed, the TPOR::BrachytherapySeedFactory 
+    should be used. Simply pass a TPOR::BrachytherapySeedType enumeration and 
+    an air-kerma-strength to the TPOR::BrachytherapySeedFactory::createSeed 
+    method and a pointer to the instantiated object will be returned. Refer to 
+    the TPOR::BrachytherapySeed class for a description of the brachytherapy 
+    seed interface.
+    
+    <li> <b> HDF5 seed file handling: </b>
+
+    Utilization of a brachytherapy seed model object directly in a treatment
+    planning algorithm is too costly due to the overhead associated with
+    looking up data in data tables and interpolating between points in the 
+    data table. The solution to this problem was to create the 
+    TPOR::BrachytherapySeedProxy class, which has a nearly identical interface
+    as the TPOR::BrachytherapySeed. Its constructor takes the name of the
+    binary (HDF5) seed file that stores the dose distribution of all of the 
+    LDR seeds on a predefined mesh. Use the TPOR::BrachytherapySeedFileHandler
+    class to access data in this binary file. 
+
+    <li> <b> Patient file handling: </b>
+
+    All patient data is stored in a binary (HDF5) patient file with a specific
+    format. A python script has been written that takes binary ultrasound image
+    files, displays them, prompts the user to draw organ contours, and finally
+    creates the binary (HDF5) patient file. Use the 
+    TPOR::BrachytherapyPatientFileHandler class to access data in this binary 
+    file.
+
+    <li> <b> Patient modeling: </b>
+    
+    Patients are modeled using the TPOR::BrachytherapyPatient class. This class
+    takes the name of the binary patient file in its constructor and pulls in
+    all of the necessary patient data from the file using the 
+    TPOR::BrachytherapyPatientFileHandler. Patient instances are passed
+    to the treatment planning optimization algorithms. The class interface
+    allows the optimization algorithms to "insert" seeds into the patient. As
+    seeds are inserted the dose distribution in the patients organs is updated.
+    Once the treatment planning algorithm has completed, the patient instance
+    can be used to print out details of the treatment plan that was calculated
+    (i.e. a dose-volume-histogram).
+
+    <li> <b> Seed positions: </b>
+
+    Depending on the type of treatment planning algorithm, different types of
+    information about potential seed positions is needed. The minimum amount
+    of information that is needed is encapsulated in the 
+    TPOR::BrachytherapySeedPosition class. The 
+    TPOR::BrachytherapyDynamicWeightSeedPosition class and the
+    TPOR::BrachytherapySetCoverSeedPosition class derive from the the
+    TPOR::BrachytherapySeedPosition class and add extra information about the
+    seed position. These classes provide the core functionality required by the
+    treatment planning optimization algorithms (i.e. 
+    TPOR::BrachytherapySeedPosition::getWeight ). It should be noted that the
+    TPOR::BrachytherapyPatient class interface takes a reference to a
+    TPOR::BrachytherapySeedPosition instance. Therefore all new SeedPosition 
+    classes must derive from the TPOR::BrachytherapySeedPosition class to 
+    ensure compatibility with the TPOR::BrachytherapyPatient class interface.  
+  </ul>
+
+  \subsection pytpor_subpackage Pytpor Subpackage
+  Currently, the \ref pytpor python subpackage is quite small and only deals 
+  with ultrasound image processing. In future releases, all of the 
+  functionality in the \ref core_subpackage will be wrapped (using SWIG) and 
+  callable from python. This will allow for rapid prototyping of new treatment 
+  planning algorithms (one of the primary advantages of python over C/C++).
+  
+  <ul>
+    <li> <b> Ultrasound image previewing: </b>
+    
+    The pytpor.ultrasound.imagepreviewer.ImagePreviewer class can be used to preview ultrasound 
+    images. It is often useful to preview all of the individual ultrasound 
+    slices before processing them.
+    
+    <li> <b> Ultrasound image metadata: </b>
+    
+    Every ultrasound image is accompanied by a header file that stores some 
+    patient and image metadata. The 
+    pytpor.ultrasound.imagemetadata.ImageMetadata class can be used to parse
+    the header file and store the associated metadata.
+
+    <li> <b> Ultrasound image contouring: </b>
+
+    Due to the low-resolution nature of ultrasound images, a technician must
+    draw the contours of the organs of interest (instead of using a more
+    sophisticated image contouring algorithm). The 
+    pytpor.ultrasound.imagemanager.ImageManager class displays the ultrasound
+    image, prompts the user to draw specific organ contours and then stores
+    the organ masks for later processing. This class relies on the lower level
+    pytpor.ultrasound.imageslicemanager.ImageSliceManager class to display
+    the individual ultrasound image slices.
+
+    <li> <b> Organ mask processing: </b>
+
+    After the organ masks have been created by a user from an ultrasound image
+    file, they must be processed so that they have properties that are
+    compatible with the TPOR core library. The
+    pytpor.ultrasound.maskprocessor.MaskProcessor class takes care of all 
+    mask processing.
+  </ul>
+
+  A script has been written that utilizes the pytpor.ultrasound module to
+  process ultrasound images and store the data in the binary (HDF5) format
+  required by the TPOR core library. This script is called   
+  <em> processultrasoundimage.py </em>. To use this script TPOR must first be 
+  built. After installing TPOR, the pytpor submodule will be installed into the
+  install directory. The path to the install directory must be added to the 
+  PYTHONPATH environment variable. Once this is done the script should run 
+  without error.    
+
+\section command_line_interface Command Line Interface
+Two simple command-line-interfaces (cli) have been created that give users 
+access to the treatment planning algorithms. The first cli is simply used to 
+create the binary (HDF5) seed file. It currently does not have any options that
+can be specified on the command line. It is used as follows:
+
+<code> ./seedmeshgenerator </code>
+
+The second cli is used to create treatment plans using the available treatment
+planning algorithms. In the simplest case, it should be used as follows:
+
+<code> ./treatmentplanner patient_file.h5 BrachytherapySeeds.h5 </code>
+
+For a complete list of runtime options that can be specified, use the cli
+as follows:
+
+<code> ./treatmentplanner -h </code>
+
+Upon completion, the treatmentplanner cli will print the treatment plan, the
+dose-volume-histogram for the treatment plan and a vtk file. The vtk file can
+be used in Paraview (http://www.paraview.org/) or Visit 
+(https://wci.llnl.gov/codes/visit/) to visualize the patient and the treatment
+plan in 3D. 
+
+\section binary_file_formats Binary (HDF5) File Formats
+Two binary files are used by the TPOR core library. The first is an HDF5 file
+that stores the dose distribution of every brachytherapy seed on a predefined
+structured mesh. The structure of this HDF5 file is as follows:
+<ul>
+  <li> root group (/)
+  <ul>
+    <li> mesh dimension group attribute
+    <li> mesh element dimension group attribute
+    <li> seed position group attribute
+    <li> "Seed Name" dose distribution dataset
+  </ul>
+</ul>	
+There is a dataset with name "Seed Name" corresponding to the name of the seed
+for every seed type.
+
+The second HDF5 file stores the patient data. Its structure is as follows:
+<ul>
+  <li> root group (/)
+  <ul>
+    <li> patient name attribute
+    <li> mask dimension group attribute
+    <li> mask element dimension group attribute
+    <li> needle_template dataset
+    <li> organ_masks subgroup
+    <ul>
+      <li> prostate_mask dataset
+      <li> urethra_mask dataset
+      <li> margin_mask dataset
+      <li> rectum_mask dataset
+    </ul>
+    <li> adjoint_data subgroup
+    <ul>
+      <li> "Seed Name" subgroup
+      <ul>
+        <li> prostate_adjoint_data dataset
+	<li> urethra_adjoint_data dataset
+	<li> margin_adjoint_data dataset
+	<li> rectum_adjoint_data dataset
+      </ul>
+    </ul>
+  </ul>
+</ul>
+
+There is a adjoint_data subgroup with name "Seed Name" corresponding to the
+name of the seed for every seed type.
+
+*/

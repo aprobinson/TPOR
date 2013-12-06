@@ -1,4 +1,8 @@
+"""@package imagemanager
+The module for high-level management of ultrasound images
+"""
 #! /usr/bin/env python
+
 from matplotlib import patches, path, pyplot, figure
 from matplotlib.widgets import Lasso, Button
 import numpy as np

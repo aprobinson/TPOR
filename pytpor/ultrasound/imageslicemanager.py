@@ -1,3 +1,6 @@
+"""@package imageslicemanager
+The module for lower-level management of ultrasound images.
+"""
 #! /usr/bin/env python
 from matplotlib import patches, path, pyplot
 from matplotlib.widgets import Lasso, Button
