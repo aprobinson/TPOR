@@ -1,4 +1,4 @@
-ADD_SUBDIRECTORY(brachytherapy)
+#ADD_SUBDIRECTORY(brachytherapy)
 
 SET(PYTPOR_FILES ${PYTPOR_FILES}
   __init__.py)

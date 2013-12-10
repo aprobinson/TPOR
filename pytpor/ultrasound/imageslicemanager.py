@@ -38,7 +38,7 @@ class ImageSliceManager(object):
         self.image = slice_image_data
 
         # Create the organ contour list
-        self.organ_contours = []
+        self.organ_contours = {}
 
         # Create the organ mask array (4x480x640)
         self.organ_masks =np.zeros((4,self.image.shape[0],self.image.shape[1]))
@@ -186,8 +186,26 @@ class ImageSliceManager(object):
             self.clear_mask(self.organ_masks[self.organ_index])
 
             # Delete the most recent organ contour
-            self.organ_contours.pop()
-            self.image_axis_handle.patches.pop()
+            if self.organ_index in self.organ_contours:
+                del self.organ_contours[self.organ_index]
+                self.image_axis_handle.patches.pop()
+
+            # Replot the images
+            self.show_images()
+
+    def skip_contour(self, event):
+        """
+        When the desired event occurs, the current organ contour will be
+        skipped and the corresponding organ mask will be empty.
+
+        This function is meant to be bound to a matplotlib.widgets.Button
+        object. When the on_clicked event occurs with the button, this function
+        should be called. When properly bound to a button (named "Skip" for
+        instance) this function allows a user to skip a contour.
+        """
+        if self.organ_index <= 1:
+            # Increment the organ index
+            self.organ_index += 1
 
             # Replot the images
             self.show_images()
@@ -222,7 +240,7 @@ class ImageSliceManager(object):
         """
         # Store this organ contour
         contour = path.Path(lasso_vertices)
-        self.organ_contours.append( contour )
+        self.organ_contours[self.organ_index] = contour
 
         # Add this organ contour to the slice image
         organ_path_patch = \

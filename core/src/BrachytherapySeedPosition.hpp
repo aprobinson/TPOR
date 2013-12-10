@@ -80,13 +80,16 @@ public:
 				const unsigned mesh_y_dimension,
 				const unsigned mesh_z_dimension ) const;
 
-  //! Comparison methods
+  //! Weight comparision method
   virtual bool operator < ( const BrachytherapySeedPosition &operand ) const;
 
+  //! Weight comparison method
   virtual bool operator > ( const BrachytherapySeedPosition &operand ) const;
   
+  //! Location comparison method
   bool operator == ( const BrachytherapySeedPosition &operand ) const;
 
+  //! Location comparison method
   bool operator != ( const BrachytherapySeedPosition &operand ) const;
 
 protected:

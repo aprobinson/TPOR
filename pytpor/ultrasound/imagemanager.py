@@ -87,6 +87,12 @@ class ImageManager(object):
                                                self.mask_axis_handle,  \
                                                slice_image[::-1])
 
+        # Create the Skip button
+        self.skip_button_axes = pyplot.axes([0.05, 0.025, 0.1, 0.075])
+        self.skip_button = Button(self.skip_button_axes, 'Skip')
+        self.skip_button_id = \
+            self.skip_button.on_clicked(self.slice_manager.skip_contour)
+
         # Create the Undo button
         self.undo_button_axes = pyplot.axes([0.15, 0.025, 0.1, 0.075])
         self.undo_button = Button(self.undo_button_axes, 'Undo')
@@ -146,8 +152,9 @@ class ImageManager(object):
                     self.image_axis_handle.patches.pop()
                 
                 # Add all contours back in a different color
-                for patch in self.previous_slice_organ_contours:
-                    organ_path_patch = patches.PathPatch(patch, 
+                contours = self.previous_slice_organ_contours.viewvalues()
+                for contour in contours:
+                    organ_path_patch = patches.PathPatch(contour, 
                                                          facecolor = 'none',
                                                          ec = 'white',
                                                          lw = 1,
@@ -157,6 +164,7 @@ class ImageManager(object):
                     
                 # Disconnect all buttons from the current slice image
                 self.slice_manager.canvas.mpl_disconnect(self.slice_manager.cid)
+                self.skip_button.disconnect(self.skip_button_id)
                 self.undo_button.disconnect(self.undo_button_id)
 
                 # Create the slice manager for this slice
@@ -166,7 +174,9 @@ class ImageManager(object):
                                                        self.mask_axis_handle, \
                                                        slice_image[::-1])
                 
-                # Rebind the Undo button
+                # Rebind the buttons
+                self.skip_button_id = \
+                   self.skip_button.on_clicked(self.slice_manager.skip_contour)
                 self.undo_button_id = \
                    self.undo_button.on_clicked(self.slice_manager.undo_contour)
                 
@@ -175,6 +185,7 @@ class ImageManager(object):
             # Close the plot window
             else:
                 self.slice_manager.canvas.mpl_disconnect(self.slice_manager.cid)
+                self.skip_button.disconnect(self.skip_button_id)
                 self.undo_button.disconnect(self.undo_button_id)
                 pyplot.close()
 

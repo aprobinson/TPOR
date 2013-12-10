@@ -62,4 +62,4 @@ INCLUDE(Dart)
 # Set up the project directory hierarchy
 ADD_SUBDIRECTORY(core)
 
-#ADD_SUBDIRECTORY(pytpor)
+ADD_SUBDIRECTORY(pytpor)
