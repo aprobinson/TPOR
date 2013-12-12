@@ -61,7 +61,7 @@ void DWDMMTreatmentPlanner::calculateOptimumTreatmentPlan()
   
   // Select the seed position with the smallest weight until 98% of the
   // prostate volume recieves the prescribed dose
-  while( d_patient->getProstateDoseCoverage() < 0.98 &&
+  while( d_patient->getProstatePrescribedDoseCoverage() < 0.98 &&
 	 d_seed_positions.size() > 0 )
   {
     position = min_element( d_seed_positions.begin(), d_seed_positions.end() );
@@ -118,7 +118,7 @@ void DWDMMTreatmentPlanner::calculateOptimumTreatmentPlan()
   d_opt_time = seconds.count();
 
   // Check for a successful treatment plan
-  if( d_patient->getProstateDoseCoverage() < 0.98 )
+  if( d_patient->getProstatePrescribedDoseCoverage() < 0.98 )
   {
     std::cout << "Warning: The treatment planning algorithm was not "
 	      << "successful." << std::endl;
@@ -161,13 +161,12 @@ void DWDMMTreatmentPlanner::printTreatmentPlanSummary( std::ostream &os ) const
   os << "...Treatment Plan Summary..." << std::endl;
   os << "Plan Optimization Time (s): " << d_opt_time << std::endl;
   os << "Successful Optimization:    " 
-     << (d_patient->getProstateDoseCoverage() >= 0.98 ? "Yes" : "No")
+     << (d_patient->getProstatePrescribedDoseCoverage() >= 0.98 ? "Yes" : "No")
      << std::endl;
   os << "Needles Chosen:             " << d_patient->getNumInsertedNeedles()
      << std::endl;
   os << "Seeds Chosen:               " << d_patient->getNumInsertedSeeds()
      << std::endl;
-  os << std::endl;
 }
 
 } // end TPOR namespace

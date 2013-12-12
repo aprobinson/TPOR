@@ -189,7 +189,7 @@ bool brachytherapySeedInProduction( const BrachytherapySeedType seed_type )
   case IMPLANT_SCIENCES_3500_SEED: return false;    
   case IBT_1251L_SEED: return false;    
   case ISOAID_IAI_125A_SEED: return true;    
-  case ISOAID_IAPD_103A_SEED: return false;    
+  case ISOAID_IAPD_103A_SEED: return true;    
   case MBI_SL125_SH125_SEED: return false;    
   case SOURCE_TECH_STM1251_SEED: return true;    
   case NUCLETRON_130002_SEED: return true;    

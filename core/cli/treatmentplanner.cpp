@@ -48,13 +48,16 @@ int main( int argc, char** argv )
 					       
   // Create the treatment plan
   planner->calculateOptimumTreatmentPlan();
+
+  // Print the treatment plan summary
+  patient->printTreatmentPlanSummary( std::cout );
   
   // Print the program execution time
   boost::chrono::duration<double> seconds =
     boost::chrono::steady_clock::now() - start_clock;
   
   std::cout << "Program Execution Time (s): " << seconds.count() << std::endl;
-
+  
   // Print the treatment plan
   patient->printTreatmentPlan( user_args.getTreatmentPlanOutputStream() );
 

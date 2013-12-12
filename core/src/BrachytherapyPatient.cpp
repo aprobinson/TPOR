@@ -25,6 +25,8 @@
 #include "ContractException.hpp"
 #include "ExceptionTestMacros.hpp"
 #include "ExceptionCatchMacros.hpp"
+#include "BinarySearch.hpp"
+#include "Interpolation.hpp"
 
 namespace TPOR{
 
@@ -304,7 +306,7 @@ TissueType BrachytherapyPatient::getTissueType(
 }
 
 // Return the prostate dose coverage
-double BrachytherapyPatient::getProstateDoseCoverage() const
+double BrachytherapyPatient::getProstatePrescribedDoseCoverage() const
 {
   unsigned number_elements_covered = 0;
   
@@ -315,6 +317,184 @@ double BrachytherapyPatient::getProstateDoseCoverage() const
   }
 
   return (double)number_elements_covered/d_prostate_relative_vol;
+}
+
+// Return the dose covering a portion of the prostate
+/*! \details The dose returned has units of Gy.
+ */
+double BrachytherapyPatient::getDoseCoveringProstate( 
+					  const double fraction_covered ) const
+{
+  // Make sure the fraction covered is between 0 and 1
+  testPrecondition( fraction_covered >= 0.0 );
+  testPrecondition( fraction_covered <= 1.0 );
+
+  std::vector<double> prostate_doses( d_prostate_relative_vol );
+
+  for( unsigned i = 0, j = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_prostate_mask[i] )
+    {
+      prostate_doses[j] = d_dose_distribution[i];
+      ++j;
+    }
+  }
+
+  // Sort the prostate doses, reverse so largest doses occur first
+  std::sort( prostate_doses.begin(), prostate_doses.end() );
+  std::reverse( prostate_doses.begin(), prostate_doses.end() );
+
+  // Create an array for the volume fraction
+  std::vector<double> prostate_vol_frac( d_prostate_relative_vol );
+
+  for( unsigned i = 0; i < d_prostate_relative_vol; ++i )
+  {
+    prostate_vol_frac[i] = (double)i/d_prostate_relative_vol;
+  }
+  
+  // Search for the desired volume fraction
+  int vol_frac_bin = binarySearch( &prostate_vol_frac[0],
+				   &prostate_vol_frac[d_prostate_relative_vol],
+				   fraction_covered );
+
+  // Interpolate to find the corresponding dose value
+  double dose_value = linlinInterp( prostate_vol_frac[vol_frac_bin],
+				    prostate_vol_frac[vol_frac_bin+1],
+				    fraction_covered,
+				    prostate_doses[vol_frac_bin],
+				    prostate_doses[vol_frac_bin+1] );
+
+  return dose_value/100;
+}
+
+// Return the dose covering a portion of the urethra
+double BrachytherapyPatient::getDoseCoveringUrethra( 
+					  const double fraction_covered ) const
+{
+  // Make sure the fraction covered is between 0 and 1
+  testPrecondition( fraction_covered >= 0.0 );
+  testPrecondition( fraction_covered <= 1.0 );
+
+  std::vector<double> urethra_doses( d_urethra_relative_vol );
+
+  for( unsigned i = 0, j = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_urethra_mask[i] )
+    {
+      urethra_doses[j] = d_dose_distribution[i];
+      ++j;
+    }
+  }
+
+  // Sort the urethra doses, reverse so largest doses occur first
+  std::sort( urethra_doses.begin(), urethra_doses.end() );
+  std::reverse( urethra_doses.begin(), urethra_doses.end() );
+
+  // Create an array for the volume fraction
+  std::vector<double> urethra_vol_frac( d_urethra_relative_vol );
+
+  for( unsigned i = 0; i < d_urethra_relative_vol; ++i )
+  {
+    urethra_vol_frac[i] = (double)i/d_urethra_relative_vol;
+  }
+  
+  // Search for the desired volume fraction
+  int vol_frac_bin = binarySearch( &urethra_vol_frac[0],
+				   &urethra_vol_frac[d_urethra_relative_vol],
+				   fraction_covered );
+
+  // Interpolate to find the corresponding dose value
+  double dose_value = linlinInterp( urethra_vol_frac[vol_frac_bin],
+				    urethra_vol_frac[vol_frac_bin+1],
+				    fraction_covered,
+				    urethra_doses[vol_frac_bin],
+				    urethra_doses[vol_frac_bin+1] );
+
+  return dose_value/100;
+}
+
+// Return the dose covering a portion of the rectum
+double BrachytherapyPatient::getDoseCoveringRectum( 
+					  const double fraction_covered ) const
+{
+  // Make sure the fraction covered is between 0 and 1
+  testPrecondition( fraction_covered >= 0.0 );
+  testPrecondition( fraction_covered <= 1.0 );
+
+  std::vector<double> rectum_doses( d_rectum_relative_vol );
+
+  for( unsigned i = 0, j = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_rectum_mask[i] )
+    {
+      rectum_doses[j] = d_dose_distribution[i];
+      ++j;
+    }
+  }
+
+  // Sort the rectum doses, reverse so largest doses occur first
+  std::sort( rectum_doses.begin(), rectum_doses.end() );
+  std::reverse( rectum_doses.begin(), rectum_doses.end() );
+
+  // Create an array for the volume fraction
+  std::vector<double> rectum_vol_frac( d_rectum_relative_vol );
+
+  for( unsigned i = 0; i < d_rectum_relative_vol; ++i )
+  {
+    rectum_vol_frac[i] = (double)i/d_rectum_relative_vol;
+  }
+  
+  // Search for the desired volume fraction
+  int vol_frac_bin = binarySearch( &rectum_vol_frac[0],
+				   &rectum_vol_frac[d_rectum_relative_vol],
+				   fraction_covered );
+
+  // Interpolate to find the corresponding dose value
+  double dose_value = linlinInterp( rectum_vol_frac[vol_frac_bin],
+				    rectum_vol_frac[vol_frac_bin+1],
+				    fraction_covered,
+				    rectum_doses[vol_frac_bin],
+				    rectum_doses[vol_frac_bin+1] );
+
+  return dose_value/100;
+}
+
+// Return the dose nonuniformity ratio (DNR)
+double BrachytherapyPatient::getDNR() const
+{
+  // Calculate V150
+  unsigned number_elements_covered = 0;
+  
+  for( unsigned i = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_prostate_mask[i] && d_dose_distribution[i] > 1.5*d_prescribed_dose )
+      ++number_elements_covered;
+  }
+
+  double V150 = (double)number_elements_covered/d_prostate_relative_vol;
+
+  // Calculate V100
+  double V100 = getProstatePrescribedDoseCoverage();
+
+  return V150/V100;
+}
+
+// Return the conformation number (CN)
+double BrachytherapyPatient::getCN() const
+{
+  // Calculate the total volume receiving >= Dp
+  unsigned number_elements_covered = 0;
+  
+  for( unsigned i = 0; i < d_dose_distribution.size(); ++i )
+  {
+    if( d_dose_distribution[i] > d_prescribed_dose )
+      ++number_elements_covered;
+  }
+
+  // Calculate V100
+  double V100 = getProstatePrescribedDoseCoverage();
+  
+  return V100*V100*d_prostate_relative_vol/number_elements_covered;
 }
 
 // Return the number of inserted needles
@@ -403,6 +583,29 @@ void BrachytherapyPatient::printTreatmentPlan( std::ostream &os ) const
 void BrachytherapyPatient::printTreatmentPlan() const
 {
   printTreatmentPlan( std::cout );
+}
+
+// Print the treatment plan summary
+void BrachytherapyPatient::printTreatmentPlanSummary( std::ostream &os ) const
+{
+  os << "Prostate Details" << std::endl;
+  os << "  D100 (Gy):                " 
+     << getDoseCoveringProstate( 1.0 ) << std::endl;
+  os << "  V100:                     " 
+     << getProstatePrescribedDoseCoverage() << std::endl;
+  os << "  DNR:                      " << getDNR() << std::endl;
+  os << "  CN:                       " << getCN() << std::endl;
+  os << "Urethra Details" << std::endl;
+  os << "  D90 (Gy):                 " 
+     << getDoseCoveringUrethra( 0.9 ) << std::endl;
+  os << "  D10 (Gy):                 " 
+     << getDoseCoveringUrethra( 0.1 ) << std::endl;
+  os << "Rectum Details" << std::endl;
+  os << "  D90 (Gy):                 " 
+     << getDoseCoveringRectum( 0.9 ) << std::endl;
+  os << "  D10 (Gy):                 " 
+     << getDoseCoveringRectum( 0.1 ) << std::endl;
+  os << std::endl;
 }
 
 // Print the dose-volume-histogram data

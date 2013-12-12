@@ -76,7 +76,7 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
     conductIsodoseConstantIteration( needle_goal );
     
     // Check for a failed inner iteration A
-    if( d_patient->getProstateDoseCoverage() < 0.98 )
+    if( d_patient->getProstatePrescribedDoseCoverage() < 0.98 )
       continue;
 
     // The inner iterations were successful
@@ -91,7 +91,7 @@ void IIEMTreatmentPlanner::calculateOptimumTreatmentPlan()
   d_opt_time = seconds.count();
 
   // Check if the algorithm failed to create a treatment plan
-  if( d_patient->getProstateDoseCoverage() < 0.98 )
+  if( d_patient->getProstatePrescribedDoseCoverage() < 0.98 )
   {
     std::cout << "Warning: The treatment planning algorithm was not "
 	      << "successful." << std::endl;
@@ -171,7 +171,7 @@ void IIEMTreatmentPlanner::conductIsodoseConstantIteration(
 					     remaining_seed_positions );
 
     // Check for a successful inner iteration B
-    if( d_patient->getProstateDoseCoverage() >= 0.98 )
+    if( d_patient->getProstatePrescribedDoseCoverage() >= 0.98 )
     {
       // Run a refined inner iteration B
       d_patient->loadSavedState();
@@ -216,7 +216,7 @@ double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration(
   {    
     // Select seeds along current needles until 98% of prostate receives 
     // prescribed dose
-    while( d_patient->getProstateDoseCoverage() < 0.98 )
+    while( d_patient->getProstatePrescribedDoseCoverage() < 0.98 )
     {
       // Select the next acceptable seed position
       std::list<BrachytherapySeedPosition>::iterator seed_position;
@@ -244,7 +244,7 @@ double IIEMTreatmentPlanner::conductNeedleIsodoseConstantIteration(
     }
 
     // Check if the inner iteration was successful
-    if( d_patient->getProstateDoseCoverage() >= 0.98 )
+    if( d_patient->getProstatePrescribedDoseCoverage() >= 0.98 )
     {
       optimum_needle_isodose_constant = needle_isodose_constant;
       break;
@@ -325,13 +325,12 @@ void IIEMTreatmentPlanner::printTreatmentPlanSummary( std::ostream &os ) const
   os << "...Treatment Plan Summary..." << std::endl;
   os << "Plan Optimization Time (s): " << d_opt_time << std::endl;
   os << "Successful Optimization:    " 
-     << (d_patient->getProstateDoseCoverage() >= 0.98 ? "Yes" : "No")
+     << (d_patient->getProstatePrescribedDoseCoverage() >= 0.98 ? "Yes" : "No")
      << std::endl;
   os << "Needles Chosen:             " << d_patient->getNumInsertedNeedles()
      << std::endl;
   os << "Seeds Chosen:               " << d_patient->getNumInsertedSeeds()
      << std::endl;
-  os << std::endl;
 }
 
 } // end TPOR namespace

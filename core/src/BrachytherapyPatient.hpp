@@ -115,7 +115,22 @@ public:
 		 const boost::shared_ptr<BrachytherapySeedProxy> &seed ) const;
 
   //! Return the prostate dose coverage (% of prostate with >= prescribed dose)
-  double getProstateDoseCoverage() const;
+  double getProstatePrescribedDoseCoverage() const;
+  
+  //! Return the dose covering a portion of the prostate
+  double getDoseCoveringProstate( const double fraction_covered ) const;
+
+  //! Return the dose covering a portion of the urethra
+  double getDoseCoveringUrethra( const double fraction_covered ) const;
+
+  //! Return the dose covering a portion of the rectum
+  double getDoseCoveringRectum( const double fraction_covered ) const;
+
+  //! Return the dose nonuniformity ratio (DNR)
+  double getDNR() const;
+
+  //! Return the conformation number (CN)
+  double getCN() const;
 
   //! Return the number of inserted needles
   unsigned getNumInsertedNeedles() const;
@@ -137,6 +152,9 @@ public:
 
   //! Print the treatment plan to std::cout
   void printTreatmentPlan() const;
+  
+  //! Print the treatment plan summary
+  void printTreatmentPlanSummary( std::ostream &os ) const;
 
   //! Print the dose-volume-histogram data
   void printDoseVolumeHistogramData( std::ostream &os ) const;
