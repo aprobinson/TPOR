@@ -8,12 +8,17 @@ MOAB_PREFIX_PATH=
 HDF5_PREFIX_PATH=
 BOOST_PREFIX_PATH=
 TPOR_PATH=
+CURRENT_DIR=${PWD}
 
 ##---------------------------------------------------------------------------##
 
 rm -rf CMakeCache.txt
 
 ##---------------------------------------------------------------------------##
+
+cd $TPOR_PATH
+git pull
+cd $CURRENT_DIR
 
 cmake \
     -D CMAKE_INSTALL_PREFIX:PATH= \
