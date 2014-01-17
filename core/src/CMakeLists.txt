@@ -1,60 +1,6 @@
-SET(HEADERS ${HEADERS}
-  Amersham6702Seed.hpp
-  Amersham6711Seed.hpp
-  Amersham6733Seed.hpp
-  Amersham9011Seed.hpp
-  ArrayTraitsDecl.hpp
-  ArrayTraits.hpp
-  BebigI25S06Seed.hpp
-  Best2301Seed.hpp
-  Best2335Seed.hpp
-  BinarySearch_def.hpp
-  BinarySearch.hpp
-  BrachytherapyAdjointDataGenerator.hpp
-  BrachytherapyCommandLineProcessor.hpp
-  BrachytherapyPatientFileHandler.hpp
-  BrachytherapyPatient.hpp
-  BrachytherapySeedFactory.hpp
-  BrachytherapySeedFileHandler.hpp
-  BrachytherapySeedHelpers.hpp
-  BrachytherapySeed.hpp
-  BrachytherapySeedPosition.hpp
-  BrachytherapySeedPosition_def.hpp
-  BrachytherapyDynamicWeightSeedPosition.hpp
-  BrachytherapySetCoverSeedPosition.hpp
-  BrachytherapySeedProxy.hpp
-  BrachytherapySeedType.hpp
-  BrachytherapyTreatmentPlannerFactory.hpp
-  BrachytherapyTreatmentPlannerHelpers.hpp
-  BrachytherapyTreatmentPlannerType.hpp
-  ContractException.hpp
-  DraximageLS1Seed.hpp
-  DWDMMTreatmentPlanner.hpp
-  Empty.hpp
-  ExceptionCatchMacros.hpp
-  ExceptionTestMacros.hpp
-  HDF5FileHandler_def.hpp
-  HDF5FileHandler.hpp
-  HDF5TypeTraitsDecl.hpp
-  HDF5TypeTraits.hpp
-  IBt1251LSeed.hpp
-  IIEMTreatmentPlanner.hpp
-  ImagynIS12501Seed.hpp
-  ImplantSciences3500Seed.hpp
-  Interpolation.hpp
-  IsoAidIAI125ASeed.hpp
-  IsoAidIAPd103ASeed.hpp
-  MBISL125SH125Seed.hpp
-  MOABException.hpp
-  NASIMED3631Seed.hpp
-  NASIMED3633Seed.hpp
-  Nucletron130002Seed.hpp
-  SCMTreatmentPlanner.hpp
-  SourceTechSTM1251Seed.hpp
-  Theragenics200Seed.hpp
-  TheragenicsAgX100Seed.hpp
-  TissueType.hpp
-  UndefinedTraits.hpp)
+# Find all headers and sources
+FILE(GLOB HEADERS *.hpp)
+FILE(GLOB SOURCES *.cpp)
 
 SET(SEED_SOURCES ${SEED_SOURCES}
   Amersham6702Seed.cpp
@@ -80,24 +26,6 @@ SET(SEED_SOURCES ${SEED_SOURCES}
   SourceTechSTM1251Seed.cpp
   Theragenics200Seed.cpp
   TheragenicsAgX100Seed.cpp)
-
-SET(SOURCES ${SOURCES} ${SEED_SOURCES}
-  BrachytherapyAdjointDataGenerator.cpp
-  BrachytherapyCommandLineProcessor.cpp
-  BrachytherapyPatientFileHandler.cpp
-  BrachytherapySeedFileHandler.cpp
-  BrachytherapyPatient.cpp
-  BrachytherapySeedPosition.cpp
-  BrachytherapyDynamicWeightSeedPosition.cpp
-  BrachytherapySetCoverSeedPosition.cpp
-  BrachytherapySeedProxy.cpp
-  BrachytherapyTreatmentPlannerFactory.cpp
-  BrachytherapyTreatmentPlannerHelpers.cpp
-  DWDMMTreatmentPlanner.cpp
-  HDF5FileHandler.cpp
-  IIEMTreatmentPlanner.cpp
-  Interpolation.cpp
-  SCMTreatmentPlanner.cpp)
 
 # ADD_LIBRARY(${PROJECT_NAME}_seeds SHARED ${SEED_SOURCES})
 # SET_TARGET_PROPERTIES(${PROJECT_NAME}_seeds
