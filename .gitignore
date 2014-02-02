@@ -1,3 +1,9 @@
 *~
 *.pyc
 *.h5
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
