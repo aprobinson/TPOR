@@ -1,7 +1,7 @@
 TPOR: Treatment Planning Optimization Routines
 ====
 
-BUILD AND RUN INTRUCTIONS FOR TPOR
+BUILD INTRUCTIONS FOR TPOR
 
 
 BUILDING LIBRARIES
@@ -172,21 +172,3 @@ export PATH=/home/user/software/tpor/bin:$PATH
 Note: when running commands in the terminal there are several default locations that are searched for the executables. The PATH environment variable allows you to add to that paths that are searched. Now, the tpor executables can be run from any directory without creating soft links, aliases or relative paths.
 
 15.) run exec bash.
-
-RUNNING TPOR 
-
-1.) generate the seed mesh data (seedmeshgenerator)
-
-2.) run the following commands to begin contouring: processultrasoundimage.py ultrasound.img ultrasound.header
-
-Note: ultrasound.image and ultrasound.header are the prostate ultrasound image and header of the patient being treated
-
-3.) exit the image set to initiate point and click contouring procedure 
-
-4.) follow the onscreen prompts to coutour the prostate, urethra, margin, and rectum
-
-Note: when using the point and click contouring the contour loops will be auto closed
-
-5.) To run TPOR on the default settings enter the following commands: treatmentplanner
-
-Note: to see alternate TPOR options run planner help (treatmentplanner -h)
