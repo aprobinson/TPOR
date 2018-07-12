@@ -4,29 +4,25 @@
 MACRO(ENABLE_HDF5_SUPPORT)
 
   # Use the user supplied prefix to find the HDF5 libraries and include dirs.
-  SET(HDF5_INCLUDE_DIRS 
-    ${HDF5_PREFIX}/include
-    ${HDF5_PREFIX}/include/cpp
-    ${HDF5_PREFIX}/include/hl)
-  SET(HDF5_LIBRARY_DIRS ${HDF5_PREFIX}/lib)
+  IF(DEFINED HDF5_PREFIX)
+    SET(CMAKE_PREFIX_PATH ${HDF5_PREFIX} ${CMAKE_PREFIX_PATH})
+  ENDIF()
  
   # Find the libraries requested by the user
-  FOREACH(HDF5LIB_NAME ${ARGN})
-    FIND_LIBRARY(HDF5LIB ${HDF5LIB_NAME} ${HDF5_LIBRARY_DIRS})
-    
-    IF(${HDF5LIB} MATCHES NOTFOUND)
-      MESSAGE(FATAL_ERROR "The HDF5 library ${HDF5LIB} could not be found.")
-    ENDIF()
-    
-    SET(HDF5 ${HDF5LIB} ${HDF5})
-  ENDFOREACH()
+  FIND_PACKAGE(HDF5 1.8.12 REQUIRED COMPONENTS C CXX)
+
+  # Any execs built off of HFD5 will need both libraries so they will both
+  # be stored in a single variable
+  IF("${HDF5_hdf5_LIBRARY_RELEASE}" STREQUAL "" OR
+     "${HDF5_hdf5_cpp_LIBRARY_RELEASE}" STREQUAL "")
+    SET(HDF5 ${HDF5_LIBRARIES})
+  ELSE()
+    SET(HDF5 ${HDF5_hdf5_LIBRARY_RELEASE} ${HDF5_hdf5_cpp_LIBRARY_RELEASE})
+  ENDIF()
   
   # Set the include paths for HDF5
   INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
   
-  # Set the link paths for HDF5
-  LINK_DIRECTORIES(${HDF5_LIBRARY_DIRS})
-
   # Echo the HDF5 details if a verbose configure was requested
   IF(CMAKE_VERBOSE_CONFIGURE)
     MESSAGE("Found HDF5! Here are the details: ")

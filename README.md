@@ -54,7 +54,6 @@ Configure system to find HDF5 shared libs
 5.l) open ~/.bashrc using a text editor (e.g. emacs ~/.bashrc)
 
 5.m) at the end of the file add the following lines:
-# Library Paths
 export LD_LIBRARY_PATH=/home/user/software/hdf5/lib:$LD_LIBRARY_PATH
 
 Note: Shared libraries aren't loaded until a program executes (dynamic loading). The program needs to know where to look when loading shared libraries. There are several defaults that are checked first. The LD_LIBRARY_PATH environment variable allows you to append the locations that are checked for shared libraries.
@@ -81,8 +80,7 @@ Build h5py
 Configure system to find h5py python module
 6.g) open ~/.bashrc using a text editor (e.g. emacs ~/.bashrc)
 
-6.h) at the end of the file add the following lines
-# Python Path
+6.h) at the end of the file add the following lines:
 export PYTHONPATH=/home/user/software/h5py/lib/python2.7/site-packages:$PYTHONPATH
 
 Note: Python has several default paths that it checks when loading modules. the PYTHONPATH environment variables allows you to append the paths where it looks.

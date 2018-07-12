@@ -18,6 +18,13 @@ INCLUDE(Macros)
 # Enforce an out-of-source build
 ENFORCE_OUT_OF_SOURCE_BUILD()
 
+# Force shared libraries to be built
+SET(BUILD_SHARED_LIBS ON)
+
+# Set the install rpath to the lib install path - this should prevent the
+# installed targets from reporting undefined .so files (check with ldd tool)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
 # Enable MOAB Support
 IF(MOAB_PREFIX)
   ENABLE_MOAB_SUPPORT()
@@ -27,7 +34,7 @@ ENDIF()
 
 # Enable HDF5 Support
 IF(HDF5_PREFIX)
-  ENABLE_HDF5_SUPPORT(libhdf5_cpp.a)
+  ENABLE_HDF5_SUPPORT()
 ELSE()
   MESSAGE(FATAL_ERROR "The HDF5_PREFIX must be set!")
 ENDIF()
