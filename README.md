@@ -148,12 +148,12 @@ Configure system to find tpor execs and pytpor python module
 13. In the PYTHONPATH variable, add the following after the ":"
 /home/user/software/tpor:
 
-Note: the variable should look like
+  **Note:** the variable should look like
 export PYTHONPATH=/home/user/software/h5py/lib/python2.7/site-packages:/home/user/software/tpor:$PYTHONPATH
 
 14. at the end of the file add the following line
 export PATH=/home/user/software/tpor/bin:$PATH
 
-Note: when running commands in the terminal there are several default locations that are searched for the executables. The PATH environment variable allows you to add to that paths that are searched. Now, the tpor executables can be run from any directory without creating soft links, aliases or relative paths.
+  **Note:** when running commands in the terminal there are several default locations that are searched for the executables. The PATH environment variable allows you to add to that paths that are searched. Now, the tpor executables can be run from any directory without creating soft links, aliases or relative paths.
 
 15. run `exec bash`.
