@@ -1,4 +1,4 @@
-SET(SCRIPTS ${SCRPITS} processultrasoundimage.py)
+SET(SCRIPTS ${SCRPITS} processultrasoundimage.py updateultrasoundimage.py)
 
 INSTALL(FILES ${SCRIPTS}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin

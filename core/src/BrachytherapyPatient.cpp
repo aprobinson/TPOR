@@ -15,9 +15,9 @@
 #include <boost/scoped_ptr.hpp>
 
 // MOAB Includes
-#include <MBInterface.hpp>
-#include <MBCore.hpp>
-#include <MBRange.hpp>
+#include <moab/Interface.hpp>
+#include <moab/Core.hpp>
+#include <moab/Range.hpp>
 
 // TPOR Includes
 #include "BrachytherapyPatient.hpp"

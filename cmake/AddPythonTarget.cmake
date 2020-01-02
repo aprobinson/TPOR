@@ -6,7 +6,7 @@ MACRO(ADD_PYTHON_TARGET PYTHON_TARGET PYTHON_FILE)
   SET(OUT ${CMAKE_CURRENT_BINARY_DIR}/${PYTHON_TARGET})
   LIST(APPEND OUT_FILES ${OUT})
   ADD_CUSTOM_COMMAND(OUTPUT ${OUT}
-    COMMAND ${PYTHON_EXECUTABLE} -O -c 'import py_compile\; py_compile.compile(\"${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_FILE}\", \"${PYTHON_TARGET}\")')
+    COMMAND ${PYTHON_EXECUTABLE} -O -c 'import py_compile\; py_compile.compile(\"${CMAKE_CURRENT_SOURCE_DIR}/${PYTHON_FILE}\", \"${PYTHON_TARGET}\") ')
 
   # Compile every file that the target file depends on
   # FOREACH(PYFILE ${ARGN})

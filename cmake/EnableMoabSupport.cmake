@@ -18,13 +18,7 @@ MACRO(ENABLE_MOAB_SUPPORT)
     MESSAGE(FATAL_ERROR "The moab library could not be found.")
   ENDIF()
 
-  FIND_LIBRARY(DAGMC dagmc ${MOAB_LIBRARY_DIRS})
-
-  IF(${DAGMC} MATCHES NOTFOUND)
-    MESSAGE(FATAL_ERROR "The dagmc library could not be found.")
-  ENDIF()
-
-  SET(MOAB ${DAGMC} ${MOAB} ${MOAB_LIBRARIES})
+  SET(MOAB ${MOAB} ${MOAB_LIBRARIES})
 
   # Set the include paths for Moab
   INCLUDE_DIRECTORIES(${MOAB_INCLUDE_DIRS})

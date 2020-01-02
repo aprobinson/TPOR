@@ -206,6 +206,8 @@ class ImageSliceManager(object):
         if self.organ_index <= 1:
             # Increment the organ index
             self.organ_index += 1
+        else:
+            print "Warning: the rectum and margin contours cannot be skipped!"
 
             # Replot the images
             self.show_images()
